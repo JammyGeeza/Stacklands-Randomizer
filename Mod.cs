@@ -130,10 +130,8 @@ namespace Stacklands_Randomizer_Mod
             slotName = Config.GetEntry<string>("Slot Name", "Slot");
             password = Config.GetEntry<string>("Password", "");
             attemptConnection = Config.GetEntry<bool>("Attempt Connect", false);
-            //saveProgress = Config.GetEntry<Dictionary<string, List<string>>>("Save Progress", new Dictionary<string, List<string>>());
 
             attemptConnection.UI.Hidden = true;
-            //saveProgress.UI.Hidden = true;
 
             attemptConnection.UI.OnUI = (ConfigEntryBase entry) =>
             {
