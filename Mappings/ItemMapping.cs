@@ -33,7 +33,7 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Chicken", ItemIds = [ Cards.blueprint_chicken ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Club", ItemIds = [ Cards.blueprint_club ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Coin Chest", ItemIds = [ Cards.blueprint_coinchest ], ItemType = ItemType.Idea },
-            new() { Name = "Idea: Crane", ItemIds = [ "blueprint_crane", "crane" ], ItemType = ItemType.Idea }, // <-- What card ID is the blueprint?
+            new() { Name = "Idea: Crane", ItemIds = [ Cards.blueprint_conveyor ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Dustbin", ItemIds = [ Cards.blueprint_trash_can ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Farm", ItemIds = [ Cards.blueprint_farm ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Fruit Salad", ItemIds = [ Cards.blueprint_fruitsalad ], ItemType = ItemType.Idea },
@@ -46,7 +46,7 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Iron Shield", ItemIds = [ Cards.blueprint_iron_shield ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Lumber Camp", ItemIds = [ Cards.blueprint_lumbercamp ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Magic Blade", ItemIds = [ Cards.blueprint_magic_blade ], ItemType = ItemType.Idea },
-            new() { Name = "Idea: Magic Glue", ItemIds = [ "blueprint_magic_glue" ], ItemType = ItemType.Idea },
+            new() { Name = "Idea: Magic Glue", ItemIds = [ Cards.blueprint_heavy_foundation ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Magic Ring", ItemIds = [ Cards.blueprint_magic_ring ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Magic Staff", ItemIds = [ Cards.blueprint_magic_staff ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Magic Tome", ItemIds = [ Cards.blueprint_magic_tome ], ItemType = ItemType.Idea },
@@ -67,9 +67,9 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Smithy", ItemIds = [ Cards.blueprint_smithy ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Spiked Plank", ItemIds = [ Cards.blueprint_spiked_plank ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Stew", ItemIds = [ Cards.blueprint_stew ], ItemType = ItemType.Idea },
-            new() { Name = "Idea: Stick", ItemIds = [ "blueprint_stick", Cards.stick ], ItemType = ItemType.Idea }, // <-- What card ID is the blueprint?
+            new() { Name = "Idea: Stick", ItemIds = [ Cards.blueprint_carving ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Stove", ItemIds = [ Cards.blueprint_stove ], ItemType = ItemType.Idea },
-            new() { Name = "Idea: Sword", ItemIds = [ "blueprint_sword", Cards.sword ], ItemType = ItemType.Idea }, // <-- What card ID is the blueprint?
+            new() { Name = "Idea: Sword", ItemIds = [ Cards.blueprint_ironweapons ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Temple", ItemIds = [ Cards.blueprint_temple ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Throwing Stars", ItemIds = [ Cards.blueprint_throwing_star ], ItemType = ItemType.Idea },
             new() { Name = "Idea: University", ItemIds = [ Cards.blueprint_university ], ItemType = ItemType.Idea },
