@@ -1,6 +1,6 @@
 {
 	"id": "stacklands_randomizer",
 	"name": "Stacklands Archipelago Randomizer",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"assembly": "StacklandsRandomizer.dll"
 }
