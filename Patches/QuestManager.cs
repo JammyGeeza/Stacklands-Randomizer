@@ -60,9 +60,12 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnSpecialActionComplete_Intercept(string action, CardData card = null)
         {
-            Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Postfix!");
-            Debug.Log($"CardData: {card?.Name}");
-            Debug.Log($"Special Action: {action}");
+            if (action != "pause_game") // <- Prevents it constantly printing on pause
+            {
+                Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Postfix!");
+                Debug.Log($"CardData: {card?.Name}");
+                Debug.Log($"Special Action: {action}");
+            }
         }
     }
 }

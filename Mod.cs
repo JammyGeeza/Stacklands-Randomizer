@@ -922,10 +922,7 @@ namespace Stacklands_Randomizer_Mod
             {
                 foreach (string id in ids)
                 {
-                    if (bypassSaveState || !WorldManager.instance.CurrentSave.FoundBoosterIds.Contains(id))
-                    {
-                        UnlockBoosterPack(id);
-                    }
+                    UnlockBoosterPack(id);
                 }
 
                 return !bypassSaveState;
