@@ -142,6 +142,7 @@ namespace Stacklands_Randomizer_Mod
         public static async void OnQuestCompleted_SendLocation(Quest quest)
         {
             Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.QuestCompleted)} Prefix!");
+            Debug.Log($"Quest completed: {quest.Id}.");
 
             await StacklandsRandomizer.instance.SendCompletedLocation(quest.Description, true);
         }
