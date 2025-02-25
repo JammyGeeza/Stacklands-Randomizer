@@ -20,6 +20,7 @@ namespace Stacklands_Randomizer_Mod
 
         private static readonly string TAG_BASIC_PACK = "BasicPack";
         private static readonly string TAG_DEATHLINK = "DeathLink";
+        private static readonly string TAG_GOAL = "Goal";
         private static readonly string TAG_PAUSE_ENABLED = "PauseEnabled";
 
         public static StacklandsRandomizer instance;
@@ -34,6 +35,7 @@ namespace Stacklands_Randomizer_Mod
 
         // Progress tracker(s)
         private List<string> _discoveredBoosterPacks = new();
+        private Goal _currentGoal;
 
         // Lock(s)
         private readonly object _lock = new object();
@@ -43,6 +45,7 @@ namespace Stacklands_Randomizer_Mod
         private ConfigEntry<string> slotName;
         private ConfigEntry<string> password;
         private ConfigEntry<bool> attemptConnection;
+        private ConfigEntry<bool> sendGoal;
         private ConfigEntry<List<string>> runData;
 
         // Other(s)
@@ -130,10 +133,12 @@ namespace Stacklands_Randomizer_Mod
             slotName = Config.GetEntry<string>("Slot Name", "Slot");
             password = Config.GetEntry<string>("Password", "");
             attemptConnection = Config.GetEntry<bool>("Attempt Connect", false);
+            sendGoal = Config.GetEntry<bool>("Send Goal", false);
 
             attemptConnection.UI.Hidden = true;
+            sendGoal.UI.Hidden = true;
 
-            attemptConnection.UI.OnUI = (ConfigEntryBase entry) =>
+            sendGoal.UI.OnUI = (ConfigEntryBase entry) =>
             {
                 CustomButton connectButton = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
                 connectButton.transform.localScale = Vector3.one;
@@ -152,6 +157,15 @@ namespace Stacklands_Randomizer_Mod
                 disconnectButton.TextMeshPro.text = "Disconnect";
                 disconnectButton.TooltipText = "Disconnect from the Archipelago server";
                 disconnectButton.Clicked += DisconnectButton_Clicked;
+
+                CustomButton sendGoalButton = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
+                sendGoalButton.transform.localScale = Vector3.one;
+                sendGoalButton.transform.localPosition = Vector3.zero;
+                sendGoalButton.transform.localRotation = Quaternion.identity;
+
+                sendGoalButton.TextMeshPro.text = "Send Goal";
+                sendGoalButton.TooltipText = "Send victory condition, if completed. (TEMPORARY SOLUTION)";
+                sendGoalButton.Clicked += SendGoalButton_Clicked;
             };
 
             // If 'Attempt Connect' value is true, attempt to connect to the AP server
@@ -167,11 +181,14 @@ namespace Stacklands_Randomizer_Mod
                     // For some reason, trying to connect in any method other than Awake() causes the game to completely freeze.
                     // I haven't figured out why yet, so to get around this, the OP quick-restarts the game to force Awake() to call again.
 
+                    GoalType goal = _slotData.TryGetValue(TAG_GOAL, out object goalId) ? (GoalType)Convert.ToInt32(goalId) : GoalType.KillDemon;
+
                     // Apply other settings
                     lock (_lock)
                     {
                         IsPauseEnabled = _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause) ? (bool)pause : true;
                         IsStartWithBasicPack = _slotData.TryGetValue(TAG_BASIC_PACK, out object basicPack) ? (bool)basicPack : true;
+                        _currentGoal = GoalMapping.Map.SingleOrDefault(g => g.Type == goal);
                     }
 
                     // Get data for this seed
@@ -179,6 +196,16 @@ namespace Stacklands_Randomizer_Mod
                     runData.UI.Hidden = false;
 
                     Debug.Log($"Run Data contains: {runData.Value.Count} unlocked card packs.");
+
+                    // If 'Send Goal' is set to true, send the goal
+                    if (sendGoal.Value)
+                    {
+                        // Send goal goal completion
+                        SendGoalCompletionAsync(_currentGoal.Name);
+
+                        sendGoal.Value = false;
+                        Config.Save();
+                    }
                 }
                 else
                 {
@@ -223,8 +250,8 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         public void Update()
         {
-            // If not currently connected and 'Attempt Connection' value has been set to true...
-            if ((_session is null || !_session.Socket.Connected) && attemptConnection.Value)
+            // Prepare to connect if told to attempt to connect or if told to send goal
+            if (attemptConnection.Value && ((_session is null || !_session.Socket.Connected) || sendGoal.Value))
             {
                 PrepareToConnect();
             }
@@ -254,11 +281,11 @@ namespace Stacklands_Randomizer_Mod
             {
                 SimulateQuestComplete();
             }
-            else if (InputController.instance.GetKey(Key.F11))
+            else if (InputController.instance.GetKeyDown(Key.F11))
             {
                 SimulateGoalComplete();
             }
-            else if (InputController.instance.GetKey(Key.F12))
+            else if (InputController.instance.GetKeyDown(Key.F12))
             {
             }
 
@@ -351,7 +378,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="bypassSaveState">Whether or not the items should bypass the current save state.</param>
         public void ReceiveAllUnlockedItems(bool bypassSaveState = false)
         {
-            List<NetworkItem> allUnlockedItems = GetAllReceivedItems();
+            List<ItemInfo> allUnlockedItems = GetAllReceivedItems();
 
             Debug.Log($"Receiving all {allUnlockedItems.Count} items from this session...");
 
@@ -361,7 +388,7 @@ namespace Stacklands_Randomizer_Mod
                 UnlockBoosterPack("basic");
             }
 
-            foreach (NetworkItem item in allUnlockedItems)
+            foreach (ItemInfo item in allUnlockedItems)
             {
                 // Add item to queue
                 AddToQueue(() => HandleItem(item, bypassSaveState));
@@ -387,7 +414,8 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Send a completed quest to the archipelago server as a checked location.
         /// </summary>
-        /// <param name="questName">The description of the quest to complete.</param>
+        /// <param name="questDescription">The description of the quest to complete.</param>
+        /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(string questDescription, bool notify = false)
         {
             Debug.Log($"Processing completed quest: '{questDescription}'...");
@@ -413,12 +441,13 @@ namespace Stacklands_Randomizer_Mod
                 }
             }
 
-            // TODO: Get the target goal from the slot data
-            // TODO: Move to a more logical location, given the check for a repeat completion...
             // Check if the goal has been completed and send if true
-            if (questDescription == "Kill the Demon Lord")
+            if (questDescription == _currentGoal.Name)
             {
-                await SendGoalCompletionAsync(questDescription);
+                DisplayNotification(
+                    "Goal Complete!",
+                    $"You completed your {_currentGoal.Name}! Go to the Mods menu and click 'Send Goal' to complete your run.");
+                //SendGoalCompletionAsync(questDescription);
             }
 
             // Send a notification with the item that was sent
@@ -431,18 +460,21 @@ namespace Stacklands_Randomizer_Mod
 
                 if (locationId > -1)
                 {
-                    LocationInfoPacket location = await _session.Locations.ScoutLocationsAsync(locationId);
-                    string itemName = GetItemName(location.Locations[0].Item);
-                    string playerName = GetPlayerName(location.Locations[0].Player);
+                    // Attempt to find
+                    Dictionary<long, ScoutedItemInfo> locations = await _session.Locations.ScoutLocationsAsync(locationId);
 
-                    if (location.Locations[0].Player == _session.ConnectionInfo.Slot)
+                    if (locations.TryGetValue(locationId, out ScoutedItemInfo location))
                     {
-                        // If own item, craft message for it
-                        message = $"You found your {itemName}";
-                    }
-                    else
-                    {
-                        message = $"You sent {itemName} to {playerName}";
+                        // Craft message depending on who it came from
+                        if (location.IsReceiverRelatedToActivePlayer)
+                        {
+                            // If own item, craft message for it
+                            message = $"You found your {location.ItemName}";
+                        }
+                        else
+                        {
+                            message = $"You sent {location.ItemName} to {location.Player.Name}";
+                        }
                     }
                 }
 
@@ -558,6 +590,30 @@ namespace Stacklands_Randomizer_Mod
         private void Socket_SocketClosed(string reason)
         {
             AddToQueue(() => Disconnect(reason));
+        }
+
+        /// <summary>
+        /// Triggered when the 'Send Goal' button is clicked from the Mods menu.
+        /// </summary>
+        private void SendGoalButton_Clicked()
+        {
+            Debug.Log("Completed Achievements:");
+
+            foreach(string completedAchievementId in WorldManager.instance.CurrentSave.CompletedAchievementIds)
+            {
+                Debug.Log(completedAchievementId);
+            }
+
+            // Check if the goal has been completed
+            if (WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(_currentGoal.QuestId))
+            {
+                Debug.Log("Goal quest completed!");
+
+                attemptConnection.Value = true;
+                sendGoal.Value = true;
+
+                Config.Save();
+            }
         }
 
         #endregion
@@ -699,7 +755,7 @@ namespace Stacklands_Randomizer_Mod
         /// Retrieve all items that have been received so far this session.
         /// </summary>
         /// <returns>A list of <see cref="NetworkItem"/> containing all items that have been received this session.</returns>
-        private List<NetworkItem> GetAllReceivedItems()
+        private List<ItemInfo> GetAllReceivedItems()
         {
             return _session.Items.AllItemsReceived
                 .ToList();
@@ -762,15 +818,14 @@ namespace Stacklands_Randomizer_Mod
         /// Handle a received item from a <see cref="ReceivedItemsHelper"/>.
         /// </summary>
         /// <param name="item">The received <see cref="NetworkItem"/> to be handled.</param>
-        public void HandleItem(NetworkItem item, bool bypassSaveState = false)
+        public void HandleItem(ItemInfo item, bool bypassSaveState = false)
         {
             // Get the item name
-            string itemName = GetItemName(item.Item);
-
-            Debug.Log($"Received item with name: '{itemName}' - received from player '{GetPlayerName(item.Player)}'.");
+            //string itemName = GetItemName(item.);
+            Debug.Log($"Received item with name: '{item.ItemName}' - received from player '{GetPlayerName(item.Player)}'.");
 
             // Handle item
-            HandleItem(itemName, item.Player, bypassSaveState);
+            HandleItem(item.ItemName, item.Player, bypassSaveState);
         }
 
         /// <summary>
@@ -1124,20 +1179,12 @@ namespace Stacklands_Randomizer_Mod
         /// Send a goal completion trigger to the server.
         /// </summary>
         /// <param name="goalDescription">The name of the goal that has been completed.</param>
-        private async Task SendGoalCompletionAsync(string goalDescription)
+        private void SendGoalCompletionAsync(string goalDescription)
         {
-            // TODO: Get the target goal from the settings
-            // If not correct goal, ignore.
-            if (goalDescription != "Kill the Demon lord")
-                return;
-
             Debug.Log($"Sending goal completion...");
 
-            // Send updated status as goal completed
-            await _session.Socket.SendPacketAsync(new StatusUpdatePacket()
-            {
-                Status = ArchipelagoClientState.ClientGoal
-            });
+            // Send goal completion
+            _session.SetGoalAchieved();
 
             Debug.Log($"Sent goal completion status!");
         }
@@ -1201,8 +1248,41 @@ namespace Stacklands_Randomizer_Mod
         {
             Debug.Log($"Simulating goal complete...");
 
-            // TODO: use the settings to trigger the correct goal
-            QuestManager.instance.SpecialActionComplete("demon_lord_killed");
+            // Get current goal type
+            switch (_currentGoal.Type)
+            {
+                case GoalType.KillDemon:
+                    {
+                        // Create a demon
+                        CreateCard(Cards.demon);
+
+                        // Find the demon and kill it
+                        if (FindObjectOfType<Demon>() is Demon demon)
+                        {
+                            demon.Die();
+                        }
+                    }
+                    break;
+
+                case GoalType.KillDemonLord:
+                    {
+                        // Create a demon
+                        CreateCard(Cards.demon_lord);
+
+                        // Find the demon and kill it
+                        if (FindObjectOfType<Demon>() is Demon demon)
+                        {
+                            demon.Die();
+                        }
+                    }
+                    break;
+
+                default:
+                    Debug.LogError($"Unbound goal type: '{_currentGoal.Type}'.");
+                    break;
+            }
+
+            
         }
 
         /// <summary>

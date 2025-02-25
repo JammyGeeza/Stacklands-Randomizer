@@ -11,11 +11,11 @@
       <HintPath>$(stacklands)/Stacklands_Data/Managed/0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Archipelago.MultiClient.Net">
+      <HintPath>Libraries\Archipelago.MultiClient.Net.dll</HintPath>
+    </Reference>
     <Reference Include="GameScripts">
       <HintPath>$(stacklands)/Stacklands_Data/Managed/GameScripts.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Archipelago.MultiClient.Net">
       <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil">
@@ -72,6 +72,6 @@
     </Reference>
   </ItemGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Libraries&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Configs&quot; &quot;%25target%25&quot; /S /Y" />
+	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y&#xD;&#xA;XCOPY &quot;$(TargetDir)\Libraries&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Configs&quot; &quot;%25target%25&quot; /S /Y" />
     </Target>
 </Project>

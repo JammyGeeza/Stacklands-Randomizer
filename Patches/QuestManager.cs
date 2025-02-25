@@ -9,11 +9,14 @@ namespace Stacklands_Randomizer_Mod
     [HarmonyPatch(typeof(QuestManager))]
     public class Questmanager_Patches
     {
+        /// <summary>
+        /// Intercept actions when they are completed.
+        /// </summary>
         [HarmonyPatch(nameof(QuestManager.ActionComplete))]
         [HarmonyPostfix]
         public static void OnActionComplete_Intercept(CardData card, string action, CardData focusCard = null)
         {
-            Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.ActionComplete)} Postfix1");
+            Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.ActionComplete)} Postfix!");
             Debug.Log($"CardData: {card.Name}");
             Debug.Log($"Action: {action}");
         }
@@ -48,6 +51,18 @@ namespace Stacklands_Randomizer_Mod
         public static void OnQuestIsVisible_ShowAllQuests(ref bool __result)
         {
             __result = true;
+        }
+
+        /// <summary>
+        /// Intercept special actions when they are completed.
+        /// </summary>
+        [HarmonyPatch(nameof(QuestManager.SpecialActionComplete))]
+        [HarmonyPostfix]
+        public static void OnSpecialActionComplete_Intercept(string action, CardData card = null)
+        {
+            Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Postfix!");
+            Debug.Log($"CardData: {card?.Name}");
+            Debug.Log($"Special Action: {action}");
         }
     }
 }

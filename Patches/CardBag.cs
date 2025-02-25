@@ -34,7 +34,7 @@ namespace Stacklands_Randomizer_Mod
         public static void OnGetRawCardChanges_ReplaceBlueprints(ref List<CardChance> __result)
         {
             List<CardChance> toReplace = __result
-                .Where(c => c.Id.Contains($"blueprint_"))
+                .Where(c => c.Id.Contains("blueprint_"))
                 .ToList();
 
             foreach (CardChance chance in toReplace)
