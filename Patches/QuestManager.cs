@@ -29,7 +29,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnBoosterIsUnlocked_UnlockIfReceived(BoosterpackData p, bool allowDebug, ref bool __result)
         {
-            __result = StacklandsRandomizer.instance.IsBoosterPackDiscovered(p.BoosterId);
+            __result = ItemHandler.IsBoosterPackLogged(p.BoosterId);
         }
 
         /// <summary>
