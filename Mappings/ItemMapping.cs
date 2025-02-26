@@ -8,6 +8,8 @@ namespace Stacklands_Randomizer_Mod
     {
         public static readonly List<Item> Map = new()
         {
+            #region Mainland Items
+
             // Booster Pack Bundles
             new() { Name = "Humble Beginnings Booster Pack", ItemIds = [ "basic" ], ItemType = ItemType.BoosterPack },
             new() { Name = "Seeking Wisdom Booster Pack", ItemIds = [ "idea" ], ItemType = ItemType.BoosterPack },
@@ -29,7 +31,6 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Butchery", ItemIds = [ Cards.blueprint_slaughterhouse ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Campfire", ItemIds = [ Cards.blueprint_campfire ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Chainmail Armor", ItemIds = [ Cards.blueprint_chainmail_armor ], ItemType = ItemType.Idea },
-            new() { Name = "Idea: Charcoal", ItemIds = [ Cards.blueprint_charcoal ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Chicken", ItemIds = [ Cards.blueprint_chicken ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Club", ItemIds = [ Cards.blueprint_club ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Coin Chest", ItemIds = [ Cards.blueprint_coinchest ], ItemType = ItemType.Idea },
@@ -40,6 +41,7 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Garden", ItemIds = [ Cards.blueprint_garden ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Growth", ItemIds = [ Cards.blueprint_growth ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Hammer", ItemIds = [ Cards.blueprint_hammer ], ItemType = ItemType.Idea },
+            new() { Name = "Idea: Hotpot", ItemIds = [ Cards.blueprint_hotpot ], ItemType = ItemType.Idea },
             new() { Name = "Idea: House", ItemIds = [ Cards.blueprint_house ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Iron Bar", ItemIds = [ Cards.blueprint_iron_bar ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Iron Mine", ItemIds = [ Cards.blueprint_mine ], ItemType = ItemType.Idea },
@@ -52,7 +54,6 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Magic Tome", ItemIds = [ Cards.blueprint_magic_tome ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Magic Wand", ItemIds = [ Cards.blueprint_magic_wand ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Market", ItemIds = [ Cards.blueprint_market ], ItemType = ItemType.Idea },
-            new() { Name = "Idea: Mess Hall", ItemIds = [ Cards.blueprint_mess_hall ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Milkshake", ItemIds = [ Cards.blueprint_milkshake ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Offspring", ItemIds = [ Cards.blueprint_offspring ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Pickaxe", ItemIds = [ Cards.blueprint_pickaxe ], ItemType = ItemType.Idea },
@@ -65,6 +66,7 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Slingshot", ItemIds = [ Cards.blueprint_slingshot ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Smelter", ItemIds = [ Cards.blueprint_smelting ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Smithy", ItemIds = [ Cards.blueprint_smithy ], ItemType = ItemType.Idea },
+            new() { Name = "Idea: Spear", ItemIds = [ Cards.blueprint_woodenweapons ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Spiked Plank", ItemIds = [ Cards.blueprint_spiked_plank ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Stew", ItemIds = [ Cards.blueprint_stew ], ItemType = ItemType.Idea },
             new() { Name = "Idea: Stick", ItemIds = [ Cards.blueprint_carving ], ItemType = ItemType.Idea },
@@ -85,11 +87,19 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Wooden Shield", ItemIds = [ Cards.wooden_shield ], ItemType = ItemType.Resource },
 
             // Resource Bundles
-            new() { Name = "Flint x5", ItemIds = [ Cards.flint, Cards.flint, Cards.flint, Cards.flint ], ItemType = ItemType.Resource },
+            new() { Name = "Flint x5", ItemIds = [ Cards.flint, Cards.flint, Cards.flint, Cards.flint, Cards.flint ], ItemType = ItemType.Resource },
             new() { Name = "Iron Ore x5", ItemIds = [ Cards.iron_bar, Cards.iron_bar, Cards.iron_bar, Cards.iron_bar, Cards.iron_bar ], ItemType = ItemType.Resource },
             new() { Name = "Poop x5", ItemIds = [ Cards.poop, Cards.poop, Cards.poop, Cards.poop, Cards.poop ], ItemType = ItemType.Resource },
             new() { Name = "Stone x5", ItemIds = [ Cards.stone, Cards.stone, Cards.stone, Cards.stone, Cards.stone ], ItemType = ItemType.Resource },
             new() { Name = "Wood x5", ItemIds = [ Cards.wood, Cards.wood, Cards.wood, Cards.wood, Cards.wood ], ItemType = ItemType.Resource },
+
+            #endregion
+
+            #region Island Items
+
+            // To be added...
+
+            #endregion
         };
     }
 }
