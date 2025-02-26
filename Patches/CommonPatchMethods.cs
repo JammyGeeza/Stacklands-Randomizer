@@ -29,6 +29,9 @@ namespace Stacklands_Randomizer_Mod
                 save = SaveGame.LoadFromString("", SaveId);
                 save.DisabledMods = instance.CurrentSave.DisabledMods;
                 save.ExtraKeyValues = instance.CurrentSave.ExtraKeyValues;
+
+                // Save it
+                instance.Save(save);
             }
 
             Debug.Log($"Re-routing to save '{SaveId}'...");

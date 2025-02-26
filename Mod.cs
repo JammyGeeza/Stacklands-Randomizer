@@ -8,11 +8,14 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using HarmonyLib.Tools;
 using Archipelago.MultiClient.Net.Models;
+using System.Collections.ObjectModel;
 
 namespace Stacklands_Randomizer_Mod
 {
     public class StacklandsRandomizer : Mod
     {
+        #region Private members
+
         // Static Member(s)
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
@@ -34,7 +37,6 @@ namespace Stacklands_Randomizer_Mod
         private Dictionary<string, object> _slotData;
 
         // Progress tracker(s)
-        private List<string> _discoveredBoosterPacks = new();
         private Goal _currentGoal;
 
         // Lock(s)
@@ -46,10 +48,11 @@ namespace Stacklands_Randomizer_Mod
         private ConfigEntry<string> password;
         private ConfigEntry<bool> attemptConnection;
         private ConfigEntry<bool> sendGoal;
-        private ConfigEntry<List<string>> runData;
 
         // Other(s)
         private CustomButton _connectionStatus;
+
+        #endregion
 
         #region Public Properties
 
@@ -100,6 +103,12 @@ namespace Stacklands_Randomizer_Mod
         public bool IsPauseEnabled { get; private set; }
 
         /// <summary>
+        /// Whether or not we are currently in a game.
+        /// </summary>
+        public bool IsInGame =>
+            WorldManager.instance.CurrentGameState is WorldManager.GameState.Playing or WorldManager.GameState.Paused;
+
+        /// <summary>
         /// Whether or not the run should start with the basic pack unlocked by default.
         /// </summary>
         public bool IsStartWithBasicPack { get; private set; }
@@ -122,8 +131,11 @@ namespace Stacklands_Randomizer_Mod
 
         #endregion
 
-        #region Default Methods
+        #region Unity Methods
 
+        /// <summary>
+        /// Called first
+        /// </summary>
         public void Awake()
         {
             instance = this;
@@ -191,11 +203,7 @@ namespace Stacklands_Randomizer_Mod
                         _currentGoal = GoalMapping.Map.SingleOrDefault(g => g.Type == goal);
                     }
 
-                    // Get data for this seed
-                    runData = Config.GetEntry<List<string>>(Seed, new List<string>());
-                    runData.UI.Hidden = false;
-
-                    Debug.Log($"Run Data contains: {runData.Value.Count} unlocked card packs.");
+                    Debug.Log($"Current goal: {_currentGoal.Name}");
 
                     // If 'Send Goal' is set to true, send the goal
                     if (sendGoal.Value)
@@ -234,7 +242,7 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// 
+        /// Called after Awake()
         /// </summary>
         public void Start()
         {
@@ -298,21 +306,6 @@ namespace Stacklands_Randomizer_Mod
         #region Public Methods
 
         /// <summary>
-        /// Clear all stored data for this run. (Such as received resources)
-        /// </summary>
-        public void ClearRunData()
-        {
-            Debug.Log($"Clearing run data...");
-
-            lock (_lock)
-            {
-                // Clear run data
-                runData.Value = new List<string>();
-                Config.Save();
-            }
-        }
-
-        /// <summary>
         /// Disconnect from the archipelago server.
         /// </summary>
         public void Disconnect(string? reason = null)
@@ -331,22 +324,28 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Display an in-game notification to the player.
+        /// </summary>
+        /// <param name="title">The title for the notification.</param>
+        /// <param name="message">The message text for the notification.</param>
+        public void DisplayNotification(string title, string message)
+        {
+            // Only display if in-game
+            if (WorldManager.instance.CurrentGameState is not WorldManager.GameState.InMenu or WorldManager.GameState.GameOver)
+            {
+                Debug.Log($"Displaying notification...");
+
+                GameScreen.instance.AddNotification(title, message);
+            }
+        }
+
+        /// <summary>
         /// Generate the ID of a random, basic card.
         /// </summary>
         /// <returns>A randomly generated card ID of a basic card.</returns>
         public string GetRandomBasicCard()
         {
             return BASIC_CARDS.ElementAt(UnityEngine.Random.Range(0, BASIC_CARDS.Count));
-        }
-
-        /// <summary>
-        /// Check if a booster pack has been discovered.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack to check.</param>
-        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
-        public bool IsBoosterPackDiscovered(string boosterId)
-        {
-            return _discoveredBoosterPacks.Contains(boosterId);
         }
 
         /// <summary>
@@ -373,33 +372,11 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Retrieve all items unlocked so far in this session.
-        /// </summary>
-        /// <param name="bypassSaveState">Whether or not the items should bypass the current save state.</param>
-        public void ReceiveAllUnlockedItems(bool bypassSaveState = false)
-        {
-            List<ItemInfo> allUnlockedItems = GetAllReceivedItems();
-
-            Debug.Log($"Receiving all {allUnlockedItems.Count} items from this session...");
-
-            // If 'start with basic pack' setting is true, unlock the humble beginnings booster pack
-            if (IsStartWithBasicPack)
-            {
-                UnlockBoosterPack("basic");
-            }
-
-            foreach (ItemInfo item in allUnlockedItems)
-            {
-                // Add item to queue
-                AddToQueue(() => HandleItem(item, bypassSaveState));
-            }
-        }
-
-        /// <summary>
         /// Send all completed locations to the server.
         /// </summary>
         public async Task SendAllCompletedLocations()
         {
+            // Get all completed quests 
             foreach (string questId in WorldManager.instance.CurrentSave.CompletedAchievementIds)
             {
                 // Get the completed quest
@@ -407,7 +384,7 @@ namespace Stacklands_Randomizer_Mod
                     .Find(q => q.Id == questId);
 
                 // Send completed location (but do not show notifications)
-                await SendCompletedLocation(quest.Description);
+                await SendCompletedLocation(quest);
             }
         }
 
@@ -416,70 +393,90 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         /// <param name="questDescription">The description of the quest to complete.</param>
         /// <param name="notify">Whether or not a notification should be displayed.</param>
-        public async Task SendCompletedLocation(string questDescription, bool notify = false)
+        public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
-            Debug.Log($"Processing completed quest: '{questDescription}'...");
+            Debug.Log($"Processing completed quest: '{quest.Description}' as a location check...");
 
-            // Check if location exists as a check
-            long locationId = _session.Locations.GetLocationIdFromName(GAME_NAME, questDescription);
+            ScoutedItemInfo location = null;
 
-            Debug.Log($"Location ID: {locationId}");
-
-            if (locationId > -1)
+            try
             {
-                Debug.Log($"Sending completed location ID '{locationId}' to the server...");
+                // Check if location exists as a check
+                long locationId = _session.Locations.GetLocationIdFromName(GAME_NAME, quest.Description);
+                Dictionary<long, ScoutedItemInfo> locations = await _session.Locations.ScoutLocationsAsync(locationId);
 
-                // If location has not already been checked, send location completion
-                if (!_session.Locations.AllLocationsChecked.Contains(locationId))
+                // Check if location has been returned
+                if (locations.TryGetValue(locationId, out location))
                 {
-                    await _session.Locations.CompleteLocationChecksAsync(locationId);
+                    Debug.Log($"Location Check found with ID: {locationId}");
                 }
                 else
                 {
-                    // Set notify to false so we don't display a notification
+                    Debug.Log($"Location '{quest.Description}' does not appear to be a location check.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error when attempting to find '{quest.Description}' as a location check.. Reason: '{ex.Message}'.");
+            }
+
+            // Did this quest exist as a location?
+            if (location != null)
+            {
+                // Has it already been checked?
+                if (!_session.Locations.AllLocationsChecked.Contains(location.LocationId))
+                {
+                    Debug.Log($"Sending location check completion...");
+
+                    // Send completed location
+                    await _session.Locations.CompleteLocationChecksAsync(location.LocationId);
+                }
+                else
+                {
+                    Debug.Log($"This location has already been checked.");
+
+                    // Do not notify
                     notify = false;
                 }
             }
 
-            // Check if the goal has been completed and send if true
-            if (questDescription == _currentGoal.Name)
+            // Should we display a notification?
+            if (notify) 
             {
-                DisplayNotification(
-                    "Goal Complete!",
-                    $"You completed your {_currentGoal.Name}! Go to the Mods menu and click 'Send Goal' to complete your run.");
-                //SendGoalCompletionAsync(questDescription);
-            }
+                string title = string.Empty;
+                string message = string.Empty;
 
-            // Send a notification with the item that was sent
-            if (notify)
-            {
-                Debug.Log("Sending completed location notification...");
-
-                // Craft message text for local notification
-                string message = questDescription;
-
-                if (locationId > -1)
+                // Was it a location check?
+                if (location != null)
                 {
-                    // Attempt to find
-                    Dictionary<long, ScoutedItemInfo> locations = await _session.Locations.ScoutLocationsAsync(locationId);
-
-                    if (locations.TryGetValue(locationId, out ScoutedItemInfo location))
+                    // Is this quest the goal?
+                    if (location.LocationName.Equals(_currentGoal.Name, StringComparison.OrdinalIgnoreCase))
                     {
-                        // Craft message depending on who it came from
-                        if (location.IsReceiverRelatedToActivePlayer)
-                        {
-                            // If own item, craft message for it
-                            message = $"You found your {location.ItemName}";
-                        }
-                        else
-                        {
-                            message = $"You sent {location.ItemName} to {location.Player.Name}";
-                        }
+                        title = $"Goal Complete: {location.LocationName}";
+                        message = "Congratulations! Please go to the Mods menu and click 'Send Goal' to complete your run.";
                     }
+                    // Is the receiver of the check this player?
+                    else if (location.IsReceiverRelatedToActivePlayer)
+                    {
+                        title = $"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ";
+                        message = $"You found your {location.ItemName}\n({location.LocationName})";
+                    }
+                    // Is the receiver another player?
+                    else
+                    {
+                        title = $"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ";
+                        message = $"You sent {location.ItemName} to {location.Player.Name}\n({location.LocationName})";
+                    }
+                }
+                // If it wasn't...
+                else
+                {
+                    title = $"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ";
+                    message = $"{quest.Description}";
                 }
 
                 // Display the notification
-                DisplayNotification($"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ", message);
+                DisplayNotification(title, message);
             }
         }
 
@@ -495,7 +492,50 @@ namespace Stacklands_Randomizer_Mod
                 Debug.Log("Sending Deathlink trigger to server...");
 
                 _deathlink.SendDeathLink(new DeathLink(PlayerName, cause));
-                _session.Socket.SendPacket(new SayPacket() { Text = $"This is a separate message to say that {PlayerName} has triggered this DeathLink." });
+                _session.Socket.SendPacket(new SayPacket() { Text = $"One of {PlayerName}'s villager has ceased to be." });
+            }
+        }
+
+        /// <summary>
+        /// Sync all received items from the server and spawn them if necessary.
+        /// </summary>
+        /// <param name="forceCreate">Whether or not to force creation of all items.</param>
+        public void SyncAllServerItems(bool forceCreate)
+        {
+            Debug.Log($"Performing re-sync of all unlocked items from server...");
+
+            // If starting with basic pack, force humble beginnings unlock
+            if (IsStartWithBasicPack)
+            {
+                AddToQueue(() => ItemHandler.HandleItem("Humble Beginnings Booster Pack", forceCreate));
+            }
+
+            // Get all items received from server
+            foreach (ItemInfo item in _session.Items.AllItemsReceived)
+            {
+                AddToQueue(() => ItemHandler.HandleItem(item, forceCreate));
+            }
+        }
+
+        /// <summary>
+        /// Sync all currently logged items in the current save and spawn them if necessary.
+        /// </summary>
+        /// <param name="forceCreate">Whether or not to force creation of all items.</param>
+        public void SyncAllLoggedItems(bool forceCreate)
+        {
+            Debug.Log($"Performing re-sync of all items logged this session...");
+
+            // If starting with basic pack is enabled, force humble beginnings unlock
+            if (IsStartWithBasicPack)
+            {
+                AddToQueue(() => ItemHandler.HandleItem("Humble Beginnings Booster Pack", forceCreate));
+            }
+
+            // Get all items from current save that exist in the mapping (or only unhandled ones if not forced to create)        
+            foreach (SerializedKeyValuePair item in WorldManager.instance.SaveExtraKeyValues
+                .Where(kvp => ItemMapping.Map.Exists(m => m.Matches(kvp.Key)) && (forceCreate || !Convert.ToBoolean(kvp.Value))))
+            {
+                AddToQueue(() => ItemHandler.HandleItem(item.Key, forceCreate));
             }
         }
 
@@ -571,16 +611,8 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="itemsHelper">The <see cref="ReceivedItemsHelper"/> from the event.</param>
         private void Items_ItemReceived(ReceivedItemsHelper itemsHelper)
         {
-            AddToQueue(() => HandleItem(itemsHelper.DequeueItem()));
-        }
-
-        /// <summary>
-        /// Triggered when a packet is received from the session socket.
-        /// </summary>
-        /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
-        private void Socket_PacketReceived(ArchipelagoPacketBase packet)
-        {
-            AddToQueue(() => Debug.Log($"Packet received: {packet.PacketType}"));
+            Debug.Log($"Item received! Adding to queue...");
+            AddToQueue(() => ItemHandler.HandleItem(itemsHelper.DequeueItem()));
         }
 
         /// <summary>
@@ -664,23 +696,6 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Create and spawn a card.
-        /// </summary>
-        /// <param name="cardId">The ID of the card to be created.</param>
-        private void CreateCard(string cardId)
-        {
-            Debug.Log($"Creating card with ID: '{cardId}'.");
-
-            // Create the card
-            WorldManager.instance.CreateCard(
-                WorldManager.instance.GetRandomSpawnPosition(),
-                cardId,
-                true,
-                false,
-                true);
-        }
-
-        /// <summary>
         /// Create a connection status UI element in the main menu.
         /// </summary>
         private void CreateConnectionStatus()
@@ -724,32 +739,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Check if the current game state is <see cref="WorldManager.GameState.Playing"/> or <see cref="WorldManager.GameState.Paused"/>.
-        /// </summary>
-        /// <returns><see cref="true"/> if yes, <see cref="false"/> if no.</returns>
-        private bool CurrentlyInGame()
-        {
-            return WorldManager.instance.CurrentGameState is WorldManager.GameState.Playing or WorldManager.GameState.Paused;
-        }
-
-        /// <summary>
-        /// Display an in-game notification to the player.
-        /// </summary>
-        /// <param name="title">The title for the notification.</param>
-        /// <param name="message">The message text for the notification.</param>
-        private void DisplayNotification(string title, string message)
-        {
-            // Only display if in-game
-            if (WorldManager.instance.CurrentGameState is not WorldManager.GameState.InMenu or WorldManager.GameState.GameOver)
-            {
-                Debug.Log($"Displaying notification...");
-
-                GameScreen.instance.AddNotification(title, message);
-            }
-        }
+        }        
 
         /// <summary>
         /// Retrieve all items that have been received so far this session.
@@ -759,16 +749,6 @@ namespace Stacklands_Randomizer_Mod
         {
             return _session.Items.AllItemsReceived
                 .ToList();
-        }
-
-        /// <summary>
-        /// Get the name of an item from its item ID.
-        /// </summary>
-        /// <param name="itemId">The ID of the item to retrieve the name of.</param>
-        /// <returns>A string containing the item's name.</returns>
-        private string GetItemName(long itemId)
-        {
-            return _session.Items.GetItemName(itemId);
         }
 
         /// <summary>
@@ -804,7 +784,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // Bail out if we are not currently in-game
-            if (!CurrentlyInGame())
+            if (!IsInGame)
             {
                 Debug.Log($"Ignoring DeathLink - not currently in-game.");
                 return;
@@ -812,183 +792,6 @@ namespace Stacklands_Randomizer_Mod
 
             // Kill a random villager
             KillRandomVillager(deathLink.Source);
-        }
-
-        /// <summary>
-        /// Handle a received item from a <see cref="ReceivedItemsHelper"/>.
-        /// </summary>
-        /// <param name="item">The received <see cref="NetworkItem"/> to be handled.</param>
-        public void HandleItem(ItemInfo item, bool bypassSaveState = false)
-        {
-            // Get the item name
-            //string itemName = GetItemName(item.);
-            Debug.Log($"Received item with name: '{item.ItemName}' - received from player '{GetPlayerName(item.Player)}'.");
-
-            // Handle item
-            HandleItem(item.ItemName, item.Player, bypassSaveState);
-        }
-
-        /// <summary>
-        /// Handle the receipt of an item.
-        /// </summary>
-        /// <param name="itemName">The name of the <see cref="Item"/> item to be handled.</param>
-        /// <param name="sentBy">The ID of the player that sent this item.</param>
-        /// <param name="bypassSaveState">Whether or not the handling of this item should bypass the current save state.</param>
-        private void HandleItem(string itemName, int sentBy, bool bypassSaveState = false)
-        {
-            if (ItemMapping.Map.SingleOrDefault(m => m.Name == itemName) is Item item)
-            {
-                HandleItem(item, sentBy, bypassSaveState);
-            }
-        }
-
-        /// <summary>
-        /// Handle the receipt of an item.
-        /// </summary>
-        /// <param name="item">The <see cref="Item"/> item to be handled.</param>
-        /// <param name="sentBy">The ID of the player that sent this item..</param>
-        /// <param name="bypassSaveData">Whether or not the handling of this item should bypass the current save state.</param>
-        private void HandleItem(Item item, int sentBy, bool bypassSaveData = false)
-        {
-            Debug.Log($"Handling item with name: '{item.Name}'.");
-
-            // Check if not currently in a game
-            if (!CurrentlyInGame())
-            {
-                Debug.Log($"Ignoring resource '{item.Name}' - not currently in-game.");
-                return;
-            }
-
-            // If a resource, check if it has already been received
-            if (ResourceAlreadyReceived(item))
-            {
-                Debug.Log($"Ignored - resource '{item.Name}' has already been received.");
-                return;
-            }
-
-            switch (item.ItemType)
-            {
-                case ItemType.BoosterPack:
-                    {
-                        if (!HandleItemAsBooster(item.ItemIds, bypassSaveData))
-                        {
-                            return;
-                        }
-                    }
-                    break;
-
-                case ItemType.Idea:
-                    {
-                        if (!HandleItemAsIdea(item.ItemIds, bypassSaveData))
-                        {
-                            return;
-                        }
-                    }
-                    break;
-
-                case ItemType.Resource:
-                    {
-                        // Check if resource has already been received, if not, attempt to handle it
-                        if (ResourceAlreadyReceived(item) || !HandleItemAsResource(item.ItemIds, bypassSaveData))
-                        {
-                            return;
-                        }
-
-                        // Mark resource as received
-                        MarkResourceAsReceived(item);
-                    }
-                    break;
-            }
-
-            // If ID of sending player is provided and it was not sent to self, display notification
-            if (sentBy > -1 && sentBy != _session.ConnectionInfo.Slot)
-            {
-                DisplayNotification($"Received {item.Name}!", $"Sent to you by {GetPlayerName(sentBy)}");
-            }
-        }
-
-
-
-        /// <summary>
-        /// Handle received booster packs.
-        /// </summary>
-        /// <param name="ids">The IDs of the booster packs.</param>
-        /// <param name="bypassSaveState">Whether or not the handling of this item should bypass the current save state.</param>
-        private bool HandleItemAsBooster(List<string> ids, bool bypassSaveState = false)
-        {
-            Debug.Log($"Handling booster pack item...");
-
-            try
-            {
-                foreach (string id in ids)
-                {
-                    UnlockBoosterPack(id);
-                }
-
-                return !bypassSaveState;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Unable to handle booster pack item. Reason: '{ex.Message}'.");
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Handle received booster packs.
-        /// </summary>
-        /// <param name="ids">The IDs of the booster packs.</param>
-        /// <param name="bypassSaveState">Whether or not the handling of this item should bypass the current save state.</param>
-        private bool HandleItemAsIdea(List<string> ids, bool bypassSaveState = false)
-        {
-            Debug.Log($"Handling blueprint(s) item...");
-
-            try
-            {
-                foreach (string id in ids)
-                {
-                    // If bypassing save state or this blueprint has not yet been found...
-                    if (bypassSaveState || !WorldManager.instance.HasFoundCard(id))
-                    {
-                        CreateCard(id);
-                    }
-
-                    return !bypassSaveState;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Unable to handle booster pack item. Reason: '{ex.Message}'.");
-            }
-
-            return false;
-        }
-
-        /// <summary>
-        /// Handle received resources.
-        /// </summary>
-        /// <param name="ids">The Card IDs of the resources.</param>
-        /// <param name="bypassSaveState">Whether or not the handling of this item should bypass the current save state.</param>
-        private bool HandleItemAsResource(List<string> ids, bool bypassSaveState = false)
-        {
-            Debug.Log($"Handling resource item...");
-
-            try
-            {
-                foreach (string id in ids)
-                {
-                    CreateCard(id);
-                }
-
-                return !bypassSaveState;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Unable to create all resources. Reason: '{ex.Message}'");
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -1067,7 +870,7 @@ namespace Stacklands_Randomizer_Mod
 
                     // Add event handlers
                     _session.Items.ItemReceived += Items_ItemReceived;
-                    _session.Socket.PacketReceived += Socket_PacketReceived;
+                    //_session.Socket.PacketReceived += Socket_PacketReceived;
                     _session.Socket.SocketClosed += Socket_SocketClosed;
 
                     try
@@ -1119,26 +922,6 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Mark a resource as received in the config.
-        /// </summary>
-        /// <param name="itemName">The name of the <see cref="Item"/> to store.</param>
-        private void MarkResourceAsReceived(Item item)
-        {
-            Debug.Log($"Marking resource '{item.Name}' as received.");
-
-            // Create copy of data and add item
-            // NOTE: Need to do is this way as just doing runData.Value.Add(item.Name) does not update the config file.
-            List<string> receivedItems = runData.Value;
-            receivedItems.Add(item.Name);
-
-            lock (_lock)
-            {
-                runData.Value = receivedItems;
-                Config.Save();
-            }
-        }
-
-        /// <summary>
         /// Provess all remaining items in all queues.
         /// </summary>
         private void ProcessAllInQueue()
@@ -1163,16 +946,6 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Check if a <see cref="Item"/> of type <see cref="ItemType.CardResource"/> or <see cref="ItemType.PackResource"/> has already been received for this run.
-        /// This is to ensure that a card or pack resource isn't re-given when a game is loaded, as the game save data does not store this information.
-        /// </summary>
-        /// <param name="itemName">The name of the <see cref="Item"/> item to check.</param>
-        private bool ResourceAlreadyReceived(Item item)
-        {
-            return runData.Value.Contains(item.Name);
-        }
-
-        /// <summary>
         /// Send a goal completion trigger to the server.
         /// </summary>
         /// <param name="goalDescription">The name of the goal that has been completed.</param>
@@ -1184,21 +957,6 @@ namespace Stacklands_Randomizer_Mod
             _session.SetGoalAchieved();
 
             Debug.Log($"Sent goal completion status!");
-        }
-
-        /// <summary>
-        /// Unlock a booster pack.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack to be unlocked.</param>
-        private void UnlockBoosterPack(string boosterId)
-        {
-            Debug.Log($"Unlocking booster pack with ID: '{boosterId}'.");
-
-            // Add to unlocked booster packs list if not already in it (later picked up by Patches.BoosterIsUnlocked)
-            if (!_discoveredBoosterPacks.Contains(boosterId))
-            {
-                _discoveredBoosterPacks.Add(boosterId);
-            }
         }
 
         /// <summary>
@@ -1251,7 +1009,12 @@ namespace Stacklands_Randomizer_Mod
                 case GoalType.KillDemon:
                     {
                         // Create a demon
-                        CreateCard(Cards.demon);
+                        WorldManager.instance.CreateCard(
+                            WorldManager.instance.GetRandomSpawnPosition(),
+                            Cards.demon,
+                            true,
+                            false,
+                            true);
 
                         // Find the demon and kill it
                         if (FindObjectOfType<Demon>() is Demon demon)
@@ -1263,8 +1026,13 @@ namespace Stacklands_Randomizer_Mod
 
                 case GoalType.KillDemonLord:
                     {
-                        // Create a demon
-                        CreateCard(Cards.demon_lord);
+                        // Create a demon lord
+                        WorldManager.instance.CreateCard(
+                            WorldManager.instance.GetRandomSpawnPosition(),
+                            Cards.demon_lord,
+                            true,
+                            false,
+                            true);
 
                         // Find the demon and kill it
                         if (FindObjectOfType<Demon>() is Demon demon)
@@ -1278,8 +1046,6 @@ namespace Stacklands_Randomizer_Mod
                     Debug.LogError($"Unbound goal type: '{_currentGoal.Type}'.");
                     break;
             }
-
-            
         }
 
         /// <summary>
@@ -1288,14 +1054,16 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="type">The type of item to simulate.</param>
         private void SimulateItemReceived(ItemType type)
         {
-            // Get all possible blueprint unlocks
+            Debug.Log($"Simulating {type} item received...");
+
+            // Get all possible item unlocks
             List<Item> items = ItemMapping.Map
                 .Where(m => m.ItemType == type)
                 .ToList();
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            HandleItem(item, _session.ConnectionInfo.Slot);
+            AddToQueue(() => ItemHandler.HandleItem(item.Name, false));
         }
 
         /// <summary>
@@ -1305,8 +1073,16 @@ namespace Stacklands_Randomizer_Mod
         {
             Debug.Log($"Simulating quest completion...");
 
-            // Trigger all packs unlocked quest
-            QuestManager.instance.SpecialActionComplete("unlocked_all_packs");
+            // Get a list of all currently incomplete quests (for mainland)
+            List<Quest> incompleteQuests = QuestManager.instance.AllQuests
+                .Where(q => q.QuestLocation == Location.Mainland && !QuestManager.instance.QuestIsComplete(q))
+                .ToList();
+
+            // Select random quest
+            Quest quest = incompleteQuests[UnityEngine.Random.Range(0, incompleteQuests.Count)];
+
+            // Complete a random quest from the list
+            WorldManager.instance.QuestCompleted(quest);
         }
 
         #endregion

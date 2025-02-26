@@ -10,7 +10,6 @@ namespace Stacklands_Randomizer_Mod
     public class WorldManager_Patches
     {
         private static readonly string BLUEPRINT = "blueprint";
-        private static readonly string SAVE_ID = "archipelago";
         private static bool _isNewRun = false;
 
         private static bool _autoPauseControllerValue = false;
@@ -25,14 +24,20 @@ namespace Stacklands_Randomizer_Mod
         public static void OnAwake_Setup(WorldManager __instance)
         {
             Debug.Log($"{nameof(WorldManager)}.Awake Postfix!");
-
             Debug.Log($"Determined save ID: {SaveManager.instance.CurrentSave.SaveId}...");
 
-            if (SaveManager.instance.CurrentSave.SaveId != SAVE_ID)
-            {
-                // Set current save to Archipelago save
-                SaveManager.instance.CurrentSave = CommonMethods.FindOrCreateArchipelagoSave(SaveManager.instance);
-            }
+            // Set current save to Archipelago save
+            SaveManager.instance.CurrentSave = CommonMethods.FindOrCreateArchipelagoSave(SaveManager.instance);
+        }
+
+        [HarmonyPatch(nameof(WorldManager.ClearSaveAndRestart))]
+        [HarmonyPostfix]
+        public static void OnClearSaveAndRestart_SyncItemsWithServer(WorldManager __instance)
+        {
+            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.ClearSaveAndRestart)} Postfix!");
+
+            // Re-sync all items with server
+            StacklandsRandomizer.instance.SyncAllServerItems(true);
         }
 
         /// <summary>
@@ -123,15 +128,12 @@ namespace Stacklands_Randomizer_Mod
             // Send all currently completed locations
             await StacklandsRandomizer.instance.SendAllCompletedLocations();
 
-            // If new run started, clear data stored for this run's seed
-            if (_isNewRun)
-            {
-                StacklandsRandomizer.instance.ClearRunData();
-            }
-
             // If new run started, re-spawn all received items.
             // If continuing a run, only spawn un-received items.
-            StacklandsRandomizer.instance.ReceiveAllUnlockedItems(_isNewRun);
+            StacklandsRandomizer.instance.SyncAllLoggedItems(_isNewRun);
+
+            // Reset value
+            _isNewRun = false;
         }
 
         /// <summary>
@@ -144,7 +146,7 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.QuestCompleted)} Prefix!");
             Debug.Log($"Quest completed: {quest.Id}.");
 
-            await StacklandsRandomizer.instance.SendCompletedLocation(quest.Description, true);
+            await StacklandsRandomizer.instance.SendCompletedLocation(quest, true);
         }
 
         /// <summary>
