@@ -7,7 +7,7 @@ namespace Stacklands_Randomizer_Mod
     /// Patches for the <see cref="QuestManager"/> class.
     /// </summary>
     [HarmonyPatch(typeof(QuestManager))]
-    public class Questmanager_Patches
+    public class QuestManager_Patches
     {
         /// <summary>
         /// Intercept actions when they are completed.
@@ -29,7 +29,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnBoosterIsUnlocked_UnlockIfReceived(BoosterpackData p, bool allowDebug, ref bool __result)
         {
-            __result = ItemHandler.IsBoosterPackLogged(p.BoosterId);
+            __result = ItemHandler.IsBoosterPackDiscovered(p.BoosterId);
         }
 
         /// <summary>

@@ -8,19 +8,24 @@ namespace Stacklands_Randomizer_Mod
     public class Item
     {
         /// <summary>
-        /// The name of this item (matched to what is received from AP Server)
+        /// Gets or sets the name of this item (matched to what is received from AP Server)
         /// </summary>
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
-        /// The type of Stacklands item that has been received.
+        /// Gets or sets the type of Stacklands item that has been received.
         /// </summary>
         public ItemType ItemType { get; set; }
 
         /// <summary>
-        /// A list of all IDs that this item will unlock.
+        /// Gets or sets the ID of the item that this item will unlock.
         /// </summary>
-        public List<string> ItemIds { get; set; } = new();
+        public string ItemId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Gets or sets how many of this item should be received.
+        /// </summary>
+        public int Amount { get; set; } = 1;
 
         /// <summary>
         /// Check if an <see cref="ItemInfo"/> matches this item.

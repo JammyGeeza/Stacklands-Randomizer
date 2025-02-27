@@ -9,6 +9,7 @@ using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using HarmonyLib.Tools;
 using Archipelago.MultiClient.Net.Models;
 using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 
 namespace Stacklands_Randomizer_Mod
 {
@@ -295,6 +296,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F12))
             {
+                SimulateCreateCard(Cards.corpse);
             }
 
             // Handle next queue actions, if any
@@ -500,42 +502,24 @@ namespace Stacklands_Randomizer_Mod
         /// Sync all received items from the server and spawn them if necessary.
         /// </summary>
         /// <param name="forceCreate">Whether or not to force creation of all items.</param>
-        public void SyncAllServerItems(bool forceCreate)
+        public void SyncAllReceivedItems(bool forceCreate)
         {
             Debug.Log($"Performing re-sync of all unlocked items from server...");
 
             // If starting with basic pack, force humble beginnings unlock
             if (IsStartWithBasicPack)
             {
+                Debug.Log($"'Start with Basic Back' setting enabled - forcing unlock of Humble Beginnings booster pack...");
+
                 AddToQueue(() => ItemHandler.HandleItem("Humble Beginnings Booster Pack", forceCreate));
             }
+
+            Debug.Log($"Total items received from server: {_session.Items.AllItemsReceived}");
 
             // Get all items received from server
             foreach (ItemInfo item in _session.Items.AllItemsReceived)
             {
                 AddToQueue(() => ItemHandler.HandleItem(item, forceCreate));
-            }
-        }
-
-        /// <summary>
-        /// Sync all currently logged items in the current save and spawn them if necessary.
-        /// </summary>
-        /// <param name="forceCreate">Whether or not to force creation of all items.</param>
-        public void SyncAllLoggedItems(bool forceCreate)
-        {
-            Debug.Log($"Performing re-sync of all items logged this session...");
-
-            // If starting with basic pack is enabled, force humble beginnings unlock
-            if (IsStartWithBasicPack)
-            {
-                AddToQueue(() => ItemHandler.HandleItem("Humble Beginnings Booster Pack", forceCreate));
-            }
-
-            // Get all items from current save that exist in the mapping (or only unhandled ones if not forced to create)        
-            foreach (SerializedKeyValuePair item in WorldManager.instance.SaveExtraKeyValues
-                .Where(kvp => ItemMapping.Map.Exists(m => m.Matches(kvp.Key)) && (forceCreate || !Convert.ToBoolean(kvp.Value))))
-            {
-                AddToQueue(() => ItemHandler.HandleItem(item.Key, forceCreate));
             }
         }
 
@@ -975,6 +959,20 @@ namespace Stacklands_Randomizer_Mod
         #endregion
 
         #region Testing Methods
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cardId"></param>
+        private void SimulateCreateCard(string cardId)
+        {
+            WorldManager.instance.CreateCard(
+                WorldManager.instance.GetRandomSpawnPosition(),
+                cardId,
+                true,
+                false,
+                true);
+        }
 
         /// <summary>
         /// Simulate a villager dying and triggering sending a DeathLink (if enabled)
