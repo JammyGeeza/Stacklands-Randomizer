@@ -37,7 +37,7 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.ClearSaveAndRestart)} Postfix!");
 
             // Re-sync all items with server
-            StacklandsRandomizer.instance.SyncAllServerItems(true);
+            StacklandsRandomizer.instance.SyncAllReceivedItems(true);
         }
 
         /// <summary>
@@ -130,7 +130,7 @@ namespace Stacklands_Randomizer_Mod
 
             // If new run started, re-spawn all received items.
             // If continuing a run, only spawn un-received items.
-            StacklandsRandomizer.instance.SyncAllLoggedItems(_isNewRun);
+            StacklandsRandomizer.instance.SyncAllReceivedItems(_isNewRun);
 
             // Reset value
             _isNewRun = false;

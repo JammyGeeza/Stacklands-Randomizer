@@ -9,31 +9,44 @@ namespace Stacklands_Randomizer_Mod
     public static class ItemHandler
     {
         /// <summary>
-        /// Handle the creation of idea (blueprint) cards.
+        /// Handle the unlocking of booster pack(s).
         /// </summary>
-        /// <param name="ideaIds">The card IDs of the idea(s) to be created.</param>
-        public static bool HandleIdeas(List<string> ideaIds)
+        /// <param name="ideaIds">The ID(s) of the booster pack(s) to be created.</param>
+        public static void HandleBoosterPack(string boosterId)
         {
             try
             {
-                foreach (string id in ideaIds)
+                if (!WorldManager.instance.CurrentSave.FoundBoosterIds.Contains(boosterId))
                 {
-                    // Create card
-                    WorldManager.instance.CreateCard(
-                        WorldManager.instance.GetRandomSpawnPosition(),
-                        id,
-                        true,
-                        false,
-                        true);
+                    WorldManager.instance.CurrentSave.FoundBoosterIds.Add(boosterId);
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to handle Idea(s). Reason: '{ex.Message}'.");
-                return false;
+                Debug.LogError($"Failed to handle Booster Pack(s). Reason: '{ex.Message}'.");
             }
+        }
 
-            return true;
+        /// <summary>
+        /// Handle the creation of idea (blueprint) cards.
+        /// </summary>
+        /// <param name="ideaIds">The card ID(s) of the idea(s) to be created.</param>
+        public static void HandleIdea(string ideaId)
+        {
+            try
+            {
+                // Create card (automatically marks as found)
+                WorldManager.instance.CreateCard(
+                    WorldManager.instance.GetRandomSpawnPosition(),
+                    ideaId,
+                    true,
+                    false,
+                    true);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to handle Idea(s). Reason: '{ex.Message}'.");
+            }
         }
 
         /// <summary>
@@ -81,64 +94,66 @@ namespace Stacklands_Randomizer_Mod
         {
             Debug.Log($"Handling item '{mappedItem.Name}'...");
 
-            // Get whether item has been handled previously or not
-            bool itemhandled = IsItemHandled(mappedItem);
+            // Get whether item has been discovered previously this save or not
+            bool itemDiscovered = IsItemDiscovered(mappedItem);
+
+            Debug.Log($"Item '{mappedItem.Name}' already discovered: {itemDiscovered}");
 
             // Check if we are in-game
             if (!StacklandsRandomizer.instance.IsInGame)
             {
                 Debug.Log($"Not currently in game. Skipping...");
 
-                // Log item (if forcing to create or is unhandled, log it as unhandled)
-                LogItem(mappedItem, !forceCreate && itemhandled);
+                // Log item (only if resource) as undiscovered if forced to create or its current discovered state
+                LogResource(mappedItem, !forceCreate && itemDiscovered);
                 return;
             }
 
-            // If not forcing to create, check if item has already been handled
-            if (!forceCreate && itemhandled)
+            // If not forcing to create, check if item has already been discovered
+            if (!forceCreate && itemDiscovered)
             {
                 Debug.Log($"Item '{mappedItem.Name}' has already been handled. Skipping...");
                 return;
             }
 
+            // Text for notification
+            string title = string.Empty;
+
             switch (mappedItem.ItemType)
             {
                 case ItemType.BoosterPack:
                     {
-                        // Log item as handled
-                        LogItem(mappedItem, true);
+                        // Handle unlocking of booster pack
+                        HandleBoosterPack(mappedItem.ItemId);
 
-                        // No need to do anything else, logging it to the logged items is enough.
-                        // IsBoosterPackLogged(...) is called from Patches to unlock boosters.
+                        title = $"Booster Pack Unlocked!";
                     }
                     break;
 
                 case ItemType.Idea:
                     {
-                        // Handle creation of ideas
-                        bool result = HandleIdeas(mappedItem.ItemIds);
+                        // Handle creation of idea
+                        HandleIdea(mappedItem.ItemId);
 
-                        // Log idea with handled resuly
-                        LogItem(mappedItem, result);
+                        title = $"Idea Unlocked!";
                     }
                     break;
 
                 case ItemType.Resource:
                     {
-                        // Handle creation of resources
-                        bool result = HandleResources(mappedItem.ItemIds);
+                        // Handle creation of resource(s)
+                        HandleResource(mappedItem.ItemId, mappedItem.Amount);
 
-                        // Log resource with handled result
-                        LogItem(mappedItem, result);
+                        // Log as discovered
+                        LogResource(mappedItem, true);
+
+                        title = $"Resource{(mappedItem.Amount > 1 ? "s" : "")} Received!";
                     }
                     break;
 
                 default:
                     {
                         Debug.LogError($"Unhandled item type '{mappedItem.ItemType}'");
-
-                        // Log as unhandled
-                        LogItem(mappedItem, false);
                     }
                     return;
             }
@@ -148,8 +163,8 @@ namespace Stacklands_Randomizer_Mod
             {
                 // Display message
                 StacklandsRandomizer.instance.DisplayNotification(
-                    "Item Received!",
-                    $"{mappedItem.Name} was sent to you by {itemInfo.Player.Name} ({itemInfo.LocationName})");
+                    title,
+                    $"{mappedItem.Name} was sent to you by {itemInfo.Player.Name}\n({itemInfo.LocationName})");
             }
         }
 
@@ -157,23 +172,16 @@ namespace Stacklands_Randomizer_Mod
         /// Handle the creation of resource cards.
         /// </summary>
         /// <param name="ideaIds">The card IDs of the resource(s) to be created.</param>
-        public static bool HandleResources(List<string> ideaIds)
+        public static bool HandleResource(string resourceId, int amount)
         {
             try
             {
-                // Get a random spawn position
-                Vector3 spawnPosition = WorldManager.instance.GetRandomSpawnPosition();
-
-                foreach (string id in ideaIds)
-                {
-                    // Create card
-                    WorldManager.instance.CreateCard(
-                        spawnPosition,
-                        id,
-                        true,
-                        true, // <-- Add all to stack in same position
-                        true);
-                }
+                // Create resources as a stack (automatically marks as found)
+                WorldManager.instance.CreateCardStack(
+                    WorldManager.instance.GetRandomSpawnPosition(),
+                    amount,
+                    resourceId,
+                    false);
             }
             catch (Exception ex)
             {
@@ -189,26 +197,84 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         /// <param name="boosterId"></param>
         /// <returns></returns>
-        public static bool IsBoosterPackLogged(string boosterId)
-        {
-            if (ItemMapping.Map.SingleOrDefault(m => m.ItemType == ItemType.BoosterPack && m.ItemIds.Contains(boosterId)) is Item item)
-            {
-                return IsItemHandled(item);
-            }
+        //public static bool IsBoosterPackLogged(string boosterId)
+        //{
+        //    if (ItemMapping.Map.SingleOrDefault(m => m.ItemType == ItemType.BoosterPack && m.ItemIds.Contains(boosterId)) is Item item)
+        //    {
+        //        return IsItemHandled(item);
+        //    }
 
-            return false;
+        //    return false;
+        //}
+
+        private static bool IsItemDiscovered(Item item)
+        {
+            switch (item.ItemType)
+            {
+                case ItemType.BoosterPack:
+                    {
+                        return IsBoosterPackDiscovered(item.ItemId);
+                    }
+
+                case ItemType.Idea:
+                    {
+                        return IsIdeaDiscovered(item.ItemId);
+                    }
+
+                case ItemType.Resource:
+                    {
+                        return IsResourceDiscovered(item.Name);
+                    }
+
+                default:
+                    {
+                        Debug.LogError($"Unhandled ItemType '{item.ItemType}' in {nameof(IsItemDiscovered)}()");
+                    }
+                    return true; // <- Treat as discovered to try and prevent further action
+            }
         }
 
         /// <summary>
-        /// 
+        /// Check if a booster pack has been discovered in the current save.
         /// </summary>
-        /// <param name="item"></param>
-        /// <returns></returns>
-        private static bool IsItemHandled(Item item)
+        /// <param name="boosterId">The ID of the booster pack to check.</param>
+        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
+        public static bool IsBoosterPackDiscovered(string boosterId)
         {
-            return WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair log
-                && Convert.ToBoolean(log.Value);
+            return WorldManager.instance.CurrentSave.FoundBoosterIds.Contains(boosterId);
         }
+
+        /// <summary>
+        /// Check if an idea has been discovered in the current save.
+        /// </summary>
+        /// <param name="ideaId">The ID of the idea to check.</param>
+        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
+        public static bool IsIdeaDiscovered(string ideaId)
+        {
+            return WorldManager.instance.CurrentSave.FoundCardIds.Contains(ideaId);
+        }
+
+        /// <summary>
+        /// Check if a <see cref="Item"/> of type <see cref="ItemType.Resource"/> has been discovered in the current save.
+        /// </summary>
+        /// <param name="resourceName">The name of the <see cref="Item"/> to check.</param>
+        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
+        public static bool IsResourceDiscovered(string resourceName)
+        {
+            return WorldManager.instance.SaveExtraKeyValues.GetWithKey(resourceName) is SerializedKeyValuePair kvp
+                && Convert.ToBoolean(kvp.Value);
+        }
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="item"></param>
+        ///// <returns></returns>
+        //private static bool IsItemHandled(Item item)
+        //{
+        //    return WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair log
+        //        && Convert.ToBoolean(log.Value);
+        //}
 
         /// <summary>
         /// Log an item as received from the server.
@@ -219,6 +285,20 @@ namespace Stacklands_Randomizer_Mod
         {
             WorldManager.instance.SaveExtraKeyValues
                 .SetOrAdd(item.Name, handled.ToString());
+        }
+
+        /// <summary>
+        /// Log a <see cref="Item"/> of type <see cref="ItemType.Resource"/> as received.
+        /// </summary>
+        /// <param name="item">The resource <see cref="Item"/> to log.</param>
+        /// <param name="discovered">Whether or not the resource has been discovered.</param>
+        private static void LogResource(Item item, bool discovered)
+        {
+            // Check if item is a resource
+            if (item.ItemType == ItemType.Resource)
+            {
+                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, discovered.ToString());
+            }
         }
     }
 }
