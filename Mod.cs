@@ -1072,19 +1072,15 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"Simulating quest completion...");
 
             // Get a list of all currently incomplete quests (for mainland)
-            // List<Quest> incompleteQuests = QuestManager.instance.AllQuests
-            //    .Where(q => q.QuestLocation == Location.Mainland && !QuestManager.instance.QuestIsComplete(q))
-            //    .ToList();
+            List<Quest> incompleteQuests = QuestManager.instance.AllQuests
+               .Where(q => q.QuestLocation == Location.Mainland && !QuestManager.instance.QuestIsComplete(q))
+               .ToList();
 
             // Select random quest
-            // Quest quest = incompleteQuests[UnityEngine.Random.Range(0, incompleteQuests.Count)];
+            Quest quest = incompleteQuests[UnityEngine.Random.Range(0, incompleteQuests.Count)];
 
             // Complete a random quest from the list
-            // WorldManager.instance.QuestCompleted(quest);
-            
-            WorldManager.instance.QuestCompleted(AllQuests.CookAnOmelette);
-            WorldManager.instance.QuestCompleted(AllQuests.CookAFrittata);
-            WorldManager.instance.QuestCompleted(AllQuests.CookMeat);
+            WorldManager.instance.QuestCompleted(quest);
         }
 
         #endregion
