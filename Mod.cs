@@ -385,8 +385,8 @@ namespace Stacklands_Randomizer_Mod
                 Quest quest = QuestManager.GetAllQuests()
                     .Find(q => q.Id == questId);
 
-                // Send completed location (but do not show notifications)
-                await SendCompletedLocation(quest);
+                // Add to queue (do not display notifications)
+                await AsyncQueue.Enqueue(() => SendCompletedLocation(quest));
             }
         }
 
@@ -1073,8 +1073,8 @@ namespace Stacklands_Randomizer_Mod
 
             // Get a list of all currently incomplete quests (for mainland)
             List<Quest> incompleteQuests = QuestManager.instance.AllQuests
-                .Where(q => q.QuestLocation == Location.Mainland && !QuestManager.instance.QuestIsComplete(q))
-                .ToList();
+               .Where(q => q.QuestLocation == Location.Mainland && !QuestManager.instance.QuestIsComplete(q))
+               .ToList();
 
             // Select random quest
             Quest quest = incompleteQuests[UnityEngine.Random.Range(0, incompleteQuests.Count)];
