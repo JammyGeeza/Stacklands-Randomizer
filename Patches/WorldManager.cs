@@ -146,7 +146,7 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.QuestCompleted)} Prefix!");
             Debug.Log($"Quest completed: {quest.Id}.");
 
-            await StacklandsRandomizer.instance.SendCompletedLocation(quest, true);
+            await AsyncQueue.Enqueue(() => StacklandsRandomizer.instance.SendCompletedLocation(quest, true));
         }
 
         /// <summary>
