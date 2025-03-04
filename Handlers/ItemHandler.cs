@@ -193,20 +193,10 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Check if a booster pack item has already been logged.
+        /// Check if an item has already been discovered in this game save.
         /// </summary>
-        /// <param name="boosterId"></param>
-        /// <returns></returns>
-        //public static bool IsBoosterPackLogged(string boosterId)
-        //{
-        //    if (ItemMapping.Map.SingleOrDefault(m => m.ItemType == ItemType.BoosterPack && m.ItemIds.Contains(boosterId)) is Item item)
-        //    {
-        //        return IsItemHandled(item);
-        //    }
-
-        //    return false;
-        //}
-
+        /// <param name="item">The <see cref="Item"/> to check.</param>
+        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
         private static bool IsItemDiscovered(Item item)
         {
             switch (item.ItemType)
@@ -264,17 +254,6 @@ namespace Stacklands_Randomizer_Mod
             return WorldManager.instance.SaveExtraKeyValues.GetWithKey(resourceName) is SerializedKeyValuePair kvp
                 && Convert.ToBoolean(kvp.Value);
         }
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="item"></param>
-        ///// <returns></returns>
-        //private static bool IsItemHandled(Item item)
-        //{
-        //    return WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair log
-        //        && Convert.ToBoolean(log.Value);
-        //}
 
         /// <summary>
         /// Log an item as received from the server.

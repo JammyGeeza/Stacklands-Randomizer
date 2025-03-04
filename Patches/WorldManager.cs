@@ -52,6 +52,7 @@ namespace Stacklands_Randomizer_Mod
 
             foreach (CardChance chance in chances)
             {
+                // Check if card should be blocked and if so, replace with a random basic card
                 if (CommonPatchMethods.ShouldCardBeBlocked(chance.Id))
                 {
                     chance.Id = CommonPatchMethods.GetRandomBasicCard();
