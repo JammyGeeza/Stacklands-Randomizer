@@ -82,16 +82,16 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Wizard Robe", ItemId = Cards.blueprint_wizard_robe, ItemType = ItemType.Idea },
             new() { Name = "Idea: Wooden Shield", ItemId = Cards.blueprint_wooden_shield, ItemType = ItemType.Idea },
 
-            // Equipment Bundles
-            new() { Name = "Club", ItemId = Cards.club, ItemType = ItemType.Resource },
-            new() { Name = "Magic Wand", ItemId = Cards.magic_wand, ItemType = ItemType.Resource },
-            new() { Name = "Spear", ItemId = Cards.spear, ItemType = ItemType.Resource },
-            new() { Name = "Sword", ItemId = Cards.sword, ItemType = ItemType.Resource },
-            new() { Name = "Wooden Shield", ItemId = Cards.wooden_shield, ItemType = ItemType.Resource },
+            // Equipment Bundles (Currently not in use)
+            //new() { Name = "Club", ItemId = Cards.club, ItemType = ItemType.Resource },
+            //new() { Name = "Magic Wand", ItemId = Cards.magic_wand, ItemType = ItemType.Resource },
+            //new() { Name = "Spear", ItemId = Cards.spear, ItemType = ItemType.Resource },
+            //new() { Name = "Sword", ItemId = Cards.sword, ItemType = ItemType.Resource },
+            //new() { Name = "Wooden Shield", ItemId = Cards.wooden_shield, ItemType = ItemType.Resource },
 
             // Resource Bundles
+            new() { Name = "Berry x5", ItemId = Cards.berry, ItemType = ItemType.Resource, Amount = 5 },
             new() { Name = "Flint x5", ItemId = Cards.flint, ItemType = ItemType.Resource, Amount = 5 },
-            new() { Name = "Iron Ore x5", ItemId = Cards.iron_bar, ItemType = ItemType.Resource, Amount = 5 },
             new() { Name = "Poop x5", ItemId = Cards.poop, ItemType = ItemType.Resource, Amount = 5 },
             new() { Name = "Stone x5", ItemId = Cards.stone, ItemType = ItemType.Resource, Amount = 5 },
             new() { Name = "Wood x5", ItemId = Cards.wood, ItemType = ItemType.Resource, Amount = 5 },

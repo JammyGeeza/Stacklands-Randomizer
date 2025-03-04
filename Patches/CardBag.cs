@@ -34,7 +34,7 @@ namespace Stacklands_Randomizer_Mod
         public static void OnGetRawCardChanges_ReplaceBlueprints(ref List<CardChance> __result)
         {
             List<CardChance> toReplace = __result
-                .Where(c => CommonPatchMethods.ShouldCardBeBlocked(c))
+                .Where(c => CommonPatchMethods.ShouldCardBeBlocked(c.Id))
                 .ToList();
 
             foreach (CardChance chance in toReplace)
