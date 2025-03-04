@@ -20,7 +20,6 @@ namespace Stacklands_Randomizer_Mod
         // Static Member(s)
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
-        private static readonly List<string> BASIC_CARDS = ["berrybush", "rock", "tree"];
 
         private static readonly string TAG_BASIC_PACK = "BasicPack";
         private static readonly string TAG_DEATHLINK = "DeathLink";
@@ -341,15 +340,7 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
-        /// <summary>
-        /// Generate the ID of a random, basic card.
-        /// </summary>
-        /// <returns>A randomly generated card ID of a basic card.</returns>
-        public string GetRandomBasicCard()
-        {
-            return BASIC_CARDS.ElementAt(UnityEngine.Random.Range(0, BASIC_CARDS.Count));
-        }
-
+        
         /// <summary>
         /// Prepare the game to attempt a connection to the Archipelago server.
         /// </summary>
@@ -961,7 +952,7 @@ namespace Stacklands_Randomizer_Mod
         #region Testing Methods
 
         /// <summary>
-        /// 
+        /// Simulate a card spawning.
         /// </summary>
         /// <param name="cardId"></param>
         private void SimulateCreateCard(string cardId)

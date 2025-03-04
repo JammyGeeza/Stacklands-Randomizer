@@ -5,10 +5,14 @@ namespace Stacklands_Randomizer_Mod
     /// <summary>
     /// Methods shared between patch classes.
     /// </summary>
-    public static class CommonMethods
+    public static class CommonPatchMethods
     {
-        private static readonly string SAVE_PREFIX = "ap_";
-        private static string SaveId => $"{SAVE_PREFIX}{StacklandsRandomizer.instance.Seed}";
+        // Private Member(s)
+        private static readonly List<string> BASIC_CARDS = ["berrybush", "rock", "tree"];
+        private static readonly string PREFIX_BLUEPRINT = "blueprint_";
+        private static readonly string PREFIX_SAVE = "ap_";
+
+        private static string SaveId => $"{PREFIX_SAVE}{StacklandsRandomizer.instance.Seed}";
 
         /// <summary>
         /// Find an existing or create a new archipelago save.
@@ -39,6 +43,27 @@ namespace Stacklands_Randomizer_Mod
             // Return archipelago save
             return save;
 
+        }
+
+        /// <summary>
+        /// Generate the ID of a random, basic card.
+        /// </summary>
+        /// <returns>A randomly generated card ID of a basic card.</returns>
+        public static string GetRandomBasicCard()
+        {
+            return BASIC_CARDS.ElementAt(UnityEngine.Random.Range(0, BASIC_CARDS.Count));
+        }
+
+        /// <summary>
+        /// Check whether a card should be blocked from spawning.
+        /// </summary>
+        /// <param name="cardId">The ID of the card to check.</param>
+        /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
+        public static bool ShouldCardBeBlocked(string cardId)
+        {
+            // Block if card is a blueprint and has not yet been discovered
+            return cardId.StartsWith(PREFIX_BLUEPRINT)
+                && !ItemHandler.IsIdeaDiscovered(cardId);
         }
     }
 }
