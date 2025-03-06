@@ -14,13 +14,13 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch(nameof(GameCard.StartBlueprintTimer))]
         [HarmonyPrefix]
-        public static bool Prefix(ref string blueprintId)
+        public static bool OnStartBlueprintTimer_BlockWhereNecessary(ref string blueprintId)
         {
             Debug.Log($"{nameof(GameCard)}.{nameof(GameCard.StartBlueprintTimer)} Prefix!");
             Debug.Log($"Blueprint Timer ID: {blueprintId}");
 
-            // Allow timers for IDs that don't start with "blueprint_" (such as graveyard which is "ideas_base")
-            return !blueprintId.StartsWith("blueprint_") || ItemHandler.IsIdeaDiscovered(blueprintId);
+            // Block timers for cards if idea not yet discovered
+            return !CommonPatchMethods.ShouldCardBeBlocked(blueprintId);
         }
     }
 }

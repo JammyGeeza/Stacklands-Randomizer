@@ -9,16 +9,13 @@ namespace Stacklands_Randomizer_Mod
     [HarmonyPatch(typeof(WorldManager))]
     public class WorldManager_Patches
     {
-        private static readonly string BLUEPRINT = "blueprint";
-        private static bool _isNewRun = false;
-
         private static bool _autoPauseControllerValue = false;
         private static bool _autoPauseKeyboardValue = false;
+        private static bool _isNewRun = false;
 
         /// <summary>
         /// When worldmanager initializing, set current save to an archipelago one.
         /// </summary>
-        /// <param name="__instance"></param>
         [HarmonyPatch("Awake")]
         [HarmonyPrefix]
         public static void OnAwake_Setup(WorldManager __instance)
@@ -27,9 +24,13 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"Determined save ID: {SaveManager.instance.CurrentSave.SaveId}...");
 
             // Set current save to Archipelago save
-            SaveManager.instance.CurrentSave = CommonMethods.FindOrCreateArchipelagoSave(SaveManager.instance);
+            SaveManager.instance.CurrentSave = CommonPatchMethods.FindOrCreateArchipelagoSave(SaveManager.instance);
         }
 
+        /// <summary>
+        /// When a save is cleared, re-sync all received items from server.
+        /// </summary>
+        /// <param name="__instance"></param>
         [HarmonyPatch(nameof(WorldManager.ClearSaveAndRestart))]
         [HarmonyPostfix]
         public static void OnClearSaveAndRestart_SyncItemsWithServer(WorldManager __instance)
@@ -51,9 +52,10 @@ namespace Stacklands_Randomizer_Mod
 
             foreach (CardChance chance in chances)
             {
-                if (chance.Id.Contains(BLUEPRINT, StringComparison.OrdinalIgnoreCase))
+                // Check if card should be blocked and if so, replace with a random basic card
+                if (CommonPatchMethods.ShouldCardBeBlocked(chance.Id))
                 {
-                    chance.Id = StacklandsRandomizer.instance.GetRandomBasicCard();
+                    chance.Id = CommonPatchMethods.GetRandomBasicCard();
                 }
             }
         }
@@ -94,7 +96,7 @@ namespace Stacklands_Randomizer_Mod
                 // If this death was not triggered by a deathlink, send deathlink
                 if (!StacklandsRandomizer.instance.HandlingDeathLink)
                 {
-                    StacklandsRandomizer.instance.SendDeathlink($"their {combatable.Name} dying.");
+                    StacklandsRandomizer.instance.SendDeathlink(combatable.name, $"A {combatable.Name} has ceased to be.");
                 }
 
                 // Set block back to false

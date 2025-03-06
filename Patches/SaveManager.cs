@@ -19,15 +19,10 @@ namespace Stacklands_Randomizer_Mod
         public static void OnDetemineCurrentSave_ReplaceWithArchipelagoSave(SaveManager __instance, ref SaveGame __result)
         {
             Debug.Log($"{nameof(SaveManager)}.DetermineCurrentSave Postfix!");
-
             Debug.Log($"Determined save ID: {__result.SaveId}");
 
-            if (__result.SaveId != SAVE_ID)
-            {
-                // Intercept result with Archipelago save
-                __result = CommonMethods.FindOrCreateArchipelagoSave(__instance);
-            }
+            // Intercept result with an Archipelago save
+            __result = CommonPatchMethods.FindOrCreateArchipelagoSave(__instance);
         }
-
     }
 }

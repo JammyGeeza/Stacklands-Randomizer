@@ -10,6 +10,7 @@ using HarmonyLib.Tools;
 using Archipelago.MultiClient.Net.Models;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using Newtonsoft.Json;
 
 namespace Stacklands_Randomizer_Mod
 {
@@ -20,12 +21,11 @@ namespace Stacklands_Randomizer_Mod
         // Static Member(s)
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
-        private static readonly List<string> BASIC_CARDS = ["berrybush", "rock", "tree"];
 
-        private static readonly string TAG_BASIC_PACK = "BasicPack";
-        private static readonly string TAG_DEATHLINK = "DeathLink";
-        private static readonly string TAG_GOAL = "Goal";
-        private static readonly string TAG_PAUSE_ENABLED = "PauseEnabled";
+        private static readonly string TAG_DEATHLINK = "death_link";
+        private static readonly string TAG_GOAL = "goal";
+        private static readonly string TAG_PAUSE_ENABLED = "pause_enabled";
+        private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
 
         public static StacklandsRandomizer instance;
 
@@ -36,9 +36,6 @@ namespace Stacklands_Randomizer_Mod
         private ArchipelagoSession _session;
         private DeathLinkService _deathlink;
         private Dictionary<string, object> _slotData;
-
-        // Progress tracker(s)
-        private Goal _currentGoal;
 
         // Lock(s)
         private readonly object _lock = new object();
@@ -87,8 +84,12 @@ namespace Stacklands_Randomizer_Mod
         }
         private bool _handlingDeathLink = false;
 
-        public string CurrentSaveId =>
-            WorldManager.instance.CurrentSave.SaveId;
+        /// <summary>
+        /// Get the current goal for this run.
+        /// </summary>
+        public Goal CurrentGoal => _slotData.TryGetValue(TAG_GOAL, out object goal)
+            ? GoalMapping.Map.Single(g => g.Type == (GoalType)Convert.ToInt32(goal))
+            : GoalMapping.Map.Single(g => g.Type == GoalType.KillDemon);
 
         /// <summary>
         /// Check if currently connected to an archipelago server.
@@ -101,7 +102,10 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Whether or not pausing is enabled for this run.
         /// </summary>
-        public bool IsPauseEnabled { get; private set; }
+        public bool IsPauseEnabled => _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)
+            ? Convert.ToBoolean(pause)
+            : true;
+                
 
         /// <summary>
         /// Whether or not we are currently in a game.
@@ -112,7 +116,7 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Whether or not the run should start with the basic pack unlocked by default.
         /// </summary>
-        public bool IsStartWithBasicPack { get; private set; }
+        //public bool IsStartWithBasicPack { get; private set; }
 
         /// <summary>
         /// Get the player name for the current world.
@@ -129,6 +133,11 @@ namespace Stacklands_Randomizer_Mod
             IsConnected
                 ? instance._session.RoomState.Seed
                 : string.Empty;
+
+
+        public Dictionary<string, int> StartInventory => _slotData.TryGetValue(TAG_STARTING_INVENTORY, out object inv)
+            ? JsonConvert.DeserializeObject<Dictionary<string, int>>(inv.ToString()) ?? new()
+            : new();
 
         #endregion
 
@@ -194,23 +203,13 @@ namespace Stacklands_Randomizer_Mod
                     // For some reason, trying to connect in any method other than Awake() causes the game to completely freeze.
                     // I haven't figured out why yet, so to get around this, the OP quick-restarts the game to force Awake() to call again.
 
-                    GoalType goal = _slotData.TryGetValue(TAG_GOAL, out object goalId) ? (GoalType)Convert.ToInt32(goalId) : GoalType.KillDemon;
-
-                    // Apply other settings
-                    lock (_lock)
-                    {
-                        IsPauseEnabled = _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause) ? (bool)pause : true;
-                        IsStartWithBasicPack = _slotData.TryGetValue(TAG_BASIC_PACK, out object basicPack) ? (bool)basicPack : true;
-                        _currentGoal = GoalMapping.Map.SingleOrDefault(g => g.Type == goal);
-                    }
-
-                    Debug.Log($"Current goal: {_currentGoal.Name}");
+                    Debug.Log($"Goal for this run: '{CurrentGoal.Name}'");
 
                     // If 'Send Goal' is set to true, send the goal
                     if (sendGoal.Value)
                     {
                         // Send goal goal completion
-                        SendGoalCompletionAsync(_currentGoal.Name);
+                        SendGoalCompletionAsync(CurrentGoal.Name);
 
                         sendGoal.Value = false;
                         Config.Save();
@@ -341,15 +340,7 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
-        /// <summary>
-        /// Generate the ID of a random, basic card.
-        /// </summary>
-        /// <returns>A randomly generated card ID of a basic card.</returns>
-        public string GetRandomBasicCard()
-        {
-            return BASIC_CARDS.ElementAt(UnityEngine.Random.Range(0, BASIC_CARDS.Count));
-        }
-
+        
         /// <summary>
         /// Prepare the game to attempt a connection to the Archipelago server.
         /// </summary>
@@ -452,7 +443,7 @@ namespace Stacklands_Randomizer_Mod
                 if (location != null)
                 {
                     // Is this quest the goal?
-                    if (location.LocationName.Equals(_currentGoal.Name, StringComparison.OrdinalIgnoreCase))
+                    if (location.LocationName.Equals(CurrentGoal.Name, StringComparison.OrdinalIgnoreCase))
                     {
                         title = $"Goal Complete: {location.LocationName}";
                         message = "Congratulations! Please go to the Mods menu and click 'Send Goal' to complete your run.";
@@ -486,15 +477,20 @@ namespace Stacklands_Randomizer_Mod
         /// Send a DeathLink trigger to the server.
         /// </summary>
         /// <param name="cause"></param>
-        public void SendDeathlink(string? cause = null)
+        public void SendDeathlink(string combatable, string? cause = null)
         {
             // If deathlink is enabled, send trigger
             if (IsConnected && IsDeathlinkEnabled)
             {
                 Debug.Log("Sending Deathlink trigger to server...");
 
+                // Send the deathlink trigger
                 _deathlink.SendDeathLink(new DeathLink(PlayerName, cause));
-                _session.Socket.SendPacket(new SayPacket() { Text = $"One of {PlayerName}'s villager has ceased to be." });
+
+                // Display an in-game notification
+                DisplayNotification(
+                    $"Your {combatable} Died",
+                    "As a consequence, you have sent a DeathLink trigger to your team.");
             }
         }
 
@@ -506,15 +502,15 @@ namespace Stacklands_Randomizer_Mod
         {
             Debug.Log($"Performing re-sync of all unlocked items from server...");
 
-            // If starting with basic pack, force humble beginnings unlock
-            if (IsStartWithBasicPack)
-            {
-                Debug.Log($"'Start with Basic Back' setting enabled - forcing unlock of Humble Beginnings booster pack...");
+            Debug.Log($"Total starting items: {StartInventory.Count}");
 
-                AddToQueue(() => ItemHandler.HandleItem("Humble Beginnings Booster Pack", forceCreate));
+            // Get starting inventory, if any
+            foreach (string item in StartInventory.Keys)
+            {
+                AddToQueue(() => ItemHandler.HandleItem(item, forceCreate));
             }
 
-            Debug.Log($"Total items received from server: {_session.Items.AllItemsReceived}");
+            Debug.Log($"Total items received from server: {_session.Items.AllItemsReceived.Count}");
 
             // Get all items received from server
             foreach (ItemInfo item in _session.Items.AllItemsReceived)
@@ -621,7 +617,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // Check if the goal has been completed
-            if (WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(_currentGoal.QuestId))
+            if (WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(CurrentGoal.QuestId))
             {
                 Debug.Log("Goal quest completed!");
 
@@ -859,10 +855,8 @@ namespace Stacklands_Randomizer_Mod
 
                     try
                     {
-                        bool deathlinkTag = _slotData.TryGetValue(TAG_DEATHLINK, out object deathlink) ? (bool)deathlink : false;
-
                         // If deathlink is enabled for this slot, attempt to create deathlink service
-                        if (deathlinkTag)
+                        if (_slotData.TryGetValue(TAG_DEATHLINK, out object deathlink) ? Convert.ToBoolean(deathlink) : false)
                         {
                             Debug.Log("Attempting to create deathlink service...");
 
@@ -961,7 +955,7 @@ namespace Stacklands_Randomizer_Mod
         #region Testing Methods
 
         /// <summary>
-        /// 
+        /// Simulate a card spawning.
         /// </summary>
         /// <param name="cardId"></param>
         private void SimulateCreateCard(string cardId)
@@ -1002,7 +996,7 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"Simulating goal complete...");
 
             // Get current goal type
-            switch (_currentGoal.Type)
+            switch (CurrentGoal.Type)
             {
                 case GoalType.KillDemon:
                     {
@@ -1041,7 +1035,7 @@ namespace Stacklands_Randomizer_Mod
                     break;
 
                 default:
-                    Debug.LogError($"Unbound goal type: '{_currentGoal.Type}'.");
+                    Debug.LogError($"Unbound goal type: '{CurrentGoal.Type}'.");
                     break;
             }
         }
