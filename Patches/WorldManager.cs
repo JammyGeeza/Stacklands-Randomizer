@@ -96,7 +96,7 @@ namespace Stacklands_Randomizer_Mod
                 // If this death was not triggered by a deathlink, send deathlink
                 if (!StacklandsRandomizer.instance.HandlingDeathLink)
                 {
-                    StacklandsRandomizer.instance.SendDeathlink($"their {combatable.Name} dying.");
+                    StacklandsRandomizer.instance.SendDeathlink(combatable.name, $"A {combatable.Name} has ceased to be.");
                 }
 
                 // Set block back to false
