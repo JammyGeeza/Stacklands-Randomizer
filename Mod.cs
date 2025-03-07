@@ -62,8 +62,7 @@ namespace Stacklands_Randomizer_Mod
             && _deathlink is not null
             && _slotData is not null
             && _slotData.TryGetValue(TAG_DEATHLINK, out object result)
-            && result is bool deathlinkEnabled
-            && deathlinkEnabled;
+            && Convert.ToBoolean(result);
 
         /// <summary>
         /// Gets or sets whether a DeathLink trigger is currently being handled.
@@ -832,8 +831,7 @@ namespace Stacklands_Randomizer_Mod
                     GAME_NAME,
                     slotName,
                     ItemsHandlingFlags.AllItems,
-                    password: password,
-                    tags: [TAG_DEATHLINK]);
+                    password: password);
 
                 Debug.Log($"Login attempt success: {result.Successful}");
 
