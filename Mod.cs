@@ -86,9 +86,7 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Get the current goal for this run.
         /// </summary>
-        public Goal CurrentGoal => _slotData.TryGetValue(TAG_GOAL, out object goal)
-            ? GoalMapping.Map.Single(g => g.Type == (GoalType)Convert.ToInt32(goal))
-            : GoalMapping.Map.Single(g => g.Type == GoalType.KillDemon);
+        public Goal CurrentGoal { get; private set; }
 
         /// <summary>
         /// Check if currently connected to an archipelago server.
@@ -201,6 +199,10 @@ namespace Stacklands_Randomizer_Mod
                 {
                     // For some reason, trying to connect in any method other than Awake() causes the game to completely freeze.
                     // I haven't figured out why yet, so to get around this, the OP quick-restarts the game to force Awake() to call again.
+
+                    // Set goal for this run
+                    GoalType goal = _slotData.TryGetValue(TAG_GOAL, out object val) ? (GoalType)Convert.ToInt32(val) : GoalType.KillDemon;
+                    CurrentGoal = GoalMapping.Map.Single(m => m.Type == goal);
 
                     Debug.Log($"Goal for this run: '{CurrentGoal.Name}'");
 

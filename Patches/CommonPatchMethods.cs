@@ -86,7 +86,7 @@ namespace Stacklands_Randomizer_Mod
                 // If from Island, block if it is an Idea and the current goal does not require the island
                 CardUpdateType.Island => cardData.MyCardType is CardType.Ideas && StacklandsRandomizer.instance.CurrentGoal.Type is not GoalType.KillDemonLord,
 
-                _ => true // Block all other card update types
+                _ => false // Block all other card update types
             };
         }
     }
