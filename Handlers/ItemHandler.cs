@@ -104,7 +104,7 @@ namespace Stacklands_Randomizer_Mod
             {
                 Debug.Log($"Not currently in game. Skipping...");
 
-                // Log item (only if resource) as undiscovered if forced to create or its current discovered state
+                // Log item (only if resource / trap) as undiscovered if forced to create or its current discovered state
                 LogResource(mappedItem, !forceCreate && itemDiscovered);
                 return;
             }
@@ -151,6 +151,18 @@ namespace Stacklands_Randomizer_Mod
                     }
                     break;
 
+                case ItemType.Trap:
+                    {
+                        // Handle creation of trap(s)
+                        HandleTrap(mappedItem.ItemId, mappedItem.Amount);
+
+                        // Log as discovered
+                        LogResource(mappedItem, true);
+
+                        title = $"Trap Received!";
+                    }
+                    break;
+
                 default:
                     {
                         Debug.LogError($"Unhandled item type '{mappedItem.ItemType}'");
@@ -186,6 +198,34 @@ namespace Stacklands_Randomizer_Mod
             catch (Exception ex)
             {
                 Debug.LogError($"Failed to handle Idea(s). Reason: '{ex.Message}'.");
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Handle the creation of trap cards.
+        /// </summary>
+        /// <param name="cardId">The card IDs of the trap(s) to be created.</param>
+        public static bool HandleTrap(string cardId, int amount)
+        {
+            try
+            {
+                // Randomly place each trap
+                for (int i = 0; i < amount; i++)
+                {
+                    WorldManager.instance.CreateCard(
+                        WorldManager.instance.GetRandomSpawnPosition(),
+                        cardId,
+                        true,
+                        false,
+                        true);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to handle trap(s). Reason: '{ex.Message}'.");
                 return false;
             }
 
@@ -274,7 +314,7 @@ namespace Stacklands_Randomizer_Mod
         private static void LogResource(Item item, bool discovered)
         {
             // Check if item is a resource
-            if (item.ItemType == ItemType.Resource)
+            if (item.ItemType is ItemType.Resource or ItemType.Trap)
             {
                 WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, discovered.ToString());
             }

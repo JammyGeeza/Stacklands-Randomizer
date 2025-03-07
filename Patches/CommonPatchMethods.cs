@@ -8,8 +8,21 @@ namespace Stacklands_Randomizer_Mod
     public static class CommonPatchMethods
     {
         // Private Member(s)
-        private static readonly List<string> BASIC_CARDS = ["berrybush", "rock", "tree"];
-        private static readonly string PREFIX_BLUEPRINT = "blueprint_";
+        private static readonly List<string> BASIC_CARDS = [
+            Cards.apple,
+            Cards.apple_tree,
+            Cards.berrybush,
+            Cards.berry,
+            Cards.bone,
+            Cards.carrot,
+            Cards.gold,
+            Cards.goop,
+            Cards.iron_deposit,
+            Cards.poop,
+            Cards.rock,
+            Cards.tree
+        ];
+
         private static readonly string PREFIX_SAVE = "ap_";
 
         private static string SaveId => $"{PREFIX_SAVE}{StacklandsRandomizer.instance.Seed}";
@@ -61,9 +74,20 @@ namespace Stacklands_Randomizer_Mod
         /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
         public static bool ShouldCardBeBlocked(string cardId)
         {
-            // Block if card is a blueprint and has not yet been discovered
-            return cardId.StartsWith(PREFIX_BLUEPRINT)
-                && !ItemHandler.IsIdeaDiscovered(cardId);
+            // Get card data
+            CardData cardData = WorldManager.instance.GetCardPrefab(cardId, false);
+
+            // Block if card is from Mainland, is an Idea and has not yet been discovered.
+            return cardData.CardUpdateType switch
+            {
+                // If from Mainland, block if it is an Idea and has not yet been discovered
+                CardUpdateType.Main => cardData.MyCardType is CardType.Ideas && !ItemHandler.IsIdeaDiscovered(cardId),
+
+                // If from Island, block if it is an Idea and the current goal does not require the island
+                CardUpdateType.Island => cardData.MyCardType is CardType.Ideas && StacklandsRandomizer.instance.CurrentGoal.Type is not GoalType.KillDemonLord,
+
+                _ => true // Block all other card update types
+            };
         }
     }
 }
