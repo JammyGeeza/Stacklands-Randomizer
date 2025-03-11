@@ -30,7 +30,6 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// When a save is cleared, re-sync all received items from server.
         /// </summary>
-        /// <param name="__instance"></param>
         [HarmonyPatch(nameof(WorldManager.ClearSaveAndRestart))]
         [HarmonyPostfix]
         public static void OnClearSaveAndRestart_SyncItemsWithServer(WorldManager __instance)
@@ -96,7 +95,7 @@ namespace Stacklands_Randomizer_Mod
                 // If this death was not triggered by a deathlink, send deathlink
                 if (!StacklandsRandomizer.instance.HandlingDeathLink)
                 {
-                    StacklandsRandomizer.instance.SendDeathlink(combatable.name, $"A {combatable.Name} has ceased to be.");
+                    StacklandsRandomizer.instance.SendDeathlink(combatable.Name, $"A {combatable.Name} has ceased to be.");
                 }
 
                 // Set block back to false

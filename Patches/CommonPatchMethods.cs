@@ -9,18 +9,15 @@ namespace Stacklands_Randomizer_Mod
     {
         // Private Member(s)
         private static readonly List<string> BASIC_CARDS = [
-            Cards.apple,
-            Cards.apple_tree,
             Cards.berrybush,
             Cards.berry,
-            Cards.bone,
-            Cards.carrot,
+            Cards.flint,
             Cards.gold,
-            Cards.goop,
-            Cards.iron_deposit,
             Cards.poop,
             Cards.rock,
-            Cards.tree
+            Cards.soil,
+            Cards.tree,
+            Cards.wood
         ];
 
         private static readonly string PREFIX_SAVE = "ap_";
@@ -74,20 +71,18 @@ namespace Stacklands_Randomizer_Mod
         /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
         public static bool ShouldCardBeBlocked(string cardId)
         {
+            Debug.Log($"{nameof(CommonPatchMethods)}.{nameof(ShouldCardBeBlocked)}()");
+
             // Get card data
             CardData cardData = WorldManager.instance.GetCardPrefab(cardId, false);
 
-            // Block if card is from Mainland, is an Idea and has not yet been discovered.
-            return cardData.CardUpdateType switch
-            {
-                // If from Mainland, block if it is an Idea and has not yet been discovered
-                CardUpdateType.Main => cardData.MyCardType is CardType.Ideas && !ItemHandler.IsIdeaDiscovered(cardId),
+            Debug.Log($"Card ID: {cardData.Id}");
+            Debug.Log($"Card Update Type: {cardData.CardUpdateType}");
+            Debug.Log($"Card Type: {cardData.MyCardType}");
 
-                // If from Island, block if it is an Idea and the current goal does not require the island
-                CardUpdateType.Island => cardData.MyCardType is CardType.Ideas && StacklandsRandomizer.instance.CurrentGoal.Type is not GoalType.KillDemonLord,
-
-                _ => false // Don't block all other card update types
-            };
+            // Block card if it exists as a mapped idea and has not yet been discovered
+            return ItemMapping.Map.Exists(m => m.ItemType is ItemType.Idea && m.ItemId == cardId)
+                && !ItemHandler.IsIdeaDiscovered(cardId);
         }
     }
 }

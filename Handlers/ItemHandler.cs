@@ -256,6 +256,11 @@ namespace Stacklands_Randomizer_Mod
                         return IsResourceDiscovered(item.Name);
                     }
 
+                case ItemType.Trap:
+                    {
+                        return IsTrapDiscovered(item.Name);
+                    }
+
                 default:
                     {
                         Debug.LogError($"Unhandled ItemType '{item.ItemType}' in {nameof(IsItemDiscovered)}()");
@@ -293,6 +298,16 @@ namespace Stacklands_Randomizer_Mod
         {
             return WorldManager.instance.SaveExtraKeyValues.GetWithKey(resourceName) is SerializedKeyValuePair kvp
                 && Convert.ToBoolean(kvp.Value);
+        }
+
+        /// <summary>
+        /// Check if a <see cref="Item"/> of type <see cref="ItemType.Trap"/> has been discovered in the current save.
+        /// </summary>
+        /// <param name="resourceName">The name of the <see cref="Item"/> to check.</param>
+        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
+        public static bool IsTrapDiscovered(string trapName)
+        {
+            return IsResourceDiscovered(trapName);
         }
 
         /// <summary>

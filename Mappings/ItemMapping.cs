@@ -57,6 +57,7 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Magic Tome"           , ItemId = Cards.blueprint_magic_tome           , ItemType = ItemType.Idea },
             new() { Name = "Idea: Magic Wand"           , ItemId = Cards.blueprint_magic_wand           , ItemType = ItemType.Idea },
             new() { Name = "Idea: Market"               , ItemId = Cards.blueprint_market               , ItemType = ItemType.Idea },
+            new() { Name = "Idea: Mess Hall"            , ItemId = Cards.blueprint_mess_hall            , ItemType = ItemType.Idea },
             new() { Name = "Idea: Milkshake"            , ItemId = Cards.blueprint_milkshake            , ItemType = ItemType.Idea },
             new() { Name = "Idea: Omelette"             , ItemId = Cards.blueprint_omelette             , ItemType = ItemType.Idea },
             new() { Name = "Idea: Offspring"            , ItemId = Cards.blueprint_offspring            , ItemType = ItemType.Idea },
@@ -64,7 +65,6 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Plank"                , ItemId = Cards.blueprint_planks               , ItemType = ItemType.Idea },
             new() { Name = "Idea: Quarry"               , ItemId = Cards.blueprint_quarry               , ItemType = ItemType.Idea },
             new() { Name = "Idea: Resource Chest"       , ItemId = Cards.blueprint_resourcechest        , ItemType = ItemType.Idea },
-            new() { Name = "Idea: Resource Magnet"      , ItemId = Cards.blueprint_resource_magnet      , ItemType = ItemType.Idea },
             new() { Name = "Idea: Sawmill"              , ItemId = Cards.blueprint_sawmill              , ItemType = ItemType.Idea },
             new() { Name = "Idea: Shed"                 , ItemId = Cards.blueprint_shed                 , ItemType = ItemType.Idea },
             new() { Name = "Idea: Slingshot"            , ItemId = Cards.blueprint_slingshot            , ItemType = ItemType.Idea },
@@ -102,8 +102,8 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Wood x5"            , ItemId = Cards.wood           , ItemType = ItemType.Resource, Amount = 5 },
 
             // Trap Bundles
-            new() { Name = "Get Gooped"         , ItemId = Cards.goop           , ItemType = ItemType.Trap, Amount = 20 },
-            new() { Name = "Get Pooped"         , ItemId = Cards.poop           , ItemType = ItemType.Trap, Amount = 20 },
+            new() { Name = "Get Gooped!"         , ItemId = Cards.goop           , ItemType = ItemType.Trap, Amount = 20 },
+            new() { Name = "Get Pooped!"         , ItemId = Cards.poop           , ItemType = ItemType.Trap, Amount = 20 },
 
             #endregion
 

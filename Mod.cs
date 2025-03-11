@@ -268,35 +268,36 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                SimulateItemReceived(ItemType.BoosterPack);
+                //SimulateCreateBooster("idea2");
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                SimulateItemReceived(ItemType.Idea);
+                SimulateDeath();
+                //SimulateItemReceived(ItemType.Idea);
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                SimulateItemReceived(ItemType.Resource);
+                //SimulateItemReceived(ItemType.Resource);
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
-                SimulateDeath();
+                //SimulateDeath();
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
-                SimulateDeathLinkReceived();
+                //SimulateDeathLinkReceived();
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
-                SimulateQuestComplete();
+                //SimulateQuestComplete();
             }
             else if (InputController.instance.GetKeyDown(Key.F11))
             {
-                SimulateGoalComplete();
+                //SimulateGoalComplete();
             }
             else if (InputController.instance.GetKeyDown(Key.F12))
             {
-                SimulateCreateCard(Cards.corpse);
+                //SimulateCreateCard(Cards.goop);
             }
 
             // Handle next queue actions, if any
@@ -955,9 +956,20 @@ namespace Stacklands_Randomizer_Mod
         #region Testing Methods
 
         /// <summary>
+        /// Simulate a booster pack spawning.
+        /// </summary>
+        /// <param name="packId">The ID of the booster pack</param>
+        private void SimulateCreateBooster(string packId)
+        {
+            WorldManager.instance.CreateBoosterpack(
+                WorldManager.instance.GetRandomSpawnPosition(),
+                packId);
+        }
+
+        /// <summary>
         /// Simulate a card spawning.
         /// </summary>
-        /// <param name="cardId"></param>
+        /// <param name="cardId">The ID of the card.</param>
         private void SimulateCreateCard(string cardId)
         {
             WorldManager.instance.CreateCard(
