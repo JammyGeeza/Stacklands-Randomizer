@@ -438,36 +438,36 @@ namespace Stacklands_Randomizer_Mod
             // Should we display a notification?
             if (notify) 
             {
-                string title = string.Empty;
+                string title = $"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ";
                 string message = string.Empty;
 
                 // Was it a location check?
                 if (location != null)
                 {
-                    // Is this quest the goal?
-                    if (location.LocationName.Equals(CurrentGoal.Name, StringComparison.OrdinalIgnoreCase))
-                    {
-                        title = $"Goal Complete: {location.LocationName}";
-                        message = "Congratulations! Please go to the Mods menu and click 'Send Goal' to complete your run.";
-                    }
                     // Is the receiver of the check this player?
-                    else if (location.IsReceiverRelatedToActivePlayer)
+                    if (location.IsReceiverRelatedToActivePlayer)
                     {
-                        title = $"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ";
                         message = $"You found your {location.ItemName}\n({location.LocationName})";
                     }
                     // Is the receiver another player?
                     else
                     {
-                        title = $"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ";
                         message = $"You sent {location.ItemName} to {location.Player.Name}\n({location.LocationName})";
                     }
                 }
                 // If it wasn't...
                 else
                 {
-                    title = $"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ";
-                    message = $"{quest.Description}";
+                    // Is this quest the goal?
+                    if (quest.Id == CurrentGoal.QuestId)
+                    {
+                        title = $"Goal Completed!";
+                        message = $"Congratulations, you completed '{CurrentGoal.Name}'! Please go to the Mods menu and click 'Send Goal' to complete your run.";
+                    }
+                    else
+                    {
+                        message = $"{quest.Description}";
+                    }
                 }
 
                 // Display the notification

@@ -71,18 +71,22 @@ namespace Stacklands_Randomizer_Mod
         /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
         public static bool ShouldCardBeBlocked(string cardId)
         {
-            Debug.Log($"{nameof(CommonPatchMethods)}.{nameof(ShouldCardBeBlocked)}()");
-
             // Get card data
             CardData cardData = WorldManager.instance.GetCardPrefab(cardId, false);
-
-            Debug.Log($"Card ID: {cardData.Id}");
-            Debug.Log($"Card Update Type: {cardData.CardUpdateType}");
-            Debug.Log($"Card Type: {cardData.MyCardType}");
 
             // Block card if it exists as a mapped idea and has not yet been discovered
             return ItemMapping.Map.Exists(m => m.ItemType is ItemType.Idea && m.ItemId == cardId)
                 && !ItemHandler.IsIdeaDiscovered(cardId);
+        }
+
+        /// <summary>
+        /// Check whether a booster pack should be blocked from spawning.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack to check.</param>
+        /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
+        public static bool ShouldBoosterPackBeBlocked(string boosterId)
+        {
+            return boosterId == "new_weaponry";
         }
     }
 }

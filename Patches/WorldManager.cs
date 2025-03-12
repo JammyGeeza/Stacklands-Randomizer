@@ -41,6 +41,35 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// When a booster pack is created, intercept the creation of specific ones such as the 'New Weaponry' pack.
+        /// </summary>
+        [HarmonyPatch(nameof(WorldManager.CreateBoosterpack))]
+        [HarmonyPrefix]
+        public static bool OnCreateBoosterPack_Intercept(WorldManager __instance, ref string boosterId)
+        {
+            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.CreateBoosterpack)} Prefix!");
+            Debug.Log($"Creating Booster Pack with ID: {boosterId}");
+
+            return !CommonPatchMethods.ShouldBoosterPackBeBlocked(boosterId);
+        }
+
+        /// <summary>
+        /// When a card is created, remove blueprints from equipable items to prevent mobs from dropping them too early.
+        /// </summary>
+        [HarmonyPatch(nameof(WorldManager.CreateCard))]
+        [HarmonyPrefix]
+        public static void OnCreateCard_Intercept(WorldManager __instance, ref CardData cardDataPrefab)
+        {
+            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.CreateCard)} Prefix!");
+            Debug.Log($"Creating Card with ID: {cardDataPrefab.Id}");
+
+            if (cardDataPrefab is Equipable equipable)
+            {
+                equipable.blueprint = null;
+            }
+        }
+
+        /// <summary>
         /// When receiving a random card, replace blueprints with a basic card.
         /// </summary>
         [HarmonyPatch(nameof(WorldManager.GetRandomCard))]
