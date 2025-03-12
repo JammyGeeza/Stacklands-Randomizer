@@ -265,15 +265,14 @@ namespace Stacklands_Randomizer_Mod
                 PrepareToConnect();
             }
 
-            // Test triggers
+            // Test triggers for development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                //SimulateCreateBooster("idea2");
+                //SimulateCreateCard(Cards.villager);
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                SimulateDeath();
-                //SimulateItemReceived(ItemType.Idea);
+                //SimulateCreateBooster("ideas");
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
@@ -981,16 +980,16 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Simulate a villager dying and triggering sending a DeathLink (if enabled)
+        /// Simulate a villager dying.
         /// </summary>
-        private void SimulateDeath()
+        private void SimulateDeath(bool deathLink = false)
         {
             Debug.Log($"Simulating villager death...");
-            KillRandomVillager(PlayerName);
+            WorldManager.instance.GetCard<Villager>()?.Die();
         }
 
         /// <summary>
-        /// Simulate a DeathLink received trigger.
+        /// Simulate a villager being killed by a DeathLink trigger.
         /// </summary>
         private void SimulateDeathLinkReceived()
         {

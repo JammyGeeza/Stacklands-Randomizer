@@ -8,7 +8,7 @@ namespace Stacklands_Randomizer_Mod
     public static class CommonPatchMethods
     {
         // Private Member(s)
-        private static readonly List<string> BASIC_CARDS = [
+        public static readonly List<string> BASIC_CARDS = [
             Cards.berrybush,
             Cards.berry,
             Cards.flint,
@@ -71,9 +71,6 @@ namespace Stacklands_Randomizer_Mod
         /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
         public static bool ShouldCardBeBlocked(string cardId)
         {
-            // Get card data
-            CardData cardData = WorldManager.instance.GetCardPrefab(cardId, false);
-
             // Block card if it exists as a mapped idea and has not yet been discovered
             return ItemMapping.Map.Exists(m => m.ItemType is ItemType.Idea && m.ItemId == cardId)
                 && !ItemHandler.IsIdeaDiscovered(cardId);
@@ -86,7 +83,7 @@ namespace Stacklands_Randomizer_Mod
         /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
         public static bool ShouldBoosterPackBeBlocked(string boosterId)
         {
-            return boosterId == "new_weaponry";
+            return boosterId == "combat_intro";
         }
     }
 }
