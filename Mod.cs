@@ -11,6 +11,7 @@ using Archipelago.MultiClient.Net.Models;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Newtonsoft.Json;
+using System.Collections;
 
 namespace Stacklands_Randomizer_Mod
 {
@@ -30,7 +31,8 @@ namespace Stacklands_Randomizer_Mod
         public static StacklandsRandomizer instance;
 
         // Queue(s)
-        private readonly Queue<Action> _mainThreadQueue = new();
+        private readonly Queue<Action> _itemQueue = new();
+        private readonly Queue<Action> _deathlinkQueue = new();
 
         // Session Data(s)
         private ArchipelagoSession _session;
@@ -272,7 +274,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                //SimulateCreateBooster("ideas");
+                SimulateCreateCard(Cards.villager);
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
@@ -284,7 +286,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
-                //SimulateDeathLinkReceived();
+                SimulateDeathLinkReceived();
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
@@ -508,7 +510,7 @@ namespace Stacklands_Randomizer_Mod
             // Get starting inventory, if any
             foreach (string item in StartInventory.Keys)
             {
-                AddToQueue(() => ItemHandler.HandleItem(item, forceCreate));
+                AddToItemQueue(() => ItemHandler.HandleItem(item, forceCreate));
             }
 
             Debug.Log($"Total items received from server: {_session.Items.AllItemsReceived.Count}");
@@ -516,7 +518,7 @@ namespace Stacklands_Randomizer_Mod
             // Get all items received from server
             foreach (ItemInfo item in _session.Items.AllItemsReceived)
             {
-                AddToQueue(() => ItemHandler.HandleItem(item, forceCreate));
+                AddToItemQueue(() => ItemHandler.HandleItem(item, forceCreate));
             }
         }
 
@@ -570,7 +572,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="deathlink">The <see cref="DeathLink"/> that was received.</param>
         private void DeathLink_DeathLinkReceived(DeathLink deathlink)
         {
-            AddToQueue(() => HandleDeathLink(deathlink));
+            AddToDeathlinkQueue(() => StartCoroutine(HandleDeathLink(deathlink)));
         }
 
         /// <summary>
@@ -593,7 +595,7 @@ namespace Stacklands_Randomizer_Mod
         private void Items_ItemReceived(ReceivedItemsHelper itemsHelper)
         {
             Debug.Log($"Item received! Adding to queue...");
-            AddToQueue(() => ItemHandler.HandleItem(itemsHelper.DequeueItem()));
+            AddToItemQueue(() => ItemHandler.HandleItem(itemsHelper.DequeueItem()));
         }
 
         /// <summary>
@@ -602,7 +604,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
         private void Socket_SocketClosed(string reason)
         {
-            AddToQueue(() => Disconnect(reason));
+            AddToItemQueue(() => Disconnect(reason));
         }
 
         /// <summary>
@@ -634,14 +636,26 @@ namespace Stacklands_Randomizer_Mod
         #region Private Methods
 
         /// <summary>
-        /// Add an action to the main thread queue.
+        /// Add an action to the deathlink queue.
         /// </summary>
         /// <param name="action">The action to be added to the queue.</param>
-        private void AddToQueue(Action action)
+        private void AddToDeathlinkQueue(Action action)
         {
             lock (_lock)
             {
-                _mainThreadQueue.Enqueue(action);
+                _deathlinkQueue.Enqueue(action);
+            }
+        }
+
+        /// <summary>
+        /// Add an action to the item queue.
+        /// </summary>
+        /// <param name="action">The action to be added to the queue.</param>
+        private void AddToItemQueue(Action action)
+        {
+            lock (_lock)
+            {
+                _itemQueue.Enqueue(action);
             }
         }
 
@@ -746,9 +760,15 @@ namespace Stacklands_Randomizer_Mod
         /// Triggered when a DeathLink trigger is received from the server.
         /// </summary>
         /// <param name="deathLink">The DeathLink trigger that has been received.</param>
-        private void HandleDeathLink(DeathLink deathLink)
+        private IEnumerator HandleDeathLink(DeathLink deathLink)
         {
             Debug.Log($"DeathLink trigger received!");
+
+            // Wait for current animation to end
+            while (!WorldManager.instance.CanInteract) 
+            {
+                yield return null;
+            }
 
             // Set deathlink received to true if deathlink is enabled, otherwise false
             bool deathlinkEnabled = IsDeathlinkEnabled;
@@ -757,22 +777,21 @@ namespace Stacklands_Randomizer_Mod
                 _handlingDeathLink = deathlinkEnabled;
             }
 
-            // Bail out if we are not handling DeathLinks (due to them being disabled)
             if (!_handlingDeathLink)
             {
+                // Bail out if we are not handling DeathLinks (due to them being disabled)
                 Debug.Log($"Ignoring DeathLink - it is not enabled.");
-                return;
             }
-
-            // Bail out if we are not currently in-game
-            if (!IsInGame)
+            else if (!IsInGame)
             {
+                // Bail out if we are not currently in-game
                 Debug.Log($"Ignoring DeathLink - not currently in-game.");
-                return;
             }
-
-            // Kill a random villager
-            KillRandomVillager(deathLink.Source);
+            else
+            {
+                // Kill a random villager
+                KillRandomVillager(deathLink.Source);
+            }
         }
 
         /// <summary>
@@ -905,7 +924,7 @@ namespace Stacklands_Randomizer_Mod
         private void ProcessAllInQueue()
         {
             // Handle all remaining actions in queue
-            while (_mainThreadQueue.TryDequeue(out Action item))
+            while (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
             }
@@ -917,7 +936,7 @@ namespace Stacklands_Randomizer_Mod
         private void ProcessNextInQueue()
         {
             // Handle next action in queue
-            if (_mainThreadQueue.TryDequeue(out Action item))
+            if (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
             }
@@ -996,7 +1015,7 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"Simulating DeathLink received...");
 
             // Add deathlink action to the queue
-            AddToQueue(() => HandleDeathLink(new DeathLink("A Test", "Ran a test DeathLink received.")));
+            AddToDeathlinkQueue(() => StartCoroutine(HandleDeathLink(new DeathLink("A Test", "Ran a test DeathLink received."))));
         }
 
         /// <summary>
@@ -1066,7 +1085,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            AddToQueue(() => ItemHandler.HandleItem(item.Name, false));
+            AddToItemQueue(() => ItemHandler.HandleItem(item.Name, false));
         }
 
         /// <summary>
