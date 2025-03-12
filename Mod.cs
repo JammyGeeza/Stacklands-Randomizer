@@ -274,7 +274,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                SimulateCreateCard(Cards.villager);
+                //SimulateCreateCard(Cards.villager);
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
@@ -286,7 +286,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
-                SimulateDeathLinkReceived();
+                //SimulateDeathLinkReceived();
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
