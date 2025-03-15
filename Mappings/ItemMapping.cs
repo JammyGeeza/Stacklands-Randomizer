@@ -72,6 +72,7 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Idea: Smithy"               , ItemId = Cards.blueprint_smithy               , ItemType = ItemType.Idea },
             new() { Name = "Idea: Spear"                , ItemId = Cards.blueprint_woodenweapons        , ItemType = ItemType.Idea },
             new() { Name = "Idea: Spiked Plank"         , ItemId = Cards.blueprint_spiked_plank         , ItemType = ItemType.Idea },
+            new() { Name = "Idea: Stable Portal"        , ItemId = Cards.blueprint_stable_portal        , ItemType = ItemType.Idea },
             new() { Name = "Idea: Stew"                 , ItemId = Cards.blueprint_stew                 , ItemType = ItemType.Idea },
             new() { Name = "Idea: Stick"                , ItemId = Cards.blueprint_carving              , ItemType = ItemType.Idea },
             new() { Name = "Idea: Stove"                , ItemId = Cards.blueprint_stove                , ItemType = ItemType.Idea },
