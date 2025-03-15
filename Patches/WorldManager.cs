@@ -41,6 +41,22 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// When a card is created, remove blueprints from equipable items to prevent mobs from dropping them too early.
+        /// </summary>
+        [HarmonyPatch(nameof(WorldManager.CreateCard), [typeof(Vector3), typeof(CardData), typeof(bool), typeof(bool), typeof(bool), typeof(bool)])]
+        [HarmonyPrefix]
+        public static void OnCreateCard_Intercept(WorldManager __instance, ref CardData cardDataPrefab)
+        {
+            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.CreateCard)} Prefix!");
+            Debug.Log($"Creating Card with ID: {cardDataPrefab.Id}");
+
+            if (cardDataPrefab is Equipable equipable && equipable.blueprint != null)
+            {
+                equipable.blueprint = null;
+            }
+        }
+
+        /// <summary>
         /// When receiving a random card, replace blueprints with a basic card.
         /// </summary>
         [HarmonyPatch(nameof(WorldManager.GetRandomCard))]
@@ -126,6 +142,12 @@ namespace Stacklands_Randomizer_Mod
         {
             Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.Play)} Postfix!");
 
+            // Add 'combat intro' to found booster packs to prevent it from spawning
+            if (!__instance.CurrentSave.FoundBoosterIds.Contains("combat_intro"))
+            {
+                __instance.CurrentSave.FoundBoosterIds.Add("combat_intro");
+            }
+
             // Send all currently completed locations
             await StacklandsRandomizer.instance.SendAllCompletedLocations();
 
@@ -147,6 +169,7 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.QuestCompleted)} Prefix!");
             Debug.Log($"Quest completed: {quest.Id}.");
 
+            // Queue sending completed quest as location check
             await AsyncQueue.Enqueue(() => StacklandsRandomizer.instance.SendCompletedLocation(quest, true));
         }
 

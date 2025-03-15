@@ -8,7 +8,7 @@ namespace Stacklands_Randomizer_Mod
     public static class CommonPatchMethods
     {
         // Private Member(s)
-        private static readonly List<string> BASIC_CARDS = [
+        public static readonly List<string> BASIC_CARDS = [
             Cards.berrybush,
             Cards.berry,
             Cards.flint,
@@ -20,9 +20,29 @@ namespace Stacklands_Randomizer_Mod
             Cards.wood
         ];
 
+        public static readonly List<string> MAINLAND_PACKS = [
+            "basic",
+            "idea",
+            "farming",
+            "cooking",
+            "idea2",
+            "equipment",
+            "locations",
+            "structures"
+        ];
+
         private static readonly string PREFIX_SAVE = "ap_";
 
         private static string SaveId => $"{PREFIX_SAVE}{StacklandsRandomizer.instance.Seed}";
+
+        /// <summary>
+        /// Check if a list contains all items in another list.
+        /// </summary>
+        /// <returns><see cref="true"/> if List A contains all of List B, <see cref="false"/> if not.</returns>
+        public static bool ContainsAll<T>(this List<T> a, List<T> b)
+        {
+            return !b.Except(a).Any();
+        }
 
         /// <summary>
         /// Find an existing or create a new archipelago save.
@@ -71,18 +91,19 @@ namespace Stacklands_Randomizer_Mod
         /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
         public static bool ShouldCardBeBlocked(string cardId)
         {
-            Debug.Log($"{nameof(CommonPatchMethods)}.{nameof(ShouldCardBeBlocked)}()");
-
-            // Get card data
-            CardData cardData = WorldManager.instance.GetCardPrefab(cardId, false);
-
-            Debug.Log($"Card ID: {cardData.Id}");
-            Debug.Log($"Card Update Type: {cardData.CardUpdateType}");
-            Debug.Log($"Card Type: {cardData.MyCardType}");
-
             // Block card if it exists as a mapped idea and has not yet been discovered
             return ItemMapping.Map.Exists(m => m.ItemType is ItemType.Idea && m.ItemId == cardId)
                 && !ItemHandler.IsIdeaDiscovered(cardId);
+        }
+
+        /// <summary>
+        /// Check whether a booster pack should be blocked from spawning.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack to check.</param>
+        /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
+        public static bool ShouldBoosterPackBeBlocked(string boosterId)
+        {
+            return boosterId == "combat_intro";
         }
     }
 }

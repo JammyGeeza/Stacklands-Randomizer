@@ -9,20 +9,22 @@ namespace Stacklands_Randomizer_Mod
     public class CardBag_Patches
     {
         /// <summary>
-        /// Replace blueprints with basic cards.
+        /// Replace blueprints in card bags with basic cards.
         /// </summary>
         [HarmonyPatch(nameof(CardBag.GetCardsInBag), [typeof(GameDataLoader)])]
         [HarmonyPostfix]
         public static void OnGetCardsInBag_ReplaceBlueprints(ref GameDataLoader loader, ref List<string> __result)
         {
-            List<string> toReplace = __result
-                .Where(c => CommonPatchMethods.ShouldCardBeBlocked(c))
-                .ToList();
+            // Remove all cards that need to be blocked
+            __result.RemoveAll(c => CommonPatchMethods.ShouldCardBeBlocked(c));
 
-            foreach (string card in toReplace)
+            // Add all basic cards
+            foreach (string card in CommonPatchMethods.BASIC_CARDS)
             {
-                // Swap blueprint ID with a basic card ID
-                __result[__result.IndexOf(card)] = CommonPatchMethods.GetRandomBasicCard();
+                if (!__result.Contains(card))
+                {
+                    __result.Add(card);
+                }
             }
         }
 

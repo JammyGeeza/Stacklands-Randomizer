@@ -30,6 +30,18 @@ namespace Stacklands_Randomizer_Mod
         public static void OnBoosterIsUnlocked_UnlockIfReceived(BoosterpackData p, bool allowDebug, ref bool __result)
         {
             __result = ItemHandler.IsBoosterPackDiscovered(p.BoosterId);
+
+            // If booster has been unlocked...
+            if (__result)
+            {
+                // If not yet completed 'Unlock All Packs' quest and all mainland packs have been discovered, trigger special action for quest.
+                if (!WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(AllQuests.UnlockAllPacks.Id) && WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.MAINLAND_PACKS))
+                {
+                    QuestManager.instance.SpecialActionComplete("unlocked_all_packs");
+                }
+
+                // All Island Packs quest will go here when Island is supported
+            }
         }
 
         /// <summary>
@@ -57,15 +69,24 @@ namespace Stacklands_Randomizer_Mod
         /// Intercept special actions when they are completed.
         /// </summary>
         [HarmonyPatch(nameof(QuestManager.SpecialActionComplete))]
-        [HarmonyPostfix]
-        public static void OnSpecialActionComplete_Intercept(string action, CardData card = null)
+        [HarmonyPrefix]
+        public static bool OnSpecialActionComplete_Intercept(string action, CardData card = null)
         {
-            if (action != "pause_game") // <- Prevents it constantly printing on pause
+            if (action != "pause_game") // <- Prevents it constantly printing every frame on pause
             {
-                Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Postfix!");
+                Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Prefix!");
                 Debug.Log($"CardData: {card?.Name}");
                 Debug.Log($"Special Action: {action}");
+
+                // If 'Unlock All Booster Packs' action and not all boosters have been found, block it
+                if ((action is "unlock_all_packs" or "unlocked_all_packs") && !WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.MAINLAND_PACKS))
+                {
+                    Debug.Log($"Intercepting '{action}' - not all mainland packs have been discovered yet.");
+                    return false;
+                }
             }
+
+            return true;
         }
     }
 }
