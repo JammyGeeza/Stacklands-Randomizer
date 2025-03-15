@@ -270,7 +270,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                //SimulateCreateCard(Cards.villager);
+                //SimulateUnlockBooster();
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -996,6 +996,16 @@ namespace Stacklands_Randomizer_Mod
                 true,
                 false,
                 true);
+        }
+
+        private void SimulateUnlockBooster()
+        {
+            string unfoundBooster = CommonPatchMethods.MAINLAND_PACKS.LastOrDefault(p => !WorldManager.instance.CurrentSave.FoundBoosterIds.Contains(p));
+
+            if (!string.IsNullOrWhiteSpace(unfoundBooster))
+            {
+                ItemHandler.HandleBoosterPack(unfoundBooster);
+            }
         }
 
         /// <summary>

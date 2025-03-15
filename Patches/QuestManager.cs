@@ -30,6 +30,18 @@ namespace Stacklands_Randomizer_Mod
         public static void OnBoosterIsUnlocked_UnlockIfReceived(BoosterpackData p, bool allowDebug, ref bool __result)
         {
             __result = ItemHandler.IsBoosterPackDiscovered(p.BoosterId);
+
+            // If booster has been unlocked...
+            if (__result)
+            {
+                // If not yet completed 'Unlock All Packs' quest and all mainland packs have been discovered, trigger special action for quest.
+                if (!WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(AllQuests.UnlockAllPacks.Id) && WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.MAINLAND_PACKS))
+                {
+                    QuestManager.instance.SpecialActionComplete("unlocked_all_packs");
+                }
+
+                // All Island Packs quest will go here when Island is supported
+            }
         }
 
         /// <summary>
