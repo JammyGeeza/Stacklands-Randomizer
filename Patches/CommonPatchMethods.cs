@@ -20,9 +20,29 @@ namespace Stacklands_Randomizer_Mod
             Cards.wood
         ];
 
+        public static readonly List<string> MAINLAND_PACKS = [
+            "basic",
+            "idea",
+            "farming",
+            "cooking",
+            "idea2",
+            "equipment",
+            "locations",
+            "structures"
+        ];
+
         private static readonly string PREFIX_SAVE = "ap_";
 
         private static string SaveId => $"{PREFIX_SAVE}{StacklandsRandomizer.instance.Seed}";
+
+        /// <summary>
+        /// Check if a list contains all items in another list.
+        /// </summary>
+        /// <returns><see cref="true"/> if List A contains all of List B, <see cref="false"/> if not.</returns>
+        public static bool ContainsAll<T>(this List<T> a, List<T> b)
+        {
+            return !b.Except(a).Any();
+        }
 
         /// <summary>
         /// Find an existing or create a new archipelago save.
