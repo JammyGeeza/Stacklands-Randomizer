@@ -8,7 +8,7 @@ For the list of currently known issues, please see the [open and approved issues
 
 ## How to Install the Mod to Stacklands
 1. Download `StacklandsRandomizer vX.X.X.zip` file.
-2. Extract the contents of the `.zip` file to: `%LocalAppData%low\sokpop\Mods`
+2. Extract the contents of the `.zip` file to: `%LocalAppData%low\sokpop\Stacklands\Mods`
 3. Start the Game
 
 ## How to Use the Mod
