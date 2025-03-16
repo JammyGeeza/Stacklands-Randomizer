@@ -928,6 +928,11 @@ namespace Stacklands_Randomizer_Mod
             {
                 item.Invoke();
             }
+
+            while (_deathlinkQueue.TryDequeue(out Action deathlink))
+            {
+                deathlink.Invoke();
+            }
         }
 
         /// <summary>
@@ -939,6 +944,12 @@ namespace Stacklands_Randomizer_Mod
             if (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
+            }
+
+            // Handle next action in queue
+            if (_deathlinkQueue.TryDequeue(out Action deathlink))
+            {
+                deathlink.Invoke();
             }
         }
 
