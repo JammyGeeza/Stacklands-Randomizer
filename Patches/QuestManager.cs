@@ -45,6 +45,23 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Add custom quests to the list of all quests.
+        /// </summary>
+        [HarmonyPatch(nameof(QuestManager.GetAllQuests))]
+        [HarmonyPostfix]
+        public static void OnGetAllQuests_AddCustomQuests(ref List<Quest> __result)
+        {
+            Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
+
+            // If mobsanity enabled, add mobsanity quests
+            if (StacklandsRandomizer.instance.Mobsanity)
+            {
+                Debug.Log("Inserting Mobsanity quests...");
+                __result.AddRange(CustomQuestMapping.Map.Where(q => q.Type == CustomQuestType.Mobsanity));
+            }
+        }
+
+        /// <summary>
         /// Prevent the game from unlocking booster packs.
         /// </summary>
         [HarmonyPatch(nameof(QuestManager.JustUnlockedPack))]
@@ -70,7 +87,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch(nameof(QuestManager.SpecialActionComplete))]
         [HarmonyPrefix]
-        public static bool OnSpecialActionComplete_Intercept(string action, CardData card = null)
+        public static bool OnSpecialActionComplete_InterceptPre(string action, CardData card = null)
         {
             if (action != "pause_game") // <- Prevents it constantly printing every frame on pause
             {
@@ -88,5 +105,28 @@ namespace Stacklands_Randomizer_Mod
 
             return true;
         }
+
+        /// <summary>
+        /// Intercept special actions when they are completed.
+        /// </summary>
+        //[HarmonyPatch(nameof(QuestManager.SpecialActionComplete))]
+        //[HarmonyPostfix]
+        //public static bool OnSpecialActionComplete_InterceptPost(string action, CardData card = null)
+        //{
+        //    if (action != "pause_game") // <- Prevents it constantly printing every frame on pause
+        //    {
+        //        Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Postfix!");
+        //        Debug.Log($"CardData: {card?.Name}");
+        //        Debug.Log($"Special Action: {action}");
+
+        //        // If mobsanity enabled and mobsanity mapping exists for this action, mark quest completed
+        //        if (StacklandsRandomizer.instance.Mobsanity && MobsanityMapping.Map.FirstOrDefault(m => m.OnSpecialAction(action)) is Quest quest)
+        //        {
+        //            WorldManager.instance.QuestCompleted(quest);
+        //        }
+        //    }
+
+        //    return true;
+        //}
     }
 }

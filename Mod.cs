@@ -25,6 +25,7 @@ namespace Stacklands_Randomizer_Mod
 
         private static readonly string TAG_DEATHLINK = "death_link";
         private static readonly string TAG_GOAL = "goal";
+        private static readonly string TAG_MOBSANITY = "mobsanity";
         private static readonly string TAG_PAUSE_ENABLED = "pause_enabled";
         private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
 
@@ -86,7 +87,7 @@ namespace Stacklands_Randomizer_Mod
         private bool _handlingDeathLink = false;
 
         /// <summary>
-        /// Get the current goal for this run.
+        /// Gets or sets the current goal for this run.
         /// </summary>
         public Goal CurrentGoal { get; private set; }
 
@@ -99,11 +100,9 @@ namespace Stacklands_Randomizer_Mod
             && _session.Socket.Connected;
 
         /// <summary>
-        /// Whether or not pausing is enabled for this run.
+        /// Gets or sets whether pausing is enabled for this run.
         /// </summary>
-        public bool IsPauseEnabled => _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)
-            ? Convert.ToBoolean(pause)
-            : true;
+        public bool IsPauseEnabled { get; private set; }
                 
 
         /// <summary>
@@ -116,6 +115,8 @@ namespace Stacklands_Randomizer_Mod
         /// Whether or not the run should start with the basic pack unlocked by default.
         /// </summary>
         //public bool IsStartWithBasicPack { get; private set; }
+
+        public bool Mobsanity { get; private set; }
 
         /// <summary>
         /// Get the player name for the current world.
@@ -202,12 +203,6 @@ namespace Stacklands_Randomizer_Mod
                     // For some reason, trying to connect in any method other than Awake() causes the game to completely freeze.
                     // I haven't figured out why yet, so to get around this, the OP quick-restarts the game to force Awake() to call again.
 
-                    // Set goal for this run
-                    GoalType goal = _slotData.TryGetValue(TAG_GOAL, out object val) ? (GoalType)Convert.ToInt32(val) : GoalType.KillDemon;
-                    CurrentGoal = GoalMapping.Map.Single(m => m.Type == goal);
-
-                    Debug.Log($"Goal for this run: '{CurrentGoal.Name}'");
-
                     // If 'Send Goal' is set to true, send the goal
                     if (sendGoal.Value)
                     {
@@ -274,10 +269,15 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                //SimulateCreateCard(Cards.villager);
+                SimulateCreateCard(Cards.mosquito);
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
+                foreach (Mob mob in WorldManager.instance.GetCards<Mob>().Where(m => m.Id == Cards.mosquito))
+                {
+                    mob.Damage(1000);
+                }
+
                 //SimulateItemReceived(ItemType.Resource);
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
@@ -391,14 +391,15 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
-            Debug.Log($"Processing completed quest: '{quest.Description}' as a location check...");
+            string description = quest.Description != "---MISSING---" ? quest.Description : quest.DescriptionTermOverride;
+            Debug.Log($"Processing completed quest: '{description}' as a location check...");
 
             ScoutedItemInfo location = null;
 
             try
             {
                 // Check if location exists as a check
-                long locationId = _session.Locations.GetLocationIdFromName(GAME_NAME, quest.Description);
+                long locationId = _session.Locations.GetLocationIdFromName(GAME_NAME, description);
                 Dictionary<long, ScoutedItemInfo> locations = await _session.Locations.ScoutLocationsAsync(locationId);
 
                 // Check if location has been returned
@@ -675,6 +676,28 @@ namespace Stacklands_Randomizer_Mod
                 if (Login(slotName, password))
                 {
                     Debug.Log("Logged in successfully!");
+
+                    // Set goal setting for this run
+                    CurrentGoal = _slotData.TryGetValue(TAG_GOAL, out object goal)
+                        ? GoalMapping.Map.Single(g => g.Type == (GoalType)Convert.ToInt32(goal))
+                        : GoalMapping.Map.Single(g => g.Type == GoalType.KillDemon); // Default to 'Kill Demon' if not found
+                    
+                    Debug.Log($"Goal for this run: '{CurrentGoal.Name}'");
+
+                    // Set pause enabled setting for this run
+                    IsPauseEnabled = _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)
+                        ? Convert.ToBoolean(pause)
+                        : true; // Default to true if not found
+
+                    Debug.Log($"Pause Enabled for this run: {IsPauseEnabled}");
+
+                    // Set mobsanity setting for this run
+                    Mobsanity = _slotData.TryGetValue(TAG_MOBSANITY, out object mobsanity)
+                        ? Convert.ToBoolean(mobsanity)
+                        : false; // Default to false if not found
+
+                    Debug.Log($"Mobsanity Enabled for this run: {Mobsanity}");
+
                     return true;
                 }
                 else
