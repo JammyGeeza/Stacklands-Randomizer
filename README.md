@@ -3,12 +3,21 @@ A mod for Stacklands that allows it to be integrated into an Archipelago world.
 
 This repo was forked from and is a continuation of the development of the original mod: [chandler05/Stacklands-Randomizer](https://github.com/chandler05/Stacklands-Randomizer)
 
+## How it Works
+In each run, all quests are checks and all Booster Packs and Ideas are items received from checks.
+
+### Current Support
+- Mainland _(full support)_
+- ~~The Dark Forest~~ _(coming soon...)_
+- ~~The Island~~ _(coming soon...)_
+- ~~DLC~~ _(not planned)_
+
 ## Known Issues
-For the list of currently known issues, please see the [open and approved issues](https://github.com/JammyGeeza/Stacklands-Randomizer/issues?q=is%3Aissue%20is%3Aopen%20label%3A%22Status%3A%20Approved%22) _(this is filtered by **State: 'Open'** and **Label: 'Status: Approved'**)_
+For the list of currently known issues, please see the [open issues](https://github.com/JammyGeeza/Stacklands-Randomizer/issues)
 
 ## How to Install the Mod to Stacklands
 1. Download `StacklandsRandomizer vX.X.X.zip` file.
-2. Extract the contents of the `.zip` file to: `%LocalAppData%low\sokpop\Mods`
+2. Extract the contents of the `.zip` file to: `%LocalAppData%low\sokpop\Stacklands\Mods`
 3. Start the Game
 
 ## How to Use the Mod
