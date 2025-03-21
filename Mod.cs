@@ -23,10 +23,11 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
+        private static readonly string TAG_DARKFOREST = "dark_forest";
         private static readonly string TAG_DEATHLINK = "death_link";
         private static readonly string TAG_GOAL = "goal";
         private static readonly string TAG_MOBSANITY = "mobsanity";
-        private static readonly string TAG_PAUSE_ENABLED = "pause_enabled";
+        private static readonly string TAG_PAUSE_ENABLED = "pausing";
         private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
 
         public static StacklandsRandomizer instance;
@@ -92,6 +93,12 @@ namespace Stacklands_Randomizer_Mod
         public Goal CurrentGoal { get; private set; }
 
         /// <summary>
+        /// Gets or sets whether The Dark Forest is enabled.
+        /// </summary>
+        public bool DarkForestEnabled { get; private set; }
+
+
+        /// <summary>
         /// Check if currently connected to an archipelago server.
         /// </summary>
         public bool IsConnected =>
@@ -112,11 +119,9 @@ namespace Stacklands_Randomizer_Mod
             WorldManager.instance.CurrentGameState is WorldManager.GameState.Playing or WorldManager.GameState.Paused;
 
         /// <summary>
-        /// Whether or not the run should start with the basic pack unlocked by default.
+        /// Gets or sets whether Mobsanity is enabled.
         /// </summary>
-        //public bool IsStartWithBasicPack { get; private set; }
-
-        public bool Mobsanity { get; private set; }
+        public bool MobsanityEnabled { get; private set; }
 
         /// <summary>
         /// Get the player name for the current world.
@@ -269,15 +274,10 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                SimulateCreateCard(Cards.mosquito);
+                //SimulateCreateCard(Cards.strange_portal);
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                foreach (Mob mob in WorldManager.instance.GetCards<Mob>().Where(m => m.Id == Cards.mosquito))
-                {
-                    mob.Damage(1000);
-                }
-
                 //SimulateItemReceived(ItemType.Resource);
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
@@ -677,6 +677,12 @@ namespace Stacklands_Randomizer_Mod
                 {
                     Debug.Log("Logged in successfully!");
 
+                    DarkForestEnabled = _slotData.TryGetValue(TAG_DARKFOREST, out object forest)
+                        ? Convert.ToBoolean(forest)
+                        : true; // Default to false if not found
+
+                    Debug.Log($"Dark Forest enabled for this run: {DarkForestEnabled}");
+
                     // Set goal setting for this run
                     CurrentGoal = _slotData.TryGetValue(TAG_GOAL, out object goal)
                         ? GoalMapping.Map.Single(g => g.Type == (GoalType)Convert.ToInt32(goal))
@@ -689,14 +695,14 @@ namespace Stacklands_Randomizer_Mod
                         ? Convert.ToBoolean(pause)
                         : true; // Default to true if not found
 
-                    Debug.Log($"Pause Enabled for this run: {IsPauseEnabled}");
+                    Debug.Log($"Pausing enabled for this run: {IsPauseEnabled}");
 
                     // Set mobsanity setting for this run
-                    Mobsanity = _slotData.TryGetValue(TAG_MOBSANITY, out object mobsanity)
+                    MobsanityEnabled = _slotData.TryGetValue(TAG_MOBSANITY, out object mobsanity)
                         ? Convert.ToBoolean(mobsanity)
                         : false; // Default to false if not found
 
-                    Debug.Log($"Mobsanity Enabled for this run: {Mobsanity}");
+                    Debug.Log($"Mobsanity enabled for this run: {MobsanityEnabled}");
 
                     return true;
                 }
