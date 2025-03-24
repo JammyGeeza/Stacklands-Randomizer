@@ -1096,20 +1096,20 @@ namespace Stacklands_Randomizer_Mod
                     }
                     break;
 
-                case GoalType.KillDemonLord:
+                case GoalType.KillWickedWitch:
                     {
                         // Create a demon lord
                         WorldManager.instance.CreateCard(
                             WorldManager.instance.GetRandomSpawnPosition(),
-                            Cards.demon_lord,
+                            Cards.wicked_witch,
                             true,
                             false,
                             true);
 
-                        // Find the demon and kill it
-                        if (FindObjectOfType<Demon>() is Demon demon)
+                        // Find the witch and kill it
+                        if (FindObjectOfType<WickedWitch>() is WickedWitch witch)
                         {
-                            demon.Die();
+                            witch.Die();
                         }
                     }
                     break;
