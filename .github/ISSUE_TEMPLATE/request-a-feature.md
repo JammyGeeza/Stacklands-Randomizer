@@ -1,14 +1,14 @@
 ---
 name: Request a Feature
-about: Request a feature to be added to the mod in future.
-title: 'Request: [Few-Word Summary Here]'
-labels: 'Type: New Feature'
+about: Request something to be added in future.
+title: 'Feature: [Short Description]'
+labels: 'Status: In Review, Type: New Feature'
 assignees: ''
 
 ---
 
-## Feature
-_[Enter a description of the feature here, providing as much detail and context for the feature as you can. The more detail you can provide, the better I can understand the idea and request.]_
+## Description
+_[Describe the feature with as much detail as possible.]_
 
-## Related Issue(s)
-_[Is your request related to an issue? If not, please delete this section. If so, please tag the issues here and explain why they are related / relevant.]_
+## Supporting Assets
+_[Provide drawings / screenshots here to help illustrate the feature, if applicable.]_
