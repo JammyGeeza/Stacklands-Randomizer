@@ -59,7 +59,7 @@ namespace Stacklands_Randomizer_Mod
                 Debug.Log("Inserting Mobsanity quests...");
 
                 // Add mobsanity quests (and only include Dark Forest ones if enabled)
-                __result.AddRange(CustomQuestMapping.Map.Where(q => q.Type == CustomQuestType.Mobsanity 
+                __result.AddRange(CustomQuestMapping.Map.Where(q => q.CustomQuestGroup == CustomQuestGroup.Mobsanity 
                     && (StacklandsRandomizer.instance.DarkForestEnabled || q.QuestLocation != Location.Forest)));
             }
         }
@@ -108,28 +108,5 @@ namespace Stacklands_Randomizer_Mod
 
             return true;
         }
-
-        /// <summary>
-        /// Intercept special actions when they are completed.
-        /// </summary>
-        //[HarmonyPatch(nameof(QuestManager.SpecialActionComplete))]
-        //[HarmonyPostfix]
-        //public static bool OnSpecialActionComplete_InterceptPost(string action, CardData card = null)
-        //{
-        //    if (action != "pause_game") // <- Prevents it constantly printing every frame on pause
-        //    {
-        //        Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Postfix!");
-        //        Debug.Log($"CardData: {card?.Name}");
-        //        Debug.Log($"Special Action: {action}");
-
-        //        // If mobsanity enabled and mobsanity mapping exists for this action, mark quest completed
-        //        if (StacklandsRandomizer.instance.Mobsanity && MobsanityMapping.Map.FirstOrDefault(m => m.OnSpecialAction(action)) is Quest quest)
-        //        {
-        //            WorldManager.instance.QuestCompleted(quest);
-        //        }
-        //    }
-
-        //    return true;
-        //}
     }
 }

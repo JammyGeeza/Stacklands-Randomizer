@@ -9,6 +9,6 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// The type of custom quest.
         /// </summary>
-        public CustomQuestType Type { get; set; } = CustomQuestType.Additional;
+        public CustomQuestGroup CustomQuestGroup { get; set; } = CustomQuestGroup.Additional;
     }
 }

@@ -1,0 +1,17 @@
+{
+  "$schema": "../schemas/card.schema.json",
+  "id": "ap_rat",
+  "nameTerm": "ap_rat_name",
+  "descriptionTerm": "ap_rat_description",
+  "icon": "rat",
+  "value": -1,
+  "type": "Mobs",
+  "script": "Enemy",
+  "_CanHaveInventory": false,
+  "_HealthPoints": 5,
+  "_HideFromCardopedia": true,
+  "_InheritCombatStatsFromOtherCard": true,
+  "_InheritCombatStatsFrom": "rat",
+  "_IsAggressive": true,
+  "_MoveTime": 3
+}

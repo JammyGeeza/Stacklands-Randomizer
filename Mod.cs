@@ -270,11 +270,20 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
+                SimulateCreateCard(ModCards.rabbit);
+                SimulateCreateCard(ModCards.rat);
+                SimulateCreateCard(ModCards.small_slime);
+                SimulateCreateCard(ModCards.snake);
                 //SimulateUnlockBooster();
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
                 //SimulateCreateCard(Cards.strange_portal);
+
+                foreach (Mob mob in WorldManager.instance.GetCards<Mob>())
+                {
+                    mob.Damage(100);
+                }
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {

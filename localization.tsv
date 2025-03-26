@@ -1,0 +1,35 @@
+Term	Notes	English
+ap_rabbit_name		Trap Rabbit
+ap_rabbit_description		Its purpose is to hop around and cause annoyance.
+ap_rat_name		Trap Rat
+ap_rat_description		Its purpose is to be filthy and cause annoyance.
+ap_small_slime_name		Trap Small Slime
+ap_small_slime_description		Its purpose is to be slimy and cause annoyance.
+ap_snake_name		Trap Snake
+ap_snake_description		Its purpose is to slither and cause annoyance.
+quest_kill_a_bear_text		Kill a Bear
+quest_kill_a_dark_elf_text		Kill a Dark Elf
+quest_kill_an_elf_text		Kill an Elf
+quest_kill_an_elf_archer_text		Kill an Elf Archer
+quest_kill_an_enchanted_shroom_text		Kill an Enchanted Shroom
+quest_kill_an_ent_text		Kill an Ent
+quest_kill_a_feral_cat_text		Kill a Feral Cat
+quest_kill_a_frog_man_text		Kill a Frog Man
+quest_kill_a_ghost_text		Kill a Ghost
+quest_kill_a_giant_rat_text		Kill a Giant Rat
+quest_kill_a_giant_snail_text		Kill a Giant Snail
+quest_kill_a_goblin_text		Kill a Goblin
+quest_kill_a_goblin_archer_text		Kill a Goblin Archer
+quest_kill_a_goblin_shaman_text		Kill a Goblin Shaman
+quest_kill_a_merman_text		Kill a Merman
+quest_kill_a_mimic_text		Kill a Mimic
+quest_kill_a_mosquito_text		Kill a Mosquito
+quest_kill_an_ogre_text		Kill an Ogre
+quest_kill_an_orc_wizard_text		Kill an Orc Wizard
+quest_kill_a_slime_text		Kill a Slime
+quest_kill_a_small_slime_text		Kill a Small Slime
+quest_kill_a_snake_text		Kill a Snake
+quest_kill_a_tiger_text		Kill a Tiger
+quest_kill_a_wolf_text		Kill a Wolf
+questgroup_additional		Additional
+questgroup_mobsanity		Mobsanity

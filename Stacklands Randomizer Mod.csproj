@@ -7,6 +7,12 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Cards\rabbit.json" />
+    <None Remove="Cards\rat.json" />
+    <None Remove="Cards\small_slime.json" />
+    <None Remove="Cards\snake.json" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="0Harmony">
       <HintPath>$(stacklands)/Stacklands_Data/Managed/0Harmony.dll</HintPath>
       <Private>False</Private>
@@ -71,7 +77,21 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Cards\snake.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Cards\small_slime.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Cards\rat.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Cards\rabbit.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y&#xD;&#xA;XCOPY &quot;$(TargetDir)\Libraries&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Configs&quot; &quot;%25target%25&quot; /S /Y" />
+	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y&#xD;&#xA;XCOPY &quot;$(TargetDir)\Libraries&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Configs&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Cards\*.json&quot; &quot;%25target%25\Cards&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\localization.tsv&quot; &quot;%25target%25&quot; /S /Y" />
     </Target>
 </Project>
