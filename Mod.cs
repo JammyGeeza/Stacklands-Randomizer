@@ -3,13 +3,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
-using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using HarmonyLib.Tools;
 using Archipelago.MultiClient.Net.Models;
-using System.Collections.ObjectModel;
-using System.Linq.Expressions;
 using Newtonsoft.Json;
 using System.Collections;
 
@@ -270,20 +267,11 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                SimulateCreateCard(ModCards.rabbit);
-                SimulateCreateCard(ModCards.rat);
-                SimulateCreateCard(ModCards.small_slime);
-                SimulateCreateCard(ModCards.snake);
                 //SimulateUnlockBooster();
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
                 //SimulateCreateCard(Cards.strange_portal);
-
-                foreach (Mob mob in WorldManager.instance.GetCards<Mob>())
-                {
-                    mob.Damage(100);
-                }
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
@@ -517,18 +505,18 @@ namespace Stacklands_Randomizer_Mod
 
             Debug.Log($"Total starting items: {StartInventory.Count}");
 
-            // Get starting inventory, if any
-            foreach (string item in StartInventory.Keys)
+            // Add starting inventory to queue (if any)
+            if (StartInventory.Count > 0)
             {
-                AddToItemQueue(() => ItemHandler.HandleItem(item, forceCreate));
+                AddToItemQueue(() => ItemHandler.HandleBulk(StartInventory.Keys, forceCreate));
             }
 
-            Debug.Log($"Total items received from server: {_session.Items.AllItemsReceived.Count}");
+            Debug.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
 
-            // Get all items received from server
-            foreach (ItemInfo item in _session.Items.AllItemsReceived)
+            // Add all received items from server (if any)
+            if (_session.Items.AllItemsReceived.Count > 0)
             {
-                AddToItemQueue(() => ItemHandler.HandleItem(item, forceCreate));
+                AddToItemQueue(() => ItemHandler.HandleBulk(_session.Items.AllItemsReceived, forceCreate));
             }
         }
 
@@ -1144,7 +1132,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            AddToItemQueue(() => ItemHandler.HandleItem(item.Name, false));
+            AddToItemQueue(() => ItemHandler.HandleItem(item.Name));
         }
 
         /// <summary>

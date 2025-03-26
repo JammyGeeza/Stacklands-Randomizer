@@ -9,9 +9,77 @@ namespace Stacklands_Randomizer_Mod
     public static class ItemHandler
     {
         /// <summary>
-        /// Handle the unlocking of booster pack(s).
+        /// 
         /// </summary>
-        /// <param name="ideaIds">The ID(s) of the booster pack(s) to be created.</param>
+        /// <param name="items"></param>
+        public static void HandleBulk(IEnumerable<string> itemIds, bool forceCreate = false)
+        {
+            HandleBulk(itemIds.Select(id => ItemMapping.Map.SingleOrDefault(m => m.ItemId == id)).ToArray(), forceCreate);
+        }
+
+        /// <summary>
+        /// Handle a bulk set of received <see cref="ItemInfo"/>.
+        /// </summary>
+        /// <param name="items">The set of <see cref="ItemInfo"/> to be handled.</param>
+        public static void HandleBulk(IEnumerable<ItemInfo> items, bool forceCreate = false)
+        {
+            HandleBulk(items.Select(item => ItemMapping.Map.SingleOrDefault(m => m.Name == item.ItemName)).ToArray(), forceCreate);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="items"></param>
+        public static void HandleBulk(IEnumerable<Item> items, bool forceCreate = false)
+        {
+            Debug.Log($"Handling bulk set of {items.Count()} items...");
+
+            // Group by item type
+            foreach (IGrouping<ItemType, Item> typeGroup in items.GroupBy(item => item.ItemType))
+            {
+                Debug.Log($"Handling {typeGroup.Count()} items of type '{typeGroup.Key}'...");
+
+                switch (typeGroup.Key)
+                {
+                    case ItemType.BoosterPack:
+                        {
+                            // Handle booster packs
+                            HandleBulkBoosterPacks(typeGroup, forceCreate);
+                        }
+                        break;
+
+                    case ItemType.Idea:
+                        {
+                            // Handle bulk ideas
+                            HandleBulkIdeas(typeGroup, forceCreate);
+                        }
+                        break;
+
+                    case ItemType.Resource:
+                        {
+                            HandleBulkResources(typeGroup, forceCreate);
+                        }
+                        break;
+
+                    case ItemType.Trap:
+                        {
+                            HandleBulkTraps(typeGroup, forceCreate);
+                        }
+                        break;
+
+                    default:
+                        {
+                            Debug.LogError($"Unhandled item type '{typeGroup.Key}'.");
+                        }
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handle the unlocking of a booster pack.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack to be created.</param>
         public static void HandleBoosterPack(string boosterId)
         {
             try
@@ -24,6 +92,34 @@ namespace Stacklands_Randomizer_Mod
             catch (Exception ex)
             {
                 Debug.LogError($"Failed to handle Booster Pack(s). Reason: '{ex.Message}'.");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="boosters">A list of items of type <see cref="ItemType.BoosterPack"/> to be handled.</param>
+        /// <param name="forceCreate"></param>
+        public static void HandleBulkBoosterPacks(IEnumerable<Item> boosters, bool forceCreate = false)
+        {
+            if (!StacklandsRandomizer.instance.IsInGame)
+            {
+                Debug.Log($"Not currently in game. Skipping...");
+                return;
+            }
+
+            foreach (Item booster in boosters)
+            {
+                // If forced to create or not yet discovered, add to found booster IDs
+                if (forceCreate || !IsBoosterPackDiscovered(booster.ItemId))
+                {
+                    Debug.Log($"Creating '{booster.Name}'...");
+                    WorldManager.instance.CurrentSave.FoundBoosterIds.Add(booster.ItemId);
+                }
+                else
+                {
+                    Debug.Log($"'{booster.Name}' already discovered. Skipping...");
+                }
             }
         }
 
@@ -50,15 +146,51 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Handle a bulk set of ideas.
+        /// </summary>
+        /// <param name="ideas">List of Idea items to be handled.</param>
+        /// <param name="forceCreate">Whether or not this item should be forcefully created.</param>
+        public static void HandleBulkIdeas(IEnumerable<Item> ideas, bool forceCreate = false)
+        {
+            if (!StacklandsRandomizer.instance.IsInGame)
+            {
+                Debug.Log($"Not currently in game. Skipping...");
+                return;
+            }
+
+            // Generate random position for stack
+            Vector3 position = WorldManager.instance.GetRandomSpawnPosition();
+
+            foreach (Item idea in ideas)
+            {
+                if (forceCreate || !IsIdeaDiscovered(idea.ItemId))
+                {
+                    Debug.Log($"Creating '{idea.Name}'...");
+
+                    // Create card and attempt to stack
+                    WorldManager.instance.CreateCard(
+                        position,
+                        idea.ItemId,
+                        true,
+                        true,
+                        true);
+                }
+                else
+                {
+                    Debug.Log($"'{idea.Name}' has already been received. Skipping...");
+                }
+            }
+        }
+
+        /// <summary>
         /// Handle a received item from the Archipelago server.
         /// </summary>
         /// <param name="itemInfo">The received <see cref="ItemInfo"/> to be handled.</param>
-        /// <param name="forceCreate">Whether or not this item should be forcefully created.</param>
-        public static void HandleItem(ItemInfo itemInfo, bool forceCreate = false)
+        public static void HandleItem(ItemInfo itemInfo)
         {
             if (ItemMapping.Map.SingleOrDefault(m => m.Matches(itemInfo.ItemName)) is Item mappedItem)
             {
-                HandleItem(mappedItem, itemInfo, forceCreate);
+                HandleItem(mappedItem, itemInfo);
             }
             else
             {
@@ -70,13 +202,11 @@ namespace Stacklands_Randomizer_Mod
         /// Handle a received item from the Archipelago server by the item name.
         /// </summary>
         /// <param name="itemName">The received item name to be handled.</param>
-        /// <param name="sentBy">The player that this item was sent by.</param>
-        /// <param name="forceCreate">Whether or not this item should be forcefully created.</param>
-        public static void HandleItem(string itemName, bool forceCreate = false)
+        public static void HandleItem(string itemName)
         {
             if (ItemMapping.Map.SingleOrDefault(m => m.Matches(itemName)) is Item mappedItem)
             {
-                HandleItem(mappedItem, null, forceCreate);
+                HandleItem(mappedItem, null);
             }
             else
             {
@@ -88,31 +218,15 @@ namespace Stacklands_Randomizer_Mod
         /// Handle a received item from the Archipelago server by an <see cref="Item"/> mapping.
         /// </summary>
         /// <param name="mappedItem">The received <see cref="Item"/> to be handled.</param>
-        /// <param name="sentBy">The player that this item was sent by.</param>
-        /// <param name="forceCreate">Whether or not this item should be forcefully created.</param>
-        private static void HandleItem(Item mappedItem, ItemInfo? itemInfo, bool forceCreate = false)
+        /// <param name="itemInfo">Accompanying <see cref="ItemInfo"/> for in-game notification logic.</param>
+        private static void HandleItem(Item mappedItem, ItemInfo? itemInfo)
         {
             Debug.Log($"Handling item '{mappedItem.Name}'...");
-
-            // Get whether item has been discovered previously this save or not
-            bool itemDiscovered = IsItemDiscovered(mappedItem);
-
-            Debug.Log($"Item '{mappedItem.Name}' already discovered: {itemDiscovered}");
 
             // Check if we are in-game
             if (!StacklandsRandomizer.instance.IsInGame)
             {
                 Debug.Log($"Not currently in game. Skipping...");
-
-                // Log item (only if resource / trap) as undiscovered if forced to create or its current discovered state
-                LogResource(mappedItem, !forceCreate && itemDiscovered);
-                return;
-            }
-
-            // If not forcing to create, check if item has already been discovered
-            if (!forceCreate && itemDiscovered)
-            {
-                Debug.Log($"Item '{mappedItem.Name}' has already been handled. Skipping...");
                 return;
             }
 
@@ -144,8 +258,8 @@ namespace Stacklands_Randomizer_Mod
                         // Handle creation of resource(s)
                         HandleResource(mappedItem.ItemId, mappedItem.Amount);
 
-                        // Log as discovered
-                        LogResource(mappedItem, true);
+                        // Add to discovery count
+                        LogItem(mappedItem.Name);
 
                         title = $"Resource{(mappedItem.Amount > 1 ? "s" : "")} Received!";
                     }
@@ -156,8 +270,8 @@ namespace Stacklands_Randomizer_Mod
                         // Handle creation of trap(s)
                         HandleTrap(mappedItem.ItemId, mappedItem.Amount);
 
-                        // Log as discovered
-                        LogResource(mappedItem, true);
+                        // Add to discovery count
+                        LogItem(mappedItem.Name);
 
                         title = $"Trap Received!";
                     }
@@ -171,12 +285,52 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // If not forcefully created and not sent from the current player...
-            if (!forceCreate && itemInfo != null && !itemInfo.Player.Name.Equals(StacklandsRandomizer.instance.PlayerName))
+            if (itemInfo != null && !itemInfo.Player.Name.Equals(StacklandsRandomizer.instance.PlayerName))
             {
                 // Display message
                 StacklandsRandomizer.instance.DisplayNotification(
                     title,
                     $"{mappedItem.Name} was sent to you by {itemInfo.Player.Name}\n({itemInfo.LocationName})");
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="resources"></param>
+        /// <param name="forceCreate"></param>
+        /// <returns></returns>
+        public static void HandleBulkResources(IEnumerable<Item> resources, bool forceCreate = false)
+        {
+            // Group by item name
+            foreach (IGrouping<string, Item> itemGroup in resources.GroupBy(item => item.Name))
+            {
+                // Get group count
+                int count = itemGroup.Count();
+
+                Debug.Log($"Handling {count} of '{itemGroup.Key}' resource item...");
+
+                // Get count logged in save (or set to 0 if forcing creation)
+                int saveCount = forceCreate ? 0 : CheckItem(itemGroup.Key);
+
+                // If not forcing to create, check if logged item count matches
+                if (!forceCreate && count <= saveCount)
+                {
+                    Debug.Log($"'{itemGroup.Key}' has already been received {saveCount} times. Skipping...");
+                    return;
+                }
+
+                Debug.Log($"Creating {count - saveCount} of '{itemGroup.Key}' resource...");
+
+                // Spawn missing sets
+                for (int i = 0; i < count - saveCount; i++)
+                {
+                    Item resource = itemGroup.ElementAt(i);
+                    HandleResource(resource.ItemId, resource.Amount);
+                }
+
+                // Update the received count for this resource
+                LogItem(itemGroup.Key, count);
             }
         }
 
@@ -202,6 +356,42 @@ namespace Stacklands_Randomizer_Mod
             }
 
             return true;
+        }
+
+        public static void HandleBulkTraps(IEnumerable<Item> traps, bool forceCreate = false)
+        {
+            // TODO: Ignore trap items for bulk spawning - should only be spawned while playing.
+
+            // Group by item name
+            foreach (IGrouping<string, Item> itemGroup in traps.GroupBy(item => item.Name))
+            {
+                // Get group count
+                int count = itemGroup.Count();
+
+                Debug.Log($"Handling {count} of '{itemGroup.Key}' trap item...");
+
+                // Get count logged in save (or set to 0 if forcing creation)
+                int saveCount = forceCreate ? 0 : CheckItem(itemGroup.Key);
+
+                // If not forcing to create, check if logged item count matches
+                if (!forceCreate && count <= saveCount)
+                {
+                    Debug.Log($"'{itemGroup.Key}' has already been received {saveCount} times. Skipping...");
+                    return;
+                }
+
+                Debug.Log($"Creating {count - saveCount} of '{itemGroup.Key}'...");
+
+                // Spawn any missing sets
+                for (int i = 0; i < count - saveCount; i++)
+                {
+                    Item resource = itemGroup.ElementAt(i);
+                    HandleTrap(resource.ItemId, resource.Amount);
+                }
+
+                // Log total discovered amount
+                LogItem(itemGroup.Key, count);
+            }
         }
 
         /// <summary>
@@ -311,27 +501,42 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Log an item as received from the server.
+        /// Check how many of an <see cref="Item"/> have been logged in this save. 
         /// </summary>
-        /// <param name="item">The <see cref="Item"/> to be logged.</param>
-        /// <param name="handled">Whether or not this item has been handled.</param>
-        private static void LogItem(Item item, bool handled)
+        /// <param name="item">The name of the item to check.</param>
+        /// <returns>The amount of times this item has been logged.</returns>
+        private static int CheckItem(string itemName)
         {
-            WorldManager.instance.SaveExtraKeyValues
-                .SetOrAdd(item.Name, handled.ToString());
+            // Attempt to get current logged count from save.
+            if (WorldManager.instance.SaveExtraKeyValues.GetWithKey(itemName) is SerializedKeyValuePair kvp)
+            {
+                // If exists, return current count
+                return Convert.ToInt32(kvp.Value);
+            }
+            else
+            {
+                // Otherwise, return zero
+                return 0;
+            }
         }
 
         /// <summary>
-        /// Log a <see cref="Item"/> of type <see cref="ItemType.Resource"/> as received.
+        /// Log an <see cref="Item"/> as received in this save.
         /// </summary>
-        /// <param name="item">The resource <see cref="Item"/> to log.</param>
-        /// <param name="discovered">Whether or not the resource has been discovered.</param>
-        private static void LogResource(Item item, bool discovered)
+        /// <param name="itemName">The name of the item to log.</param>
+        /// <param name="total">(OPTIONAL) Override the current stored total.</param>
+        private static void LogItem(string itemName, int? totalOverride = null)
         {
-            // Check if item is a resource
-            if (item.ItemType is ItemType.Resource or ItemType.Trap)
+            // Check if item has already been logged
+            if (WorldManager.instance.SaveExtraKeyValues.GetWithKey(itemName) is SerializedKeyValuePair kvp)
             {
-                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, discovered.ToString());
+                // If it has, update the current logged count
+                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(itemName, (totalOverride ?? Convert.ToInt32(kvp.Value) + 1).ToString());
+            }
+            else
+            {
+                // If it hasn't, create an entry
+                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(itemName, (totalOverride ?? 1).ToString());
             }
         }
     }

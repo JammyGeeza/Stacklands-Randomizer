@@ -159,11 +159,6 @@ namespace Stacklands_Randomizer_Mod
                 return false;
             }
 
-            foreach (Quest quest in QuestManager.instance.AllQuests)
-            {
-                Debug.Log($"{quest.Id}: {quest.Description}");
-            }
-
             Dictionary<object, bool> dictionary = WasExpandedDict(__instance.QuestsParent.GetComponentsInChildren<ExpandableLabel>());
             IEnumerable<Quest> source = [
                 .. QuestManager.instance.AllQuests.Where(q =>
