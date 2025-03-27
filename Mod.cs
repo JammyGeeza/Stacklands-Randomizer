@@ -508,7 +508,7 @@ namespace Stacklands_Randomizer_Mod
             // Add starting inventory to queue (if any)
             if (StartInventory.Count > 0)
             {
-                AddToItemQueue(() => ItemHandler.HandleBulk(StartInventory.Keys, forceCreate));
+                ItemSyncHandler.SyncItems(StartInventory.Keys, forceCreate);
             }
 
             Debug.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
@@ -516,7 +516,7 @@ namespace Stacklands_Randomizer_Mod
             // Add all received items from server (if any)
             if (_session.Items.AllItemsReceived.Count > 0)
             {
-                AddToItemQueue(() => ItemHandler.HandleBulk(_session.Items.AllItemsReceived, forceCreate));
+                ItemSyncHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
             }
         }
 
@@ -593,7 +593,7 @@ namespace Stacklands_Randomizer_Mod
         private void Items_ItemReceived(ReceivedItemsHelper itemsHelper)
         {
             Debug.Log($"Item received! Adding to queue...");
-            AddToItemQueue(() => ItemHandler.HandleItem(itemsHelper.DequeueItem()));
+            AddToItemQueue(() => ItemHandler.SpawnItem(itemsHelper.DequeueItem()));
         }
 
         /// <summary>
@@ -1041,7 +1041,7 @@ namespace Stacklands_Randomizer_Mod
 
             if (!string.IsNullOrWhiteSpace(unfoundBooster))
             {
-                ItemHandler.HandleBoosterPack(unfoundBooster);
+                ItemHandler.UnlockBoosterPackItem(new Item() { ItemId = unfoundBooster, ItemType = ItemType.BoosterPack, Name = "Test Booster Unlock" });
             }
         }
 
@@ -1132,7 +1132,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            AddToItemQueue(() => ItemHandler.HandleItem(item.Name));
+            AddToItemQueue(() => ItemHandler.SpawnItem(item.Name));
         }
 
         /// <summary>

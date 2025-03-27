@@ -101,11 +101,12 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Wood x3"                            , ItemId = Cards.wood                           , ItemType = ItemType.Resource, Amount = 3 },
 
             // Trap Bundles
-            new() { Name = "Get Gooped!"                        , ItemId = Cards.goop                           , ItemType = ItemType.Trap, Amount = 15 },
-            new() { Name = "Rabbits!"                           , ItemId = ModCards.rabbit                      , ItemType = ItemType.Trap, Amount = 5 },
-            new() { Name = "Rats!"                              , ItemId = ModCards.rat                         , ItemType = ItemType.Trap, Amount = 5 },
-            new() { Name = "Small Slimes!"                      , ItemId = ModCards.small_slime                 , ItemType = ItemType.Trap, Amount = 5 },
-            new() { Name = "Snakes!"                            , ItemId = ModCards.snake                       , ItemType = ItemType.Trap, Amount = 5 },
+            new() { Name = "Chickens"                           , ItemId = ModCards.chicken                     , ItemType = ItemType.Trap, Amount = 5 },
+            new() { Name = "Goop"                               , ItemId = Cards.goop                           , ItemType = ItemType.Trap, Amount = 15 },
+            new() { Name = "Rabbits"                            , ItemId = ModCards.rabbit                      , ItemType = ItemType.Trap, Amount = 5 },
+            new() { Name = "Rat"                                , ItemId = ModCards.rat                         , ItemType = ItemType.Trap, Amount = 1 },
+            new() { Name = "Slime"                              , ItemId = ModCards.slime                       , ItemType = ItemType.Trap, Amount = 1 },
+            new() { Name = "Snake"                              , ItemId = ModCards.snake                       , ItemType = ItemType.Trap, Amount = 1 },
 
             #endregion
 

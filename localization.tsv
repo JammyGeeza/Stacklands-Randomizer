@@ -1,12 +1,14 @@
 Term	Notes	English
+ap_chicken_name		Trap Chicken
+ap_chicken_description		Clucks around and causes annoyance.
 ap_rabbit_name		Trap Rabbit
-ap_rabbit_description		Its purpose is to hop around and cause annoyance.
+ap_rabbit_description		Hops around and causes annoyance.
 ap_rat_name		Trap Rat
-ap_rat_description		Its purpose is to be filthy and cause annoyance.
-ap_small_slime_name		Trap Small Slime
-ap_small_slime_description		Its purpose is to be slimy and cause annoyance.
+ap_rat_description		Scuttles around and wants to bite you.
+ap_slime_name		Trap Small Slime
+ap_slime_description		Slides around and wants to slime you.
 ap_snake_name		Trap Snake
-ap_snake_description		Its purpose is to slither and cause annoyance.
+ap_snake_description		Slithers around and wants to bite you.
 quest_kill_bear_text		Kill a Bear
 quest_kill_dark_elf_text		Kill a Dark Elf
 quest_kill_elf_text		Kill an Elf

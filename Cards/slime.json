@@ -1,9 +1,9 @@
 {
   "$schema": "../schemas/card.schema.json",
-  "id": "ap_small_slime",
-  "nameTerm": "ap_small_slime_name",
-  "descriptionTerm": "ap_small_slime_description",
-  "icon": "small_slime",
+  "id": "ap_slime",
+  "nameTerm": "ap_slime_name",
+  "descriptionTerm": "ap_slime_description",
+  "icon": "slime",
   "value": -1,
   "type": "Mobs",
   "script": "Enemy",
@@ -11,7 +11,7 @@
   "_HealthPoints": 4,
   "_HideFromCardopedia": true,
   "_InheritCombatStatsFromOtherCard": true,
-  "_InheritCombatStatsFrom": "small_slime",
+  "_InheritCombatStatsFrom": "slime",
   "_IsAggressive": true,
-  "_MoveTime": 3
+  "_MoveTime": 5
 }

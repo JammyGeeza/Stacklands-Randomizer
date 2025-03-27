@@ -7,9 +7,10 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Cards\chicken.json" />
     <None Remove="Cards\rabbit.json" />
     <None Remove="Cards\rat.json" />
-    <None Remove="Cards\small_slime.json" />
+    <None Remove="Cards\slime.json" />
     <None Remove="Cards\snake.json" />
   </ItemGroup>
   <ItemGroup>
@@ -78,10 +79,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Cards\chicken.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Cards\snake.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Cards\small_slime.json">
+    <Content Include="Cards\slime.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Cards\rat.json">
