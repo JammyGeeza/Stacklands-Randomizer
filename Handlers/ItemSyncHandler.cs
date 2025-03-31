@@ -31,7 +31,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="itemNames">A list of all item names to be synced.</param>
         public static void SyncItems(IEnumerable<string> itemNames, bool forceCreate = false)
         {
-            SyncItems(itemNames.Select(id => ItemMapping.Map.SingleOrDefault(m => m.ItemId == id)).ToArray(), forceCreate);
+            SyncItems(itemNames.Select(name => ItemMapping.Map.SingleOrDefault(m => m.Name == name)).ToArray(), forceCreate);
         }
 
         /// <summary>
