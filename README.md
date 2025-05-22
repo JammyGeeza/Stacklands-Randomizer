@@ -18,9 +18,10 @@ For the list of currently known issues, please see the [open issues](https://git
 ## How to Install the Mod to Stacklands
 1. Download the `StacklandsRandomizer-vX.X.X.zip` file included in your chosen release. _([find the latest release here](https://github.com/JammyGeeza/Stacklands-Randomizer/releases/latest))_
 2. Navigate to `%LocalAppData%low\sokpop\Stacklands\Mods`.
-   - _This path will look something like `C:\[user]\AppData\LocalLow\sokpop\Stacklands\Mods`_
+   - _This path will typically be: `C:\Users\[your user]\AppData\LocalLow\sokpop\Stacklands\Mods`_
 3. Extract the contents of the `StacklandsRandomizer-vX.X.X.zip` file to this directory.
-   - _Your directory structure should be: `..\sokpop\Stacklands\Mods\StacklandsRandomizer\[all .dll, .json etc. files here]`_
+   - _Your file and directory structure should look like: `..\sokpop\Stacklands\Mods\StacklandsRandomizer\[all .dll, .json etc. files here]`_
+     ![image](https://github.com/user-attachments/assets/d83d0da5-e053-4de8-af1d-aa01b02e669c)
 4. Start the game
 
 ## How to Use the Mod
