@@ -8,7 +8,7 @@ In each run, all quests are checks and all Booster Packs and Ideas are items rec
 
 ### Current Support
 - Mainland _(full support)_
-- ~~The Dark Forest~~ _(coming soon...)_
+- The Dark Forest _(full support)_
 - ~~The Island~~ _(coming soon...)_
 - ~~DLC~~ _(not yet planned)_
 
