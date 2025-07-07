@@ -9,267 +9,6 @@ namespace Stacklands_Randomizer_Mod
     public static class ItemHandler
     {
         /// <summary>
-        /// Handle the unlocking of booster pack(s).
-        /// </summary>
-        /// <param name="ideaIds">The ID(s) of the booster pack(s) to be created.</param>
-        public static void HandleBoosterPack(string boosterId)
-        {
-            try
-            {
-                if (!WorldManager.instance.CurrentSave.FoundBoosterIds.Contains(boosterId))
-                {
-                    WorldManager.instance.CurrentSave.FoundBoosterIds.Add(boosterId);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to handle Booster Pack(s). Reason: '{ex.Message}'.");
-            }
-        }
-
-        /// <summary>
-        /// Handle the creation of idea (blueprint) cards.
-        /// </summary>
-        /// <param name="ideaIds">The card ID(s) of the idea(s) to be created.</param>
-        public static void HandleIdea(string ideaId)
-        {
-            try
-            {
-                // Create card (automatically marks as found)
-                WorldManager.instance.CreateCard(
-                    WorldManager.instance.GetRandomSpawnPosition(),
-                    ideaId,
-                    true,
-                    false,
-                    true);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to handle Idea(s). Reason: '{ex.Message}'.");
-            }
-        }
-
-        /// <summary>
-        /// Handle a received item from the Archipelago server.
-        /// </summary>
-        /// <param name="itemInfo">The received <see cref="ItemInfo"/> to be handled.</param>
-        /// <param name="forceCreate">Whether or not this item should be forcefully created.</param>
-        public static void HandleItem(ItemInfo itemInfo, bool forceCreate = false)
-        {
-            if (ItemMapping.Map.SingleOrDefault(m => m.Matches(itemInfo.ItemName)) is Item mappedItem)
-            {
-                HandleItem(mappedItem, itemInfo, forceCreate);
-            }
-            else
-            {
-                Debug.LogError($"Item '{itemInfo.ItemName}' could not be found in the items mapping.");
-            }
-        }
-
-        /// <summary>
-        /// Handle a received item from the Archipelago server by the item name.
-        /// </summary>
-        /// <param name="itemName">The received item name to be handled.</param>
-        /// <param name="sentBy">The player that this item was sent by.</param>
-        /// <param name="forceCreate">Whether or not this item should be forcefully created.</param>
-        public static void HandleItem(string itemName, bool forceCreate = false)
-        {
-            if (ItemMapping.Map.SingleOrDefault(m => m.Matches(itemName)) is Item mappedItem)
-            {
-                HandleItem(mappedItem, null, forceCreate);
-            }
-            else
-            {
-                Debug.LogError($"Item '{itemName}' could not be found in the items mapping.");
-            }
-        }
-
-        /// <summary>
-        /// Handle a received item from the Archipelago server by an <see cref="Item"/> mapping.
-        /// </summary>
-        /// <param name="mappedItem">The received <see cref="Item"/> to be handled.</param>
-        /// <param name="sentBy">The player that this item was sent by.</param>
-        /// <param name="forceCreate">Whether or not this item should be forcefully created.</param>
-        private static void HandleItem(Item mappedItem, ItemInfo? itemInfo, bool forceCreate = false)
-        {
-            Debug.Log($"Handling item '{mappedItem.Name}'...");
-
-            // Get whether item has been discovered previously this save or not
-            bool itemDiscovered = IsItemDiscovered(mappedItem);
-
-            Debug.Log($"Item '{mappedItem.Name}' already discovered: {itemDiscovered}");
-
-            // Check if we are in-game
-            if (!StacklandsRandomizer.instance.IsInGame)
-            {
-                Debug.Log($"Not currently in game. Skipping...");
-
-                // Log item (only if resource / trap) as undiscovered if forced to create or its current discovered state
-                LogResource(mappedItem, !forceCreate && itemDiscovered);
-                return;
-            }
-
-            // If not forcing to create, check if item has already been discovered
-            if (!forceCreate && itemDiscovered)
-            {
-                Debug.Log($"Item '{mappedItem.Name}' has already been handled. Skipping...");
-                return;
-            }
-
-            // Text for notification
-            string title = string.Empty;
-
-            switch (mappedItem.ItemType)
-            {
-                case ItemType.BoosterPack:
-                    {
-                        // Handle unlocking of booster pack
-                        HandleBoosterPack(mappedItem.ItemId);
-
-                        title = $"Booster Pack Unlocked!";
-                    }
-                    break;
-
-                case ItemType.Idea:
-                    {
-                        // Handle creation of idea
-                        HandleIdea(mappedItem.ItemId);
-
-                        title = $"Idea Unlocked!";
-                    }
-                    break;
-
-                case ItemType.Resource:
-                    {
-                        // Handle creation of resource(s)
-                        HandleResource(mappedItem.ItemId, mappedItem.Amount);
-
-                        // Log as discovered
-                        LogResource(mappedItem, true);
-
-                        title = $"Resource{(mappedItem.Amount > 1 ? "s" : "")} Received!";
-                    }
-                    break;
-
-                case ItemType.Trap:
-                    {
-                        // Handle creation of trap(s)
-                        HandleTrap(mappedItem.ItemId, mappedItem.Amount);
-
-                        // Log as discovered
-                        LogResource(mappedItem, true);
-
-                        title = $"Trap Received!";
-                    }
-                    break;
-
-                default:
-                    {
-                        Debug.LogError($"Unhandled item type '{mappedItem.ItemType}'");
-                    }
-                    return;
-            }
-
-            // If not forcefully created and not sent from the current player...
-            if (!forceCreate && itemInfo != null && !itemInfo.Player.Name.Equals(StacklandsRandomizer.instance.PlayerName))
-            {
-                // Display message
-                StacklandsRandomizer.instance.DisplayNotification(
-                    title,
-                    $"{mappedItem.Name} was sent to you by {itemInfo.Player.Name}\n({itemInfo.LocationName})");
-            }
-        }
-
-        /// <summary>
-        /// Handle the creation of resource cards.
-        /// </summary>
-        /// <param name="ideaIds">The card IDs of the resource(s) to be created.</param>
-        public static bool HandleResource(string resourceId, int amount)
-        {
-            try
-            {
-                // Create resources as a stack (automatically marks as found)
-                WorldManager.instance.CreateCardStack(
-                    WorldManager.instance.GetRandomSpawnPosition(),
-                    amount,
-                    resourceId,
-                    false);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to handle Idea(s). Reason: '{ex.Message}'.");
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Handle the creation of trap cards.
-        /// </summary>
-        /// <param name="cardId">The card IDs of the trap(s) to be created.</param>
-        public static bool HandleTrap(string cardId, int amount)
-        {
-            try
-            {
-                // Randomly place each trap
-                for (int i = 0; i < amount; i++)
-                {
-                    WorldManager.instance.CreateCard(
-                        WorldManager.instance.GetRandomSpawnPosition(),
-                        cardId,
-                        true,
-                        false,
-                        true);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Failed to handle trap(s). Reason: '{ex.Message}'.");
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Check if an item has already been discovered in this game save.
-        /// </summary>
-        /// <param name="item">The <see cref="Item"/> to check.</param>
-        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
-        private static bool IsItemDiscovered(Item item)
-        {
-            switch (item.ItemType)
-            {
-                case ItemType.BoosterPack:
-                    {
-                        return IsBoosterPackDiscovered(item.ItemId);
-                    }
-
-                case ItemType.Idea:
-                    {
-                        return IsIdeaDiscovered(item.ItemId);
-                    }
-
-                case ItemType.Resource:
-                    {
-                        return IsResourceDiscovered(item.Name);
-                    }
-
-                case ItemType.Trap:
-                    {
-                        return IsTrapDiscovered(item.Name);
-                    }
-
-                default:
-                    {
-                        Debug.LogError($"Unhandled ItemType '{item.ItemType}' in {nameof(IsItemDiscovered)}()");
-                    }
-                    return true; // <- Treat as discovered to try and prevent further action
-            }
-        }
-
-        /// <summary>
         /// Check if a booster pack has been discovered in the current save.
         /// </summary>
         /// <param name="boosterId">The ID of the booster pack to check.</param>
@@ -289,49 +28,254 @@ namespace Stacklands_Randomizer_Mod
             return WorldManager.instance.CurrentSave.FoundCardIds.Contains(ideaId);
         }
 
-        /// <summary>
-        /// Check if a <see cref="Item"/> of type <see cref="ItemType.Resource"/> has been discovered in the current save.
-        /// </summary>
-        /// <param name="resourceName">The name of the <see cref="Item"/> to check.</param>
-        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
-        public static bool IsResourceDiscovered(string resourceName)
-        {
-            return WorldManager.instance.SaveExtraKeyValues.GetWithKey(resourceName) is SerializedKeyValuePair kvp
-                && Convert.ToBoolean(kvp.Value);
-        }
 
         /// <summary>
-        /// Check if a <see cref="Item"/> of type <see cref="ItemType.Trap"/> has been discovered in the current save.
+        /// Log a filler <see cref="Item"/> (of type <see cref="ItemType.Resource"/>) as received in this session.
         /// </summary>
-        /// <param name="resourceName">The name of the <see cref="Item"/> to check.</param>
-        /// <returns><see cref="true"/> if discovered, <see cref="false"/> if not.</returns>
-        public static bool IsTrapDiscovered(string trapName)
+        /// <param name="item">The <see cref="Item"/> (of type <see cref="ItemType.Resource"/>) to be logged.</param>
+        /// <param name="totaloverride">(OPTIONAL) Override the current stored total. If left blank, current total will be incremented by 1.</param>
+        public static void LogFillerItem(Item item, int? totaloverride = null)
         {
-            return IsResourceDiscovered(trapName);
-        }
+            //LogFillerItem(item.Name, totaloverride);
 
-        /// <summary>
-        /// Log an item as received from the server.
-        /// </summary>
-        /// <param name="item">The <see cref="Item"/> to be logged.</param>
-        /// <param name="handled">Whether or not this item has been handled.</param>
-        private static void LogItem(Item item, bool handled)
-        {
-            WorldManager.instance.SaveExtraKeyValues
-                .SetOrAdd(item.Name, handled.ToString());
-        }
-
-        /// <summary>
-        /// Log a <see cref="Item"/> of type <see cref="ItemType.Resource"/> as received.
-        /// </summary>
-        /// <param name="item">The resource <see cref="Item"/> to log.</param>
-        /// <param name="discovered">Whether or not the resource has been discovered.</param>
-        private static void LogResource(Item item, bool discovered)
-        {
-            // Check if item is a resource
-            if (item.ItemType is ItemType.Resource or ItemType.Trap)
+            if (item.ItemType is ItemType.Resource)
             {
-                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, discovered.ToString());
+                // Has this item already been logged?
+                if (WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair kvp)
+                {
+                    // Add to count or override with new value, if provided
+                    WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, (totaloverride ?? Convert.ToInt32(kvp.Value) + 1).ToString());
+                }
+                else
+                {
+                    // Set count as 1 or override with new value, if provided.
+                    WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, (totaloverride ?? 1).ToString());
+                }
+            }
+            else
+            {
+                Debug.LogError($"Invalid item type '{item.ItemType}' cannot be logged.");
+            }
+        }
+
+        /// <summary>
+        /// Spawn a received item from the Archipelago server.
+        /// </summary>
+        /// <param name="itemInfo">The received <see cref="ItemInfo"/> to be spawned.</param>
+        public static void SpawnItem(ItemInfo itemInfo)
+        {
+            if (ItemMapping.Map.SingleOrDefault(m => m.Matches(itemInfo.ItemName)) is Item mappedItem)
+            {
+                SpawnItem(mappedItem, itemInfo);
+            }
+            else
+            {
+                Debug.LogError($"Item '{itemInfo.ItemName}' could not be found in the items mapping.");
+            }
+        }
+
+        /// <summary>
+        /// Spawn a received item from the Archipelago server by the item name.
+        /// </summary>
+        /// <param name="itemName">The received item name to be spawned.</param>
+        public static void SpawnItem(string itemName)
+        {
+            if (ItemMapping.Map.SingleOrDefault(m => m.Matches(itemName)) is Item mappedItem)
+            {
+                SpawnItem(mappedItem, null);
+            }
+            else
+            {
+                Debug.LogError($"Item '{itemName}' could not be found in the items mapping.");
+            }
+        }
+
+        /// <summary>
+        /// Spawn a received item from the Archipelago server by an <see cref="Item"/> mapping.
+        /// </summary>
+        /// <param name="mappedItem">The received <see cref="Item"/> to be spawned.</param>
+        /// <param name="itemInfo">Accompanying <see cref="ItemInfo"/> for in-game notification logic.</param>
+        private static void SpawnItem(Item mappedItem, ItemInfo? itemInfo)
+        {
+            Debug.Log($"Handling item '{mappedItem.Name}'...");
+
+            // Check if we are in-game
+            if (!StacklandsRandomizer.instance.IsInGame)
+            {
+                Debug.Log($"Not currently in game. Skipping...");
+                return;
+            }
+
+            // Text for notification
+            string title = string.Empty;
+
+            switch (mappedItem.ItemType)
+            {
+                case ItemType.BoosterPack:
+                    {
+                        // Handle unlocking of booster pack
+                        UnlockBoosterPackItem(mappedItem);
+
+                        title = $"Booster Pack Received!";
+                    }
+                    break;
+
+                case ItemType.Idea:
+                    {
+                        // Handle creation of idea
+                        SpawnIdeaItem(mappedItem);
+
+                        title = $"Idea Received!";
+                    }
+                    break;
+
+                case ItemType.Resource:
+                    {
+                        // Spawn the resource item
+                        SpawnResourceItem(mappedItem);
+
+                        title = $"Resource Received!";
+                    }
+                    break;
+
+                case ItemType.Trap:
+                    {
+                        // Spawn the trap item
+                        SpawnTrapItem(mappedItem);
+
+                        title = $"Trap Received!";
+                    }
+                    break;
+
+                default:
+                    {
+                        Debug.LogError($"Unhandled item type '{mappedItem.ItemType}'");
+                    }
+                    return;
+            }
+
+            // If not forcefully created and not sent from the current player...
+            if (itemInfo != null && !itemInfo.Player.Name.Equals(StacklandsRandomizer.instance.PlayerName))
+            {
+                // Display message
+                StacklandsRandomizer.instance.DisplayNotification(
+                    title,
+                    $"{mappedItem.Name} was sent to you by {itemInfo.Player.Name}\n({itemInfo.LocationName})");
+            }
+        }
+
+        /// <summary>
+        /// Spawn required cards for an <see cref="Item"/> of type <see cref="ItemType.Idea"/>.
+        /// </summary>
+        /// <param name="item">The idea item to be spawned.</param>
+        public static void SpawnIdeaItem(Item item)
+        {
+            if (item.ItemType is ItemType.Idea)
+            {
+                try
+                {
+                    // Create card (automatically marks as found)
+                    WorldManager.instance.CreateCard(
+                        WorldManager.instance.GetRandomSpawnPosition(),
+                        item.ItemId,
+                        true,
+                        false,
+                        true);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to spawn Idea item '{item.Name}'. Reason: '{ex.Message}'.");
+                }
+            }
+            else
+            {
+                Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as an Idea.");
+            }
+        }
+
+        /// <summary>
+        /// Spawn required cards for an <see cref="Item"/> of type <see cref="ItemType.Resource"/>.
+        /// </summary>
+        /// <param name="item">The resource item to be spawned.</param>
+        public static void SpawnResourceItem(Item item)
+        {
+            if (item.ItemType is ItemType.Resource)
+            {
+                try
+                {
+                    // Create resources as a stack (automatically marks as found)
+                    WorldManager.instance.CreateCardStack(
+                        WorldManager.instance.GetRandomSpawnPosition(),
+                        item.Amount,
+                        item.ItemId,
+                        false);
+
+                    // Increment the received count of this filler item.
+                    LogFillerItem(item);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to spawn Resource item '{item.Name}'. Reason: '{ex.Message}'.");
+                }
+            }
+            else
+            {
+                Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as a Resource.");
+            }
+        }
+
+        /// <summary>
+        /// Spawn required cards for an <see cref="Item"/> of type <see cref="ItemType.Trap"/>.
+        /// </summary>
+        /// <param name="item">The trap item to be spawned.</param>
+        public static void SpawnTrapItem(Item item)
+        {
+            if (item.ItemType is ItemType.Trap)
+            {
+                try
+                {
+                    // Randomly place each trap
+                    for (int i = 0; i < item.Amount; i++)
+                    {
+                        WorldManager.instance.CreateCard(
+                            WorldManager.instance.GetRandomSpawnPosition(),
+                            item.ItemId,
+                            true,
+                            false,
+                            true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to spawn Trap item '{item.Name}'. Reason: '{ex.Message}'.");
+                }
+            }
+            else
+            {
+                Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as a Trap.");
+            }
+        }
+
+        /// <summary>
+        /// Unlock required booster pack for an <see cref="Item"/> of type <see cref="ItemType.BoosterPack"/>.
+        /// </summary>
+        /// <param name="item">The booster pack to be unlocked.</param>
+        public static void UnlockBoosterPackItem(Item item)
+        {
+            if (item.ItemType is ItemType.BoosterPack)
+            {
+                try
+                {
+                    WorldManager.instance.CurrentSave.FoundBoosterIds.Add(item.ItemId);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Failed to spawn Booster Pack item '{item.Name}'. Reason: '{ex.Message}'.");
+                }
+            }
+            else
+            {
+                Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as a Booster Pack.");
             }
         }
     }

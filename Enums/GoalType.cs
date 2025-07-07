@@ -7,6 +7,6 @@ namespace Stacklands_Randomizer_Mod
     public enum GoalType : int
     {
         KillDemon = 0, // Kill the Demon
-        KillDemonLord = 1, // Kill the Demon Lord
+        KillWickedWitch = 1, // Kill the Wicked Witch
     }
 }

@@ -1,0 +1,16 @@
+{
+  "$schema": "../schemas/card.schema.json",
+  "id": "ap_rabbit",
+  "nameTerm": "ap_rabbit_name",
+  "descriptionTerm": "ap_rabbit_description",
+  "icon": "rabbit",
+  "value": -1,
+  "type": "Mobs",
+  "script": "Animal",
+  "_CanHaveInventory": false,
+  "_HealthPoints": 5,
+  "_HideFromCardopedia": true,
+  "_InheritCombatStatsFromOtherCard": true,
+  "_InheritCombatStatsFrom": "rabbit",
+  "_MoveTime": 3
+}

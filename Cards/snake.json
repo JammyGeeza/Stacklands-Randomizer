@@ -1,0 +1,17 @@
+{
+  "$schema": "../schemas/card.schema.json",
+  "id": "ap_snake",
+  "nameTerm": "ap_snake_name",
+  "descriptionTerm": "ap_snake_description",
+  "icon": "snake",
+  "value": -1,
+  "type": "Mobs",
+  "script": "Enemy",
+  "_CanHaveInventory": false,
+  "_HealthPoints": 9,
+  "_HideFromCardopedia": true,
+  "_InheritCombatStatsFromOtherCard": true,
+  "_InheritCombatStatsFrom": "snake",
+  "_IsAggressive": true,
+  "_MoveTime": 3
+}

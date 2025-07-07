@@ -3,13 +3,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Archipelago.MultiClient.Net;
 using Archipelago.MultiClient.Net.Enums;
-using Archipelago.MultiClient.Net.Packets;
 using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using HarmonyLib.Tools;
 using Archipelago.MultiClient.Net.Models;
-using System.Collections.ObjectModel;
-using System.Linq.Expressions;
 using Newtonsoft.Json;
 using System.Collections;
 
@@ -23,9 +20,11 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
+        private static readonly string TAG_DARKFOREST = "dark_forest";
         private static readonly string TAG_DEATHLINK = "death_link";
         private static readonly string TAG_GOAL = "goal";
-        private static readonly string TAG_PAUSE_ENABLED = "pause_enabled";
+        private static readonly string TAG_MOBSANITY = "mobsanity";
+        private static readonly string TAG_PAUSE_ENABLED = "pausing";
         private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
 
         public static StacklandsRandomizer instance;
@@ -86,9 +85,15 @@ namespace Stacklands_Randomizer_Mod
         private bool _handlingDeathLink = false;
 
         /// <summary>
-        /// Get the current goal for this run.
+        /// Gets or sets the current goal for this run.
         /// </summary>
         public Goal CurrentGoal { get; private set; }
+
+        /// <summary>
+        /// Gets or sets whether The Dark Forest is enabled.
+        /// </summary>
+        public bool DarkForestEnabled { get; private set; }
+
 
         /// <summary>
         /// Check if currently connected to an archipelago server.
@@ -99,11 +104,9 @@ namespace Stacklands_Randomizer_Mod
             && _session.Socket.Connected;
 
         /// <summary>
-        /// Whether or not pausing is enabled for this run.
+        /// Gets or sets whether pausing is enabled for this run.
         /// </summary>
-        public bool IsPauseEnabled => _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)
-            ? Convert.ToBoolean(pause)
-            : true;
+        public bool IsPauseEnabled { get; private set; }
                 
 
         /// <summary>
@@ -113,9 +116,9 @@ namespace Stacklands_Randomizer_Mod
             WorldManager.instance.CurrentGameState is WorldManager.GameState.Playing or WorldManager.GameState.Paused;
 
         /// <summary>
-        /// Whether or not the run should start with the basic pack unlocked by default.
+        /// Gets or sets whether Mobsanity is enabled.
         /// </summary>
-        //public bool IsStartWithBasicPack { get; private set; }
+        public bool MobsanityEnabled { get; private set; }
 
         /// <summary>
         /// Get the player name for the current world.
@@ -202,12 +205,6 @@ namespace Stacklands_Randomizer_Mod
                     // For some reason, trying to connect in any method other than Awake() causes the game to completely freeze.
                     // I haven't figured out why yet, so to get around this, the OP quick-restarts the game to force Awake() to call again.
 
-                    // Set goal for this run
-                    GoalType goal = _slotData.TryGetValue(TAG_GOAL, out object val) ? (GoalType)Convert.ToInt32(val) : GoalType.KillDemon;
-                    CurrentGoal = GoalMapping.Map.Single(m => m.Type == goal);
-
-                    Debug.Log($"Goal for this run: '{CurrentGoal.Name}'");
-
                     // If 'Send Goal' is set to true, send the goal
                     if (sendGoal.Value)
                     {
@@ -274,7 +271,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                //SimulateCreateCard(Cards.villager);
+                //SimulateCreateCard(Cards.strange_portal);
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
@@ -391,14 +388,15 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
-            Debug.Log($"Processing completed quest: '{quest.Description}' as a location check...");
+            string description = quest.Description != "---MISSING---" ? quest.Description : quest.DescriptionTermOverride;
+            Debug.Log($"Processing completed quest: '{description}' as a location check...");
 
             ScoutedItemInfo location = null;
 
             try
             {
                 // Check if location exists as a check
-                long locationId = _session.Locations.GetLocationIdFromName(GAME_NAME, quest.Description);
+                long locationId = _session.Locations.GetLocationIdFromName(GAME_NAME, description);
                 Dictionary<long, ScoutedItemInfo> locations = await _session.Locations.ScoutLocationsAsync(locationId);
 
                 // Check if location has been returned
@@ -507,18 +505,18 @@ namespace Stacklands_Randomizer_Mod
 
             Debug.Log($"Total starting items: {StartInventory.Count}");
 
-            // Get starting inventory, if any
-            foreach (string item in StartInventory.Keys)
+            // Add starting inventory to queue (if any)
+            if (StartInventory.Count > 0)
             {
-                AddToItemQueue(() => ItemHandler.HandleItem(item, forceCreate));
+                ItemSyncHandler.SyncItems(StartInventory.Keys, forceCreate);
             }
 
-            Debug.Log($"Total items received from server: {_session.Items.AllItemsReceived.Count}");
+            Debug.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
 
-            // Get all items received from server
-            foreach (ItemInfo item in _session.Items.AllItemsReceived)
+            // Add all received items from server (if any)
+            if (_session.Items.AllItemsReceived.Count > 0)
             {
-                AddToItemQueue(() => ItemHandler.HandleItem(item, forceCreate));
+                ItemSyncHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
             }
         }
 
@@ -595,7 +593,7 @@ namespace Stacklands_Randomizer_Mod
         private void Items_ItemReceived(ReceivedItemsHelper itemsHelper)
         {
             Debug.Log($"Item received! Adding to queue...");
-            AddToItemQueue(() => ItemHandler.HandleItem(itemsHelper.DequeueItem()));
+            AddToItemQueue(() => ItemHandler.SpawnItem(itemsHelper.DequeueItem()));
         }
 
         /// <summary>
@@ -675,6 +673,34 @@ namespace Stacklands_Randomizer_Mod
                 if (Login(slotName, password))
                 {
                     Debug.Log("Logged in successfully!");
+
+                    DarkForestEnabled = _slotData.TryGetValue(TAG_DARKFOREST, out object forest)
+                        ? Convert.ToBoolean(forest)
+                        : true; // Default to false if not found
+
+                    Debug.Log($"Dark Forest enabled for this run: {DarkForestEnabled}");
+
+                    // Set goal setting for this run
+                    CurrentGoal = _slotData.TryGetValue(TAG_GOAL, out object goal)
+                        ? GoalMapping.Map.Single(g => g.Type == (GoalType)Convert.ToInt32(goal))
+                        : GoalMapping.Map.Single(g => g.Type == GoalType.KillDemon); // Default to 'Kill Demon' if not found
+                    
+                    Debug.Log($"Goal for this run: '{CurrentGoal.Name}'");
+
+                    // Set pause enabled setting for this run
+                    IsPauseEnabled = _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)
+                        ? Convert.ToBoolean(pause)
+                        : true; // Default to true if not found
+
+                    Debug.Log($"Pausing enabled for this run: {IsPauseEnabled}");
+
+                    // Set mobsanity setting for this run
+                    MobsanityEnabled = _slotData.TryGetValue(TAG_MOBSANITY, out object mobsanity)
+                        ? Convert.ToBoolean(mobsanity)
+                        : false; // Default to false if not found
+
+                    Debug.Log($"Mobsanity enabled for this run: {MobsanityEnabled}");
+
                     return true;
                 }
                 else
@@ -1015,7 +1041,7 @@ namespace Stacklands_Randomizer_Mod
 
             if (!string.IsNullOrWhiteSpace(unfoundBooster))
             {
-                ItemHandler.HandleBoosterPack(unfoundBooster);
+                ItemHandler.UnlockBoosterPackItem(new Item() { ItemId = unfoundBooster, ItemType = ItemType.BoosterPack, Name = "Test Booster Unlock" });
             }
         }
 
@@ -1067,20 +1093,20 @@ namespace Stacklands_Randomizer_Mod
                     }
                     break;
 
-                case GoalType.KillDemonLord:
+                case GoalType.KillWickedWitch:
                     {
                         // Create a demon lord
                         WorldManager.instance.CreateCard(
                             WorldManager.instance.GetRandomSpawnPosition(),
-                            Cards.demon_lord,
+                            Cards.wicked_witch,
                             true,
                             false,
                             true);
 
-                        // Find the demon and kill it
-                        if (FindObjectOfType<Demon>() is Demon demon)
+                        // Find the witch and kill it
+                        if (FindObjectOfType<WickedWitch>() is WickedWitch witch)
                         {
-                            demon.Die();
+                            witch.Die();
                         }
                     }
                     break;
@@ -1106,7 +1132,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            AddToItemQueue(() => ItemHandler.HandleItem(item.Name, false));
+            AddToItemQueue(() => ItemHandler.SpawnItem(item.Name));
         }
 
         /// <summary>

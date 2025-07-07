@@ -1,0 +1,16 @@
+{
+  "$schema": "../schemas/card.schema.json",
+  "id": "ap_chicken",
+  "nameTerm": "ap_chicken_name",
+  "descriptionTerm": "ap_chicken_description",
+  "icon": "chicken",
+  "value": -1,
+  "type": "Mobs",
+  "script": "Animal",
+  "_CanHaveInventory": false,
+  "_HealthPoints": 5,
+  "_HideFromCardopedia": true,
+  "_InheritCombatStatsFromOtherCard": true,
+  "_InheritCombatStatsFrom": "chicken",
+  "_MoveTime": 3
+}

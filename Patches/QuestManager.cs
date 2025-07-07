@@ -45,6 +45,26 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Add custom quests to the list of all quests.
+        /// </summary>
+        [HarmonyPatch(nameof(QuestManager.GetAllQuests))]
+        [HarmonyPostfix]
+        public static void OnGetAllQuests_AddCustomQuests(ref List<Quest> __result)
+        {
+            Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
+
+            // If mobsanity enabled, add mobsanity quests
+            if (StacklandsRandomizer.instance.MobsanityEnabled)
+            {
+                Debug.Log("Inserting Mobsanity quests...");
+
+                // Add mobsanity quests (and only include Dark Forest ones if enabled)
+                __result.AddRange(CustomQuestMapping.Map.Where(q => q.CustomQuestGroup == CustomQuestGroup.Mobsanity 
+                    && (StacklandsRandomizer.instance.DarkForestEnabled || q.QuestLocation != Location.Forest)));
+            }
+        }
+
+        /// <summary>
         /// Prevent the game from unlocking booster packs.
         /// </summary>
         [HarmonyPatch(nameof(QuestManager.JustUnlockedPack))]
@@ -70,7 +90,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch(nameof(QuestManager.SpecialActionComplete))]
         [HarmonyPrefix]
-        public static bool OnSpecialActionComplete_Intercept(string action, CardData card = null)
+        public static bool OnSpecialActionComplete_InterceptPre(string action, CardData card = null)
         {
             if (action != "pause_game") // <- Prevents it constantly printing every frame on pause
             {
