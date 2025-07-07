@@ -1,37 +1,37 @@
-Term	Notes	English
-ap_chicken_name		Trap Chicken
-ap_chicken_description		Clucks around and causes annoyance.
-ap_rabbit_name		Trap Rabbit
-ap_rabbit_description		Hops around and causes annoyance.
-ap_rat_name		Trap Rat
-ap_rat_description		Scuttles around and wants to bite you.
-ap_slime_name		Trap Small Slime
-ap_slime_description		Slides around and wants to slime you.
-ap_snake_name		Trap Snake
-ap_snake_description		Slithers around and wants to bite you.
-quest_kill_bear_text		Kill a Bear
-quest_kill_dark_elf_text		Kill a Dark Elf
-quest_kill_elf_text		Kill an Elf
-quest_kill_elf_archer_text		Kill an Elf Archer
-quest_kill_enchanted_shroom_text		Kill an Enchanted Shroom
-quest_kill_ent_text		Kill an Ent
-quest_kill_feral_cat_text		Kill a Feral Cat
-quest_kill_frog_man_text		Kill a Frog Man
-quest_kill_ghost_text		Kill a Ghost
-quest_kill_giant_rat_text		Kill a Giant Rat
-quest_kill_giant_snail_text		Kill a Giant Snail
-quest_kill_goblin_text		Kill a Goblin
-quest_kill_goblin_archer_text		Kill a Goblin Archer
-quest_kill_goblin_shaman_text		Kill a Goblin Shaman
-quest_kill_merman_text		Kill a Merman
-quest_kill_mimic_text		Kill a Mimic
-quest_kill_mosquito_text		Kill a Mosquito
-quest_kill_ogre_text		Kill an Ogre
-quest_kill_orc_wizard_text		Kill an Orc Wizard
-quest_kill_slime_text		Kill a Slime
-quest_kill_small_slime_text		Kill a Small Slime
-quest_kill_snake_text		Kill a Snake
-quest_kill_tiger_text		Kill a Tiger
-quest_kill_wolf_text		Kill a Wolf
-questgroup_additional		Additional
-questgroup_mobsanity		Mobsanity
+Term	Notes	English	Dutch	French	Italian	German	Spanish	Brazilian Portuguese	Polish	Chinese (Simplified)	Chinese (Traditional)	Japanese	Korean
+ap_chicken_name		Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken	Trap Chicken
+ap_chicken_description		Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.	Clucks around and causes annoyance.
+ap_rabbit_name		Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit	Trap Rabbit
+ap_rabbit_description		Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.	Hops around and causes annoyance.
+ap_rat_name		Trap Rat	Trap Rat	Trap Rat	Trap Rat	Trap Rat	Trap Rat	Trap Rat	Trap Rat	Trap Rat	Trap Rat	Trap Rat	Trap Rat
+ap_rat_description		Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.	Scuttles around and wants to bite you.
+ap_slime_name		Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime	Trap Small Slime
+ap_slime_description		Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.	Slides around and wants to slime you.
+ap_snake_name		Trap Snake	Trap Snake	Trap Snake	Trap Snake	Trap Snake	Trap Snake	Trap Snake	Trap Snake	Trap Snake	Trap Snake	Trap Snake	Trap Snake
+ap_snake_description		Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.	Slithers around and wants to bite you.
+quest_kill_bear_text		Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear	Kill a Bear
+quest_kill_dark_elf_text		Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf	Kill a Dark Elf
+quest_kill_elf_text		Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf	Kill an Elf
+quest_kill_elf_archer_text		Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer	Kill an Elf Archer
+quest_kill_enchanted_shroom_text		Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom	Kill an Enchanted Shroom
+quest_kill_ent_text		Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent	Kill an Ent
+quest_kill_feral_cat_text		Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat	Kill a Feral Cat
+quest_kill_frog_man_text		Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man	Kill a Frog Man
+quest_kill_ghost_text		Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost	Kill a Ghost
+quest_kill_giant_rat_text		Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat	Kill a Giant Rat
+quest_kill_giant_snail_text		Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail	Kill a Giant Snail
+quest_kill_goblin_text		Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin	Kill a Goblin
+quest_kill_goblin_archer_text		Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer	Kill a Goblin Archer
+quest_kill_goblin_shaman_text		Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman	Kill a Goblin Shaman
+quest_kill_merman_text		Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman	Kill a Merman
+quest_kill_mimic_text		Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic	Kill a Mimic
+quest_kill_mosquito_text		Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito	Kill a Mosquito
+quest_kill_ogre_text		Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre	Kill an Ogre
+quest_kill_orc_wizard_text		Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard	Kill an Orc Wizard
+quest_kill_slime_text		Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime	Kill a Slime
+quest_kill_small_slime_text		Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime	Kill a Small Slime
+quest_kill_snake_text		Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake	Kill a Snake
+quest_kill_tiger_text		Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger	Kill a Tiger
+quest_kill_wolf_text		Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf	Kill a Wolf
+questgroup_archipelago		Archipelago	Archipelago	Archipelago	Archipelago	Archipelago	Archipelago	Archipelago	Archipelago	Archipelago	Archipelago	Archipelago	Archipelago
+questgroup_mobsanity		Mobsanity	Mobsanity	Mobsanity	Mobsanity	Mobsanity	Mobsanity	Mobsanity	Mobsanity	Mobsanity	Mobsanity	Mobsanity	Mobsanity

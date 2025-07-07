@@ -7,7 +7,7 @@ namespace Stacklands_Randomizer_Mod
 {
     public enum CustomQuestGroup
     {
-        Additional,
+        Archipelago,
         Mobsanity
     }
 }
