@@ -388,7 +388,8 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
-            string description = quest.Description != "---MISSING---" ? quest.Description : quest.DescriptionTermOverride;
+            // Get english description (as these are used in the apworld)
+            string description = SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTerm);
             Debug.Log($"Processing completed quest: '{description}' as a location check...");
 
             ScoutedItemInfo location = null;
