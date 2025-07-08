@@ -15,7 +15,7 @@ Quest completions remain the same as the base game, but the order in which they 
 ### Items
 **Progression** 
 - Booster Packs
-- Ideas _(AKA 'Blueprints')_ for items required to complete Quests such as `Plank`, `Quarry`, `Smithy`, `Temple` etc.
+- Ideas _(AKA 'Blueprints')_ for items required to complete Quests such as `Plank`, `Quarry`, `Smithy`, `Temple` etc. 
 **Useful** 
 - Ideas _(AKA 'Blueprints')_ for items that help make the run easier but don't impact progression such as `Coin Chest`, `Hammer`, `Warehouse` etc.
 **Filler / Junk**
