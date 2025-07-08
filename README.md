@@ -8,19 +8,26 @@ In an archipelago run of Stacklands, you will be completing the in-game quests t
 Quest completions remain the same as the base game, but the order in which they can be completed will depend on the randomisation of the ideas received.
 
 ### Locations
+The locations available in this AP randomizer are:
+
 - 'Mainland' Quests
 - 'The Dark Forest' Quests _(toggled on/off in YAML)_
 - Mobsanity _(killing one of each enemy type - toggled on/off in YAML)_
 
 ### Items
+The items available in this AP randomizer are:
+
 **Progression** 
 - Booster Packs
 - Ideas _(AKA 'Blueprints')_ for items required to complete Quests such as `Plank`, `Quarry`, `Smithy`, `Temple` etc. 
-**Useful** 
+
+- **Useful** 
 - Ideas _(AKA 'Blueprints')_ for items that help make the run easier but don't impact progression such as `Coin Chest`, `Hammer`, `Warehouse` etc.
-**Filler / Junk**
-- Food and Material resources such as ``
-**Traps**
+
+- **Filler / Junk**
+- Food and Material resources such as `Apple`, `Wood`, `Coin` etc.
+
+- **Traps**
 - Enemy Spawns
 - Flood of useless items worth 0 coins
 - _(More to be added soon...)_
