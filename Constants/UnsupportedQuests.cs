@@ -17,6 +17,9 @@ namespace Stacklands_Randomizer_Mod.Constants
             AllQuests.KillDemonLord.Id,                  // Kill the Demon Lord
             AllQuests.CreateAltar.Id,                    // Talk to the Shaman to gain secret knowledge
             AllQuests.CitiesGetBar.Id,                   // Smelt some Ore
+            AllQuests.BreakBottle.Id,                    // Break a Bottle
+            AllQuests.WearCrabScaleArmor.Id,             // Make a Villager Wear Crab Scale Armor
+            AllQuests.CraftAmuletForest.Id               // Craft the Amulet of the Forest
         ];
     }
 }

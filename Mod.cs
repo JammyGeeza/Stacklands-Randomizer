@@ -267,7 +267,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                //SimulateUnlockBooster();
+                //SimulateCreateCard(Cards.villager);
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -287,7 +287,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
-                //SimulateQuestComplete();
+                //SimulateQuestComplete(AllQuests.FinishFirstWave);
             }
             else if (InputController.instance.GetKeyDown(Key.F11))
             {
@@ -1153,6 +1153,17 @@ namespace Stacklands_Randomizer_Mod
 
             // Complete a random quest from the list
             WorldManager.instance.QuestCompleted(quest);
+        }
+
+        /// <summary>
+        /// Simulate a specific special action.
+        /// </summary>
+        private void SimulateSpecialAction(string specialAction)
+        {
+            Debug.Log($"Simulating special action '{specialAction}'...");
+            
+            // Trigger special action
+            QuestManager.instance.SpecialActionComplete(specialAction);
         }
 
         #endregion
