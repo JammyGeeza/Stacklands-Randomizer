@@ -21,13 +21,13 @@ The items available in this AP randomizer are:
 - Booster Packs
 - Ideas _(AKA 'Blueprints')_ for items required to complete Quests such as `Plank`, `Quarry`, `Smithy`, `Temple` etc. 
 
-- **Useful** 
+**Useful** 
 - Ideas _(AKA 'Blueprints')_ for items that help make the run easier but don't impact progression such as `Coin Chest`, `Hammer`, `Warehouse` etc.
 
-- **Filler / Junk**
+**Filler / Junk**
 - Food and Material resources such as `Apple`, `Wood`, `Coin` etc.
 
-- **Traps**
+**Traps**
 - Enemy Spawns
 - Flood of useless items worth 0 coins
 - _(More to be added soon...)_
