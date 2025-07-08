@@ -4,7 +4,33 @@ A mod for Stacklands that allows it to be integrated into an Archipelago world.
 This repo was forked from and is a continuation of the development of the original mod: [chandler05/Stacklands-Randomizer](https://github.com/chandler05/Stacklands-Randomizer)
 
 ## How it Works
-In each run, all quests are checks and all Booster Packs and Ideas are items received from checks.
+In an archipelago run of Stacklands, you will be completing the in-game quests to complete Location Checks and items received will be Ideas _(AKA 'Blueprints')_ to make craftable items.
+Quest completions remain the same as the base game, but the order in which they can be completed will depend on the randomisation of the ideas received.
+
+### Locations
+The locations available in this AP randomizer are:
+
+- 'Mainland' Quests
+- 'The Dark Forest' Quests _(toggled on/off in YAML)_
+- Mobsanity _(killing one of each enemy type - toggled on/off in YAML)_
+
+### Items
+The items available in this AP randomizer are:
+
+**Progression** 
+- Booster Packs
+- Ideas _(AKA 'Blueprints')_ for items required to complete Quests such as `Plank`, `Quarry`, `Smithy`, `Temple` etc. 
+
+**Useful** 
+- Ideas _(AKA 'Blueprints')_ for items that help make the run easier but don't impact progression such as `Coin Chest`, `Hammer`, `Warehouse` etc.
+
+**Filler / Junk**
+- Food and Material resources such as `Apple`, `Wood`, `Coin` etc.
+
+**Traps**
+- Enemy Spawns
+- Flood of useless items worth 0 coins
+- _(More to be added soon...)_
 
 ### Current Support
 - Mainland _(full support)_

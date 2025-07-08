@@ -76,6 +76,22 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// When checking if a card has been found, intercept specific card checks
+        /// </summary>
+        [HarmonyPatch(nameof(WorldManager.HasFoundCard))]
+        [HarmonyPostfix]
+        public static void OnHasFoundCard_Intercept(WorldManager __instance, ref string cardId, ref bool __result)
+        {
+            // If dark forest enabled in checks, pretend that Idea: Stable Portal has been found to prevent it automatically spawning when returning from The Dark Forest
+            if (cardId == Cards.blueprint_stable_portal && StacklandsRandomizer.instance.DarkForestEnabled)
+            {
+                __result = true;
+            }
+
+            // Other intercepts here, if needed
+        }
+
+        /// <summary>
         /// When the pause menu is showing, override the 'IsPlaying' property (if required) to ensure time continues.
         /// </summary>
         [HarmonyPatch(nameof(WorldManager.IsPlaying), MethodType.Getter)]
