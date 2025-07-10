@@ -9,6 +9,12 @@ using HarmonyLib.Tools;
 using Archipelago.MultiClient.Net.Models;
 using Newtonsoft.Json;
 using System.Collections;
+using UnityEngine.SceneManagement;
+using System.Net.NetworkInformation;
+using TMPro;
+using UnityEngine.UI;
+using Stacklands_Randomizer_Mod.GUI;
+using static UnityEngine.InputSystem.InputRemoting;
 
 namespace Stacklands_Randomizer_Mod
 {
@@ -30,6 +36,7 @@ namespace Stacklands_Randomizer_Mod
         public static StacklandsRandomizer instance;
 
         // Queue(s)
+        private readonly Queue<Action> _actionQueue = new();
         private readonly Queue<Action> _itemQueue = new();
         private readonly Queue<Action> _deathlinkQueue = new();
 
@@ -50,6 +57,8 @@ namespace Stacklands_Randomizer_Mod
 
         // Other(s)
         private CustomButton _connectionStatus;
+        //private SokScreen _connectionStatus;
+        private bool _initialized = false;
 
         #endregion
 
@@ -247,10 +256,36 @@ namespace Stacklands_Randomizer_Mod
         public void Start()
         {
             Debug.Log($"Start...");
+        }
 
-            // Create connection status in menu
-            CreateConnectionStatus();
-            UpdateConnectionStatus(IsConnected);
+        /// <summary>
+        /// Mod is ready
+        /// </summary>
+        public override void Ready()
+        {
+            Debug.Log("Ready...");
+
+            // Prevent being called multiple times
+            if (!_initialized)
+            {
+                _initialized = true;
+
+                if (GUIManager.instance is null)
+                {
+                    new GameObject("GUIManager").AddComponent<GUIManager>();
+                }
+
+                SokLoc.instance.LanguageChanged += SokLoc_LanguageChanged;
+
+                // Hook into scene loaded event
+                SceneManager.sceneLoaded += (Scene scene, LoadSceneMode mode) =>
+                {
+                    Debug.Log($"Scene '{scene.name}' loaded!");
+
+                    GUIManager.instance.CreateConnectionStatusElement();
+                    SetConnectionStatus(IsConnected);
+                };
+            }
         }
 
         /// <summary>
@@ -311,7 +346,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         public void Disconnect(string? reason = null)
         {
-            Debug.Log($"Disconnecting. Reason: {reason}");
+            Debug.LogWarning($"Disconnecting from archipelago server. {(string.IsNullOrWhiteSpace(reason) ? $"Reason: {reason}" : "")}");
 
             if (_session is not null && _session.Socket is not null)
             {
@@ -320,8 +355,8 @@ namespace Stacklands_Randomizer_Mod
 
             _session = null;
 
-            // Update connection status
-            UpdateConnectionStatus(false);
+            // Set connection status
+            SetConnectionStatus(IsConnected, reason);
         }
 
         /// <summary>
@@ -339,7 +374,6 @@ namespace Stacklands_Randomizer_Mod
                 GameScreen.instance.AddNotification(title, message);
             }
         }
-
         
         /// <summary>
         /// Prepare the game to attempt a connection to the Archipelago server.
@@ -496,6 +530,8 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
+        
+
         /// <summary>
         /// Sync all received items from the server and spawn them if necessary.
         /// </summary>
@@ -522,10 +558,10 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// 
+        /// Set the connection status
         /// </summary>
         /// <param name="connected"></param>
-        public void UpdateConnectionStatus(bool connected)
+        public void SetConnectionStatus(bool connected, string reason = null)
         {
             Debug.Log($"Attempting to update connection status...");
 
@@ -534,16 +570,20 @@ namespace Stacklands_Randomizer_Mod
             {
                 Debug.Log($"Sending notification of connection status...");
 
-                DisplayNotification(
-                    string.Empty,
-                    $"{(connected ? "Connected to" : "Disconnected from")} Archipelago server.");
+                string message = string.Format(
+                    "{0} the archipelago server.{1}",
+                    connected ? "Connected to" : "Disconnected from",
+                    connected ? "" : "\nPlease re-connect to the server manually using the Mods menu."
+                );
+
+                // Display message to user
+                DisplayNotification(string.Empty, message);
             }
 
-            // Update text in alert
-            if (_connectionStatus is not null)
+            // Set connection status of the UI element
+            if (GUIManager.instance is not null)
             {
-                Debug.Log($"Updating status in Main Menu...");
-                _connectionStatus.TextMeshPro.text = $"Archipelago: {(connected ? "Connected" : "Disconnected")}";
+                GUIManager.instance.SetConnectionStatus(connected, reason);
             }
         }
 
@@ -598,22 +638,13 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Triggered when the session socket closes.
-        /// </summary>
-        /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
-        private void Socket_SocketClosed(string reason)
-        {
-            AddToItemQueue(() => Disconnect(reason));
-        }
-
-        /// <summary>
         /// Triggered when the 'Send Goal' button is clicked from the Mods menu.
         /// </summary>
         private void SendGoalButton_Clicked()
         {
             Debug.Log("Completed Achievements:");
 
-            foreach(string completedAchievementId in WorldManager.instance.CurrentSave.CompletedAchievementIds)
+            foreach (string completedAchievementId in WorldManager.instance.CurrentSave.CompletedAchievementIds)
             {
                 Debug.Log(completedAchievementId);
             }
@@ -630,12 +661,50 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
+        /// <summary>
+        /// Triggered when the session socket closes.
+        /// </summary>
+        /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
+        private void Socket_ErrorReceived(Exception e, string message)
+        {
+            AddToActionQueue(() => Disconnect(message));
+        }
+
+        /// <summary>
+        /// Triggered when the session socket closes.
+        /// </summary>
+        /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
+        private void Socket_SocketClosed(string reason)
+        {
+            AddToActionQueue(() => Disconnect(reason));
+        }
+
+        /// <summary>
+        /// Triggered when the language is changed.
+        /// </summary>
+        private void SokLoc_LanguageChanged()
+        {
+            AddToActionQueue(() => GUIManager.instance.SetConnectionStatus(IsConnected));
+        }
+
         #endregion
 
         #region Private Methods
 
         /// <summary>
-        /// Add an action to the deathlink queue.
+        /// Add an action to the action queue.
+        /// </summary>
+        /// <param name="action">The action to be added to the queue.</param>
+        private void AddToActionQueue(Action action)
+        {
+            lock (_lock)
+            {
+                _actionQueue.Enqueue(action);
+            }
+        }
+
+        /// <summary>
+        /// Add an item action to the deathlink queue.
         /// </summary>
         /// <param name="action">The action to be added to the queue.</param>
         private void AddToDeathlinkQueue(Action action)
@@ -647,7 +716,7 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Add an action to the item queue.
+        /// Add a death action to the item queue.
         /// </summary>
         /// <param name="action">The action to be added to the queue.</param>
         private void AddToItemQueue(Action action)
@@ -716,27 +785,7 @@ namespace Stacklands_Randomizer_Mod
 
             return false;
         }
-
-        /// <summary>
-        /// Create a connection status UI element in the main menu.
-        /// </summary>
-        private void CreateConnectionStatus()
-        {
-            if (GameCanvas.instance.GetScreen<MainMenu>() is MainMenu menu)
-            {
-                Debug.Log($"Creating archipelago connection status UI element...");
-
-                // Add new button to menu
-                CustomButton status = Instantiate(PrefabManager.instance.ButtonPrefab, menu.ContinueButton.transform.parent);
-                status.transform.SetAsFirstSibling();
-                status.transform.localScale = Vector3.one;
-                status.transform.localPosition = Vector3.one;
-                status.transform.localRotation = Quaternion.identity;
-                status.ButtonEnabled = false;
-
-                _connectionStatus = status;
-            }
-        }
+        
 
         /// <summary>
         /// Create a session for the archipelago connection.
@@ -751,6 +800,10 @@ namespace Stacklands_Randomizer_Mod
             {
                 _session = ArchipelagoSessionFactory.CreateSession(host);
 
+                // Add event handlers
+                _session.Socket.SocketClosed += Socket_SocketClosed;
+                _session.Socket.ErrorReceived += Socket_ErrorReceived;
+
                 Debug.Log("Session created successfully!");
 
                 return true;
@@ -761,7 +814,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             return false;
-        }        
+        }
 
         /// <summary>
         /// Retrieve all items that have been received so far this session.
@@ -896,8 +949,7 @@ namespace Stacklands_Randomizer_Mod
 
                     // Add event handlers
                     _session.Items.ItemReceived += Items_ItemReceived;
-                    //_session.Socket.PacketReceived += Socket_PacketReceived;
-                    _session.Socket.SocketClosed += Socket_SocketClosed;
+                    //_session.Socket.SocketClosed += Socket_SocketClosed;
 
                     try
                     {
@@ -950,15 +1002,22 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void ProcessAllInQueue()
         {
-            // Handle all remaining actions in queue
+            // Handle all remaining items in queue
             while (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
             }
 
+            // Handle all remaining deaths in queue
             while (_deathlinkQueue.TryDequeue(out Action deathlink))
             {
                 deathlink.Invoke();
+            }
+
+            // Handle all remaining actions in queue
+            while (_actionQueue.TryDequeue(out Action action))
+            {
+                action.Invoke();
             }
         }
 
@@ -967,16 +1026,22 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void ProcessNextInQueue()
         {
-            // Handle next action in queue
+            // Handle next item in queue
             if (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
             }
 
-            // Handle next action in queue
+            // Handle next death in queue
             if (_deathlinkQueue.TryDequeue(out Action deathlink))
             {
                 deathlink.Invoke();
+            }
+
+            // Handle next action in queue
+            if (_actionQueue.TryDequeue(out Action action))
+            {
+                action.Invoke();
             }
         }
 
