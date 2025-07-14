@@ -267,7 +267,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                //SimulateCreateCard(Cards.villager);
+                //SimulateCreateStack(Cards.gold, 30);
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -384,12 +384,17 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Send a completed quest to the archipelago server as a checked location.
         /// </summary>
-        /// <param name="questDescription">The description of the quest to complete.</param>
+        /// <param name="quest">The quest to complete.</param>
         /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
             // Get english description (as these are used in the apworld)
-            string description = SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTerm);
+            string description = quest.DescriptionTermOverride != null
+                ? quest.RequiredCount != -1
+                    ? SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTermOverride, LocParam.Create("count", quest.RequiredCount.ToString()))
+                    : SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTermOverride)
+                : SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTerm);
+
             Debug.Log($"Processing completed quest: '{description}' as a location check...");
 
             ScoutedItemInfo location = null;
@@ -1034,6 +1039,20 @@ namespace Stacklands_Randomizer_Mod
                 true,
                 false,
                 true);
+        }
+
+        /// <summary>
+        /// Simulate a card stack spawning.
+        /// </summary>
+        /// <param name="cardId">The ID of the card.</param>
+        /// <param name="amount">How many of the card to be spawned.</param>
+        private void SimulateCreateCard(string cardId, int amount)
+        {
+            WorldManager.instance.CreateCardStack(
+                WorldManager.instance.GetRandomSpawnPosition(),
+                amount,
+                cardId,
+                false);
         }
 
         private void SimulateUnlockBooster()
