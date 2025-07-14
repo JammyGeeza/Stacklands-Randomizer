@@ -384,7 +384,7 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Send a completed quest to the archipelago server as a checked location.
         /// </summary>
-        /// <param name="questDescription">The description of the quest to complete.</param>
+        /// <param name="quest">The quest to complete.</param>
         /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
