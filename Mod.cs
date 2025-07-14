@@ -389,7 +389,12 @@ namespace Stacklands_Randomizer_Mod
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
             // Get english description (as these are used in the apworld)
-            string description = SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTerm);
+            string description = quest.DescriptionTermOverride != null
+                ? quest.RequiredCount != -1
+                    ? SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTermOverride, LocParam.Create("count", quest.RequiredCount.ToString()))
+                    : SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTermOverride)
+                : SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTerm);
+
             Debug.Log($"Processing completed quest: '{description}' as a location check...");
 
             ScoutedItemInfo location = null;
