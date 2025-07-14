@@ -267,7 +267,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                //SimulateCreateCard(Cards.villager);
+                //SimulateCreateStack(Cards.gold, 30);
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -1039,6 +1039,20 @@ namespace Stacklands_Randomizer_Mod
                 true,
                 false,
                 true);
+        }
+
+        /// <summary>
+        /// Simulate a card stack spawning.
+        /// </summary>
+        /// <param name="cardId">The ID of the card.</param>
+        /// <param name="amount">How many of the card to be spawned.</param>
+        private void SimulateCreateCard(string cardId, int amount)
+        {
+            WorldManager.instance.CreateCardStack(
+                WorldManager.instance.GetRandomSpawnPosition(),
+                amount,
+                cardId,
+                false);
         }
 
         private void SimulateUnlockBooster()
