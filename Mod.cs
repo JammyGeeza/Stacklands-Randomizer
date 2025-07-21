@@ -253,6 +253,27 @@ namespace Stacklands_Randomizer_Mod
             UpdateConnectionStatus(IsConnected);
         }
 
+        public IEnumerator TriggerFeedVillagers()
+        {
+            // Trigger feed villagers cutscene
+            yield return EndOfMonthCutscenes.FeedVillagers();
+
+            // If villagers didn't starve, continue
+            if (!WorldManager.instance.VillagersStarvedAtEndOfMoon)
+            {
+                // Wait for 'okay' click
+                yield return Cutscenes.WaitForContinueClicked(SokLoc.Translate("label_okay"));
+
+                // Reset game state
+                GameCanvas.instance.SetScreen<GameScreen>();
+                GameCamera.instance.TargetPositionOverride = null;
+                WorldManager.instance.currentAnimation = null;
+                WorldManager.instance.currentAnimationRoutine = null;
+                WorldManager.instance.SpeedUp = 1f;
+
+            }
+        }
+
         /// <summary>
         /// Called once every frame.
         /// </summary>
@@ -268,14 +289,32 @@ namespace Stacklands_Randomizer_Mod
             if (InputController.instance.GetKeyDown(Key.F5))
             {
                 //SimulateCreateStack(Cards.gold, 30);
+
+                ItemHandler.SpawnStack(Cards.berry, 12);
+                //ItemHandler.SpawnCard(Cards.villager);
+                //ItemHandler.SpawnCard(Cards.rowboat);
+
+                //WorldManager.instance.GoToBoard(
+                //    WorldManager.instance.GetBoardWithId(Board.Island),
+                //    trans);
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                //SimulateCreateCard(Cards.strange_portal);
+                // Trigger cutscene
+                Debug.Log("Triggering cutscene...");
+                //ItemHandler.TriggerFeedVillagers();
+                WorldManager.instance.QueueCutscene(CustomCutscenes.SellCards(5));
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
                 //SimulateItemReceived(ItemType.Resource);
+
+                ItemHandler.TriggerFlipRandomCard();
+
+                //ItemHandler.SpawnStackToBoard(
+                //    Board.Island, 
+                //    Cards.gold, 
+                //    5);
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {

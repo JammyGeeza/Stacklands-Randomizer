@@ -28,6 +28,11 @@ namespace Stacklands_Randomizer_Mod
         public int Amount { get; set; } = 1;
 
         /// <summary>
+        /// The action to perform when this item is received.
+        /// </summary>
+        public Action ReceivedAction { get; set; }
+
+        /// <summary>
         /// Check if an <see cref="ItemInfo"/> matches this item.
         /// </summary>
         /// <param name="item">The <see cref="ItemInfo"/> to be compared.</param>

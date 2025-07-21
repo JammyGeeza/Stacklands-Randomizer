@@ -6,6 +6,111 @@ namespace Stacklands_Randomizer_Mod
 {
     public static class ItemMapping
     {
+        public static readonly List<Item> MapV2 = new()
+        {
+            new() { Name = "Humble Beginnings Booster Pack"     , ReceivedAction = () => ItemHandler.UnlockBoosterPack("basic")                                 },
+            new() { Name = "Seeking Wisdom Booster Pack"        , ReceivedAction = () => ItemHandler.UnlockBoosterPack("idea")                                  },
+            new() { Name = "Reap & Sow Booster Pack"            , ReceivedAction = () => ItemHandler.UnlockBoosterPack("farming")                               },
+            new() { Name = "Curious Cuisine Booster Pack"       , ReceivedAction = () => ItemHandler.UnlockBoosterPack("cooking")                               },
+            new() { Name = "Logic and Reason Booster Pack"      , ReceivedAction = () => ItemHandler.UnlockBoosterPack("idea2")                                 },
+            new() { Name = "The Armory Booster Pack"            , ReceivedAction = () => ItemHandler.UnlockBoosterPack("equipment")                             },
+            new() { Name = "Explorers Booster Pack"             , ReceivedAction = () => ItemHandler.UnlockBoosterPack("locations")                             },
+            new() { Name = "Order and Structure Booster Pack"   , ReceivedAction = () => ItemHandler.UnlockBoosterPack("structures")                            },
+
+            // Blueprint Bundles
+            new() { Name = "Idea: Animal Pen"                   , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_animalpen)                       },
+            new() { Name = "Idea: Axe"                          , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_axe)                             },
+            new() { Name = "Idea: Bone Spear"                   , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_bone_spear)                      },
+            new() { Name = "Idea: Boomerang"                    , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_boomerang)                       },
+            new() { Name = "Idea: Breeding Pen"                 , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_breedingpen)                     },
+            new() { Name = "Idea: Brick"                        , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_brick)                           },
+            new() { Name = "Idea: Brickyard"                    , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_brickyard)                       },
+            new() { Name = "Idea: Butchery"                     , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_slaughterhouse)                  },
+            new() { Name = "Idea: Campfire"                     , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_campfire)                        },
+            new() { Name = "Idea: Chainmail Armor"              , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_chainmail_armor)                 },
+            new() { Name = "Idea: Charcoal"                     , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_charcoal)                        },
+            new() { Name = "Idea: Chicken"                      , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_chicken)                         },
+            new() { Name = "Idea: Club"                         , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_club)                            },
+            new() { Name = "Idea: Coin Chest"                   , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_coinchest)                       },
+            new() { Name = "Idea: Cooked Meat"                  , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_cookedmeat)                      },
+            new() { Name = "Idea: Crane"                        , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_conveyor)                        },
+            new() { Name = "Idea: Dustbin"                      , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_trash_can)                       },
+            new() { Name = "Idea: Farm"                         , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_farm)                            },
+            new() { Name = "Idea: Frittata"                     , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_frittata)                        },
+            new() { Name = "Idea: Fruit Salad"                  , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_fruitsalad)                      },
+            new() { Name = "Idea: Garden"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_garden)                          },
+            new() { Name = "Idea: Growth"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_growth)                          },
+            new() { Name = "Idea: Hammer"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_hammer)                          },
+            new() { Name = "Idea: Hotpot"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_hotpot)                          },
+            new() { Name = "Idea: House"                        , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_house)                           },
+            new() { Name = "Idea: Iron Bar"                     , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_iron_bar)                        },
+            new() { Name = "Idea: Iron Mine"                    , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_mine)                            },
+            new() { Name = "Idea: Iron Shield"                  , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_iron_shield)                     },
+            new() { Name = "Idea: Lumber Camp"                  , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_lumbercamp)                      },
+            new() { Name = "Idea: Magic Blade"                  , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_magic_blade)                     },
+            new() { Name = "Idea: Magic Glue"                   , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_heavy_foundation)                },
+            new() { Name = "Idea: Magic Ring"                   , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_magic_ring)                      },
+            new() { Name = "Idea: Magic Staff"                  , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_magic_staff)                     },
+            new() { Name = "Idea: Magic Tome"                   , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_magic_tome)                      },
+            new() { Name = "Idea: Magic Wand"                   , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_magic_wand)                      },
+            new() { Name = "Idea: Market"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_market)                          },
+            new() { Name = "Idea: Mess Hall"                    , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_mess_hall)                       },
+            new() { Name = "Idea: Milkshake"                    , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_milkshake)                       },
+            new() { Name = "Idea: Omelette"                     , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_omelette)                        },
+            new() { Name = "Idea: Offspring"                    , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_offspring)                       },
+            new() { Name = "Idea: Pickaxe"                      , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_pickaxe)                         },
+            new() { Name = "Idea: Plank"                        , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_planks)                          },
+            new() { Name = "Idea: Quarry"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_quarry)                          },
+            new() { Name = "Idea: Resource Chest"               , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_resourcechest)                   },
+            new() { Name = "Idea: Sawmill"                      , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_sawmill)                         },
+            new() { Name = "Idea: Shed"                         , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_shed)                            },
+            new() { Name = "Idea: Slingshot"                    , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_slingshot)                       },
+            new() { Name = "Idea: Smelter"                      , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_smelting)                        },
+            new() { Name = "Idea: Smithy"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_smithy)                          },
+            new() { Name = "Idea: Spear"                        , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_woodenweapons)                   },
+            new() { Name = "Idea: Spiked Plank"                 , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_spiked_plank)                    },
+            new() { Name = "Idea: Stew"                         , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_stew)                            },
+            new() { Name = "Idea: Stick"                        , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_carving)                         },
+            new() { Name = "Idea: Stove"                        , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_stove)                           },
+            new() { Name = "Idea: Sword"                        , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_ironweapons)                     },
+            new() { Name = "Idea: Temple"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_temple)                          },
+            new() { Name = "Idea: Throwing Stars"               , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_throwing_star)                   },
+            new() { Name = "Idea: University"                   , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_university)                      },
+            new() { Name = "Idea: Warehouse"                    , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_warehouse)                       },
+            new() { Name = "Idea: Wooden Shield"                , ReceivedAction = () => ItemHandler.SpawnCard(Cards.blueprint_wooden_shield)                   },
+
+            // Resource Bundles
+            new() { Name = "Apple Tree"                         , ReceivedAction = () => ItemHandler.SpawnCard(Cards.apple_tree, true)                          },
+            new() { Name = "Berry x3"                           , ReceivedAction = () => ItemHandler.SpawnStack(Cards.berry, 3, true)                           },
+            new() { Name = "Berry Bush"                         , ReceivedAction = () => ItemHandler.SpawnCard(Cards.berrybush, true)                           },
+            new() { Name = "Coin"                               , ReceivedAction = () => ItemHandler.SpawnCard(Cards.gold, true)                                },
+            new() { Name = "Coin x5"                            , ReceivedAction = () => ItemHandler.SpawnStack(Cards.gold, 5, true)                            },
+            new() { Name = "Coin x10"                           , ReceivedAction = () => ItemHandler.SpawnStack(Cards.gold, 10, true)                           },
+            new() { Name = "Egg x3"                             , ReceivedAction = () => ItemHandler.SpawnStack(Cards.egg, 3, true)                             },
+            new() { Name = "Flint x3"                           , ReceivedAction = () => ItemHandler.SpawnStack(Cards.flint, 3, true)                           },
+            new() { Name = "Iron Deposit"                       , ReceivedAction = () => ItemHandler.SpawnCard(Cards.iron_deposit, true)                        },
+            new() { Name = "Iron Ore x3"                        , ReceivedAction = () => ItemHandler.SpawnStack(Cards.iron_ore, 3, true)                        },
+            new() { Name = "Milk x3"                            , ReceivedAction = () => ItemHandler.SpawnStack(Cards.milk, 3, true)                            },
+            new() { Name = "Rock"                               , ReceivedAction = () => ItemHandler.SpawnCard(Cards.rock, true)                                },
+            new() { Name = "Stick x3"                           , ReceivedAction = () => ItemHandler.SpawnStack(Cards.stick, 3, true)                           },
+            new() { Name = "Stone x3"                           , ReceivedAction = () => ItemHandler.SpawnStack(Cards.stone, 3, true)                           },
+            new() { Name = "Tree"                               , ReceivedAction = () => ItemHandler.SpawnCard(Cards.tree, true)                                },
+            new() { Name = "Wood x3"                            , ReceivedAction = () => ItemHandler.SpawnStack(Cards.wood, 3, true)                            },
+
+            // Expansion Bundles
+            new() { Name = "Board Expansion: Shed"              , ReceivedAction = () => ItemHandler.SpawnCardToBoard(Board.Mainland, Cards.shed, true)         },
+            new() { Name = "Board Expansion: Warehouse"         , ReceivedAction = () => ItemHandler.SpawnCardToBoard(Board.Mainland, Cards.warehouse, true)    },
+
+            // Traps
+            new() { Name = "Eat Trap"                           , ReceivedAction = () => ItemHandler.TriggerFeedVillagers()                                     },
+            //new() { Name = "Flip Trap"                          , ReceivedAction = () => ItemHandler.TriggerEvent()                                             },
+            new() { Name = "Mob Trap"                           , ReceivedAction = () => ItemHandler.SpawnCard(Cards.rat, true)                                 },
+            new() { Name = "Structure Trap"                     , ReceivedAction = () => ItemHandler.SpawnCard(Cards.strange_portal, true)                      },
+
+        };
+
+
+
         public static readonly List<Item> Map = new()
         {
             #region Mainland Items
@@ -99,6 +204,10 @@ namespace Stacklands_Randomizer_Mod
             new() { Name = "Stone x3"                           , ItemId = Cards.stone                          , ItemType = ItemType.Resource, Amount = 3 },
             new() { Name = "Tree"                               , ItemId = Cards.tree                           , ItemType = ItemType.Resource, Amount = 1 },
             new() { Name = "Wood x3"                            , ItemId = Cards.wood                           , ItemType = ItemType.Resource, Amount = 3 },
+
+            // Expansion Bundles
+            new() { Name = "Board Expansion: Shed"              , ItemId = Cards.shed                           , ItemType = ItemType.Structure, Amount = 1 },
+            new() { Name = "Board Expansion: Warehouse"         , ItemId = Cards.warehouse                      , ItemType = ItemType.Structure, Amount = 1 },
 
             // Trap Bundles
             new() { Name = "Chickens"                           , ItemId = ModCards.chicken                     , ItemType = ItemType.Trap, Amount = 5 },

@@ -1,5 +1,6 @@
 ﻿using Archipelago.MultiClient.Net.Models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -138,6 +139,15 @@ namespace Stacklands_Randomizer_Mod
                     }
                     break;
 
+                case ItemType.Structure:
+                    {
+                        // Spawn the structure item
+                        //SpawnStructureItem(mappedItem);
+
+                        title = $"Structure Received!";
+                    }
+                    break;
+
                 case ItemType.Trap:
                     {
                         // Spawn the trap item
@@ -190,6 +200,170 @@ namespace Stacklands_Randomizer_Mod
             else
             {
                 Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as an Idea.");
+            }
+        }
+
+        /// <summary>
+        /// Spawn a card to the current board.
+        /// </summary>
+        /// <param name="cardId">The ID of the card to be spawned.</param>
+        /// <param name="log">Whether or not to log receipt of this card.</param>
+        public static void SpawnCard(string cardId, bool log = false)
+        {
+            try
+            {
+                // Create card (automatically marks as found)
+                WorldManager.instance.CreateCard(
+                    WorldManager.instance.GetRandomSpawnPosition(),
+                    cardId,
+                    true,
+                    false,
+                    true);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to spawn card '{cardId}'. Reason: '{ex.Message}'.");
+            }
+        }
+
+        /// <summary>
+        /// Spawn a card to a specified board.
+        /// </summary>
+        /// <param name="boardId">The ID of the board to spawn to.</param>
+        /// <param name="cardId">The ID of the card to be spawned.</param>
+        /// <param name="log">Whether or not to log receipt of this card.</param>
+        public static void SpawnCardToBoard(string boardId, string cardId, bool log = false)
+        {
+            try
+            {   
+                // If the target board is the current board, spawn as normal
+                if (WorldManager.instance.CurrentBoard.Id == boardId)
+                {
+                    SpawnCard(cardId, log);
+                }
+
+                // Otherwise, spawn to target board
+                else if (WorldManager.instance.GetBoardWithId(boardId) is { } board)
+                {
+                    // Create the card out of view and play no sound
+                    CardData cardData = WorldManager.instance.CreateCard(
+                        Vector3.zero,
+                        cardId,
+                        true,
+                        false,
+                        false);
+
+                    // Immediately send the card to the target board
+                    WorldManager.instance.SendToBoard(cardData.MyGameCard, board, Vector2.zero);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to spawn card '{cardId}' to the board '{boardId}'. Reason: '{ex.Message}'");
+            }
+        }
+
+        /// <summary>
+        /// Spawn an idea to the current board.
+        /// </summary>
+        /// <param name="cardId"></param>
+        public static void SpawnIdea(string cardId)
+        {
+            // Spawn if idea has not been found already
+            if (!WorldManager.instance.HasFoundCard(cardId))
+            {
+                SpawnCard(cardId, false);
+            }
+        }
+
+        /// <summary>
+        /// Spawn a stack of resources to the current board.
+        /// </summary>
+        /// <param name="cardId">The ID of the resource to spawn.</param>
+        /// <param name="amount">The amount of the resource to spawn.</param>
+        /// <param name="log">Whether or not to log receipt of this resource.</param>
+        public static void SpawnResource(string cardId, int amount, bool log = true)
+        {
+            SpawnStack(cardId, amount, log);
+        }
+
+        /// <summary>
+        /// Spawn a structure to the current board.
+        /// </summary>
+        /// <param name="cardId">The ID of the structure to spawn.</param>
+        /// <param name="log">Whether or not to log receipt of this structure.</param>
+        public static void SpawnStructure(string cardId, bool log = false)
+        {
+            SpawnCard(cardId, log);
+        }
+
+        /// <summary>
+        /// Spawn a card stack to the current board.
+        /// </summary>
+        /// <param name="cardId">The ID of the card to spawn.</param>
+        /// <param name="amount">The amount to spawn in the stack.</param>
+        /// <param name="log">Whether or not to log receipt of this card.</param>
+        public static void SpawnStack(string cardId, int amount, bool log = false)
+        {
+            try
+            {
+                // Create stack
+                WorldManager.instance.CreateCardStack(
+                    WorldManager.instance.GetRandomSpawnPosition(),
+                    amount,
+                    cardId,
+                    false);
+
+                // Log receipt of item if required
+                if (log)
+                {
+                    //LogFillerItem(cardId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to spawn card '{cardId}'. Reason: '{ex.Message}'.");
+            }
+        }
+
+        /// <summary>
+        /// Spawn a card stack to a specified board.
+        /// </summary>
+        /// <param name="boardId">The ID of the board to spawn to.</param>
+        /// <param name="cardId">The ID of the card to be spawned.</param>
+        /// <param name="amount">The amount of this card to spawn.</param>
+        /// <param name="log">Whether or not to log receipt of this card.</param>
+        public static void SpawnStackToBoard(string boardId, string cardId, int amount, bool log = false)
+        {
+            try
+            {
+                // If the target board is the current board, spawn as normal
+                if (WorldManager.instance.CurrentBoard.Id == boardId)
+                {
+                    SpawnStack(cardId, amount, log);
+                }
+
+                // Otherwise, spawn to target board
+                else if (WorldManager.instance.GetBoardWithId(boardId) is { } board)
+                {
+                    Debug.Log($"Found board: {board.Id}");
+
+                    // Create stack
+                    GameCard rootCard = WorldManager.instance.CreateCardStack(
+                        WorldManager.instance.GetRandomSpawnPosition(),
+                        amount,
+                        cardId,
+                        false);
+
+                    Debug.Log($"Attempting to send {rootCard.CardNameText.text} stack to board: {board.Id}");
+
+                    // Immediately send the card to the target board
+                    WorldManager.instance.SendStackToBoard(rootCard, board, Vector2.zero);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to spawn card '{cardId}' to the board '{boardId}'. Reason: '{ex.Message}'");
             }
         }
 
@@ -257,6 +431,54 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        public static void TriggerFlipRandomCard()
+        {
+            // Get all cards on current board
+            List<GameCard> cards = WorldManager.instance.GetAllCardsOnBoard(WorldManager.instance.CurrentBoard.Id);
+
+            // Select one at random
+            int index = UnityEngine.Random.Range(0, cards.Count - 1);
+
+            // Flip the card over
+            if (cards.ElementAt(index) is { } card)
+            {
+                //card.IsDemoCard = true;
+                card.SetFaceUp(false);
+            }
+            
+        }
+
+        /// <summary>
+        /// Trigger the 'Feed Villagers' eating phase.
+        /// NOTE: Will not be performed if player is currently in The Dark Forest, as it is not possible to bring food.
+        /// </summary>
+        public static void TriggerFeedVillagers()
+        {
+            // Check if not currently in dark forest
+            if (WorldManager.instance.CurrentBoard.Id != Board.Forest)
+            {
+                // Queue the cutscene
+                WorldManager.instance.QueueCutscene(CustomCutscenes.FeedVillagers());
+            }
+        }
+
+        /// <summary>
+        /// Trigger the 'Sell Cards' phase.
+        /// </summary>
+        /// <param name="amount">The amount of cards that must be sold immediately.</param>
+        public static void TriggerSellCards(int amount)
+        {
+            // Check if not currently in dark forest
+            if (WorldManager.instance.CurrentBoard.Id != Board.Forest)
+            {
+                // Queue the cutscene
+                WorldManager.instance.QueueCutscene(CustomCutscenes.SellCards(amount));
+            }
+        }
+
+        /// <summary>
         /// Unlock required booster pack for an <see cref="Item"/> of type <see cref="ItemType.BoosterPack"/>.
         /// </summary>
         /// <param name="item">The booster pack to be unlocked.</param>
@@ -276,6 +498,26 @@ namespace Stacklands_Randomizer_Mod
             else
             {
                 Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as a Booster Pack.");
+            }
+        }
+
+        /// <summary>
+        /// Unlock a booster pack if it has not already been found.
+        /// </summary>
+        /// <param name="boosterId">The booster pack to be unlocked.</param>
+        public static void UnlockBoosterPack(string boosterId)
+        {
+            try
+            {   
+                // Add booster if not already unlocked
+                if (!WorldManager.instance.CurrentSave.FoundBoosterIds.Contains(boosterId))
+                {
+                    WorldManager.instance.CurrentSave.FoundBoosterIds.Add(boosterId);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to spawn Booster Pack item '{boosterId}'. Reason: '{ex.Message}'.");
             }
         }
     }
