@@ -8,15 +8,15 @@ namespace Stacklands_Randomizer_Mod.Mappings
     {
         public static readonly string[] MobTrapCards =
         {
-            Cards.mosquito,
-            Cards.rat,
-            Cards.slime,
-            Cards.snake,
+            ModCards.trap_mosquito,
+            ModCards.trap_rat,
+            ModCards.trap_slime,
+            ModCards.trap_snake,
         };
 
         public static readonly string[] StructureTrapCards =
         {
-            ModCards.strange_portal
+            ModCards.trap_strange_portal
         };
     }
 }

@@ -139,6 +139,7 @@ namespace Stacklands_Randomizer_Mod
         public StackItem(string name, string cardId, int amount, string board) : base(name, cardId, ItemType.Stack)
         {
             Amount = amount;
+            BoardId = board;
 
             //ReceivedAction = () => ItemHandler.HandleStack(this);
             //SyncAction = (bool forceCreate, Vector3? position) => ItemHandler.HandleStack(this, position);

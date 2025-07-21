@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/card.schema.json",
-  "id": "trap_rat",
-  "nameTerm": "trap_rat_name",
-  "descriptionTerm": "trap_rat_description",
+  "id": "ap_trap_rat",
+  "nameTerm": "ap_trap_rat_name",
+  "descriptionTerm": "ap_trap_rat_description",
   "icon": "rat",
   "value": -1,
   "type": "Mobs",

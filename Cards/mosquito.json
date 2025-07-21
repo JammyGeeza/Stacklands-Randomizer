@@ -1,8 +1,8 @@
 {
   "$schema": "../schemas/card.schema.json",
-  "id": "trap_mosquito",
-  "nameTerm": "trap_mosquito_name",
-  "descriptionTerm": "trap_mosquito_description",
+  "id": "ap_trap_mosquito",
+  "nameTerm": "ap_trap_mosquito_name",
+  "descriptionTerm": "ap_trap_mosquito_description",
   "icon": "mosquito",
   "value": -1,
   "type": "Mobs",

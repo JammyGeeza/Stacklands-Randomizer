@@ -127,24 +127,15 @@ namespace Stacklands_Randomizer_Mod
         public static void MarkItemAsReceived(Item item, int? totaloverride = null)
         {
             //LogFillerItem(item.Name, totaloverride);
-
-            if (item.ItemType is ItemType.Resource)
+            if (WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair kvp)
             {
-                // Has this item already been logged?
-                if (WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair kvp)
-                {
-                    // Add to count or override with new value, if provided
-                    WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, (totaloverride ?? Convert.ToInt32(kvp.Value) + 1).ToString());
-                }
-                else
-                {
-                    // Set count as 1 or override with new value, if provided.
-                    WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, (totaloverride ?? 1).ToString());
-                }
+                // Add to count or override with new value, if provided
+                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, (totaloverride ?? Convert.ToInt32(kvp.Value) + 1).ToString());
             }
             else
             {
-                Debug.LogError($"Invalid item type '{item.ItemType}' cannot be logged.");
+                // Set count as 1 or override with new value, if provided.
+                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, (totaloverride ?? 1).ToString());
             }
         }
 
@@ -324,6 +315,12 @@ namespace Stacklands_Randomizer_Mod
             SpawnCard(cardIds[index], position, checkAddToStack);
         }
 
+        public static void SpawnRandomCardAsTrap(string[] cardIds, Vector3? position = null)
+        {
+            // Randomly select card index
+            int index = UnityEngine.Random.Range(0, cardIds.Length - 1);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -377,8 +374,8 @@ namespace Stacklands_Randomizer_Mod
         {
             try
             {
-                // If the target board is the current board, spawn as normal
-                if (WorldManager.instance.CurrentBoard.Id == boardId)
+                // If no board, spawn to current board or if the target board is the current board, spawn as normal
+                if (string.IsNullOrEmpty(boardId) || WorldManager.instance.CurrentBoard.Id == boardId)
                 {
                     SpawnStack(cardId, amount, position);
                 }
@@ -593,26 +590,6 @@ namespace Stacklands_Randomizer_Mod
                 }
             }
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        //public static void TriggerFlipRandomCard()
-        //{
-        //    // Get all cards on current board
-        //    List<GameCard> cards = WorldManager.instance.GetAllCardsOnBoard(WorldManager.instance.CurrentBoard.Id);
-
-        //    // Select one at random
-        //    int index = UnityEngine.Random.Range(0, cards.Count - 1);
-
-        //    // Flip the card over
-        //    if (cards.ElementAt(index) is { } card)
-        //    {
-        //        //card.IsDemoCard = true;
-        //        card.SetFaceUp(false);
-        //    }
-
-        //}
 
         /// <summary>
         /// Trigger the 'Feed Villagers' eating phase.

@@ -12,12 +12,14 @@ namespace Stacklands_Randomizer_Mod
 
         public static readonly string rabbit = $"{PREFIX}rabbit";
 
-        public static readonly string rat = $"{PREFIX}rat";
+        public static readonly string trap_mosquito = $"{PREFIX}mosquito";
 
-        public static readonly string slime = $"{PREFIX}slime";
+        public static readonly string trap_rat = $"{PREFIX}rat";
 
-        public static readonly string snake = $"{PREFIX}snake";
+        public static readonly string trap_slime = $"{PREFIX}slime";
 
-        public static readonly string strange_portal = $"{PREFIX}strange_portal";
+        public static readonly string trap_snake = $"{PREFIX}snake";
+
+        public static readonly string trap_strange_portal = $"{PREFIX}strange_portal";
     }
 }

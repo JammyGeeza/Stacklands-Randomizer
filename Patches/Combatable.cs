@@ -20,6 +20,9 @@ namespace Stacklands_Randomizer_Mod.Patches
             // Intercept if combatable name starts with 'Trap'
             if (__instance.Name.StartsWith("Trap"))
             {
+                // Is it already dead?
+                bool alreadyDead = __instance.HealthPoints <= 0;
+
                 __instance.HealthPoints -= damage;
                 __instance.HealthPoints = Mathf.Max(__instance.HealthPoints, 0);
                 __instance.StunTimer = 0.05f;
@@ -28,7 +31,7 @@ namespace Stacklands_Randomizer_Mod.Patches
 
                 __instance.MyGameCard.SetHitEffect(delegate
                 {
-                    if (__instance.InAttack)
+                    if (!alreadyDead && __instance.HealthPoints <= 0)
                     {
                         __instance.InAttack = false;
 
