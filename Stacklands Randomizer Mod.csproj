@@ -8,10 +8,12 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Cards\chicken.json" />
+    <None Remove="Cards\mosquito.json" />
     <None Remove="Cards\rabbit.json" />
     <None Remove="Cards\rat.json" />
     <None Remove="Cards\slime.json" />
     <None Remove="Cards\snake.json" />
+    <None Remove="Cards\strange_portal.json" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="0Harmony">
@@ -80,6 +82,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Cards\chicken.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Cards\mosquito.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Cards\strange_portal.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Cards\snake.json">

@@ -310,12 +310,43 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Spawn a random card from a list of card IDs.
+        /// </summary>
+        /// <param name="cardIds"></param>
+        /// <param name="position"></param>
+        /// <param name="checkAddToStack"></param>
+        public static void SpawnRandomCard(string[] cardIds, Vector3? position = null, bool checkAddToStack = false)
+        {
+            // Randomly select card index
+            int index = UnityEngine.Random.Range(0, cardIds.Length - 1);
+
+            // Spawn card to current board
+            SpawnCard(cardIds[index], position, checkAddToStack);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="boardId"></param>
+        /// <param name="cardIds"></param>
+        /// <param name="position"></param>
+        /// <param name="checkAddToStack"></param>
+        public static void SpawnRandomCardToBoard(string boardId, string[] cardIds, Vector3? position = null, bool checkAddToStack = false)
+        {
+            // Randomly select card index
+            int index = UnityEngine.Random.Range(0, cardIds.Length - 1);
+
+            // Spawn card to board
+            SpawnCardToBoard(boardId, cardIds[index], position, checkAddToStack);
+        }
+
+        /// <summary>
         /// Spawn a card stack to the current board.
         /// </summary>
         /// <param name="cardId">The ID of the card to spawn.</param>
         /// <param name="amount">The amount to spawn in the stack.</param>
         /// <param name="position">(Optional) The position to spawn the stack at.</param>
-        private static void SpawnStack(string cardId, int amount, Vector3? position = null)
+        public static void SpawnStack(string cardId, int amount, Vector3? position = null)
         {
             try
             {
@@ -455,10 +486,10 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// 
+        /// Sync booster items.
         /// </summary>
-        /// <param name="boosterItems"></param>
-        /// <param name="forceCreate"></param>
+        /// <param name="boosterItems">The booster items to be synced.</param>
+        /// <param name="forceCreate">Bypass logic and force the booster items to be unlocked / created.</param>
         private static void SyncBoosters(IEnumerable<BoosterItem> boosterItems, bool forceCreate = false)
         {
             // Handle each booster
@@ -468,6 +499,11 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
+        /// <summary>
+        /// Sync idea items.
+        /// </summary>
+        /// <param name="ideaItems">The idea items to be synced.</param>
+        /// <param name="forceCreate">Bypass logic and force the idea items to be created.</param>
         private static void SyncIdeas(IEnumerable<IdeaItem> ideaItems, bool forceCreate = false)
         {
             // Get a random spawn position
@@ -480,6 +516,11 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
+        /// <summary>
+        /// Synd misc items.
+        /// </summary>
+        /// <param name="miscItems">The misc items to be synced.</param>
+        /// <param name="forceCreate">Bypass logic and force the misc items to be triggered.</param>
         private static void SyncMiscs(IEnumerable<MiscItem> miscItems, bool forceCreate = false)
         {
             foreach (IGrouping<string, MiscItem> itemGroup in miscItems.GroupBy(misc => misc.Name))
@@ -489,7 +530,7 @@ namespace Stacklands_Randomizer_Mod
 
                 Debug.Log($"Syncing {groupCount} of the '{itemGroup.Key}' item...");
 
-                // Get count logged in save (or set to 0 if forcing creation)
+                // Get the marked count for this item (or set to 0 if forcing creation)
                 int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
 
                 // If not forcing to create, check if item count matches session
@@ -506,10 +547,18 @@ namespace Stacklands_Randomizer_Mod
                 {
                     MiscItem misc = itemGroup.ElementAt(i);
                     misc.SyncAction?.Invoke(forceCreate);
+
+                    // Log item and override count to ensure correct value
+                    MarkItemAsReceived(misc, i);
                 }
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stackItems"></param>
+        /// <param name="forceCreate"></param>
         private static void SyncStacks(IEnumerable<StackItem> stackItems, bool forceCreate = false)
         {
             foreach (IGrouping<string, StackItem> itemGroup in stackItems.GroupBy(misc => misc.Name))
@@ -535,7 +584,12 @@ namespace Stacklands_Randomizer_Mod
                 for (int i = 0; i < groupCount - sessionCount; i++)
                 {
                     StackItem stack = itemGroup.ElementAt(i);
-                    HandleStack(stack, forceCreate);
+
+                    // Spawn idea if forced to create or if idea has not been discovered yet
+                    SpawnStackToBoard(stack.BoardId, stack.ItemId, stack.Amount);
+
+                    // Mark item as received and override receive count to ensure correct value
+                    MarkItemAsReceived(stack, i);
                 }
             }
         }

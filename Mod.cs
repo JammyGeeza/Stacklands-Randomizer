@@ -56,6 +56,11 @@ namespace Stacklands_Randomizer_Mod
         #endregion
 
         #region Public Properties
+        
+        /// <summary>
+        /// English localization set to help translate quest IDs to english names for location checks.
+        /// </summary>
+        public LoadedLocSet EnglishLocSet = new LoadedLocSet(LocResources.Default, "English");
 
         /// <summary>
         /// Check if DeathLink is enabled.
@@ -95,6 +100,11 @@ namespace Stacklands_Randomizer_Mod
         /// Gets or sets whether The Dark Forest is enabled.
         /// </summary>
         public bool DarkForestEnabled { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the enabled boards for this run.
+        /// </summary>
+        public List<string> EnabledBoards { get; private set; } = new() { Board.Mainland };
 
 
         /// <summary>
@@ -265,27 +275,6 @@ namespace Stacklands_Randomizer_Mod
             UpdateConnectionStatus(IsConnected);
         }
 
-        public IEnumerator TriggerFeedVillagers()
-        {
-            // Trigger feed villagers cutscene
-            yield return EndOfMonthCutscenes.FeedVillagers();
-
-            // If villagers didn't starve, continue
-            if (!WorldManager.instance.VillagersStarvedAtEndOfMoon)
-            {
-                // Wait for 'okay' click
-                yield return Cutscenes.WaitForContinueClicked(SokLoc.Translate("label_okay"));
-
-                // Reset game state
-                GameCanvas.instance.SetScreen<GameScreen>();
-                GameCamera.instance.TargetPositionOverride = null;
-                WorldManager.instance.currentAnimation = null;
-                WorldManager.instance.currentAnimationRoutine = null;
-                WorldManager.instance.SpeedUp = 1f;
-
-            }
-        }
-
         /// <summary>
         /// Called once every frame.
         /// </summary>
@@ -302,7 +291,9 @@ namespace Stacklands_Randomizer_Mod
             {
                 //SimulateCreateStack(Cards.gold, 30);
 
-                ItemHandler.SpawnStack(Cards.berry, 12);
+                ItemHandler.SpawnCard("trap_strange_portal");
+
+                //ItemHandler.SpawnStack(Cards.berry, 12);
                 //ItemHandler.SpawnCard(Cards.villager);
                 //ItemHandler.SpawnCard(Cards.rowboat);
 
@@ -314,14 +305,25 @@ namespace Stacklands_Randomizer_Mod
             {
                 // Trigger cutscene
                 Debug.Log("Triggering cutscene...");
+
+                ItemHandler.SpawnCard(Cards.goblin);
+
                 //ItemHandler.TriggerFeedVillagers();
-                WorldManager.instance.QueueCutscene(CustomCutscenes.SellCards(5));
+                //WorldManager.instance.QueueCutscene(CustomCutscenes.SellCards(5));
+
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
                 //SimulateItemReceived(ItemType.Resource);
 
-                ItemHandler.TriggerFlipRandomCard();
+                foreach (Mob mob in FindObjectsOfType<Mob>())
+                {
+                    mob.InAttack = true;
+                    mob.Damage(100);
+                }
+
+                //ItemHandler.TriggerFlipRandomCard();
 
                 //ItemHandler.SpawnStackToBoard(
                 //    Board.Island, 
@@ -439,12 +441,14 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
+            Debug.Log($"Attempting to send completed location with Desc: '{quest.DescriptionTerm}' and DescOver: '{quest.DescriptionTerm}'");
+
             // Get english description (as these are used in the apworld)
-            string description = quest.DescriptionTermOverride != null
+            string description = !string.IsNullOrWhiteSpace(quest.DescriptionTermOverride)
                 ? quest.RequiredCount != -1
-                    ? SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTermOverride, LocParam.Create("count", quest.RequiredCount.ToString()))
-                    : SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTermOverride)
-                : SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTerm);
+                    ? EnglishLocSet.TranslateTerm(quest.DescriptionTermOverride, LocParam.Create("count", quest.RequiredCount.ToString()))
+                    : EnglishLocSet.TranslateTerm(quest.DescriptionTermOverride)
+                : EnglishLocSet.TranslateTerm(quest.DescriptionTerm);
 
             Debug.Log($"Processing completed quest: '{description}' as a location check...");
 
@@ -565,7 +569,7 @@ namespace Stacklands_Randomizer_Mod
             // Add starting inventory to queue (if any)
             if (StartInventory.Count > 0)
             {
-                ItemSyncedHandler.SyncItems(StartInventory.Keys, forceCreate);
+                ItemHandler.SyncItems(StartInventory.Keys, forceCreate);
             }
 
             Debug.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
@@ -573,7 +577,7 @@ namespace Stacklands_Randomizer_Mod
             // Add all received items from server (if any)
             if (_session.Items.AllItemsReceived.Count > 0)
             {
-                ItemSyncedHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
+                ItemHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
             }
         }
 
@@ -1125,7 +1129,7 @@ namespace Stacklands_Randomizer_Mod
 
             if (!string.IsNullOrWhiteSpace(unfoundBooster))
             {
-                ItemHandler.UnlockBoosterPackItem(new Item() { ItemId = unfoundBooster, ItemType = ItemType.BoosterPack, Name = "Test Booster Unlock" });
+                ItemHandler.UnlockBoosterPack(unfoundBooster, true);
             }
         }
 

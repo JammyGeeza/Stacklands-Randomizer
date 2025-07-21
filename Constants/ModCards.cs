@@ -17,5 +17,7 @@ namespace Stacklands_Randomizer_Mod
         public static readonly string slime = $"{PREFIX}slime";
 
         public static readonly string snake = $"{PREFIX}snake";
+
+        public static readonly string strange_portal = $"{PREFIX}strange_portal";
     }
 }

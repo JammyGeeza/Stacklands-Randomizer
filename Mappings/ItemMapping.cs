@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stacklands_Randomizer_Mod.Mappings;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -12,14 +13,14 @@ namespace Stacklands_Randomizer_Mod
         {
             #region Mainland
 
-            new BoosterItem("Humble Beginnings Booster Pack"        , "basic"      ),
-            new BoosterItem("Seeking Wisdom Booster Pack"           , "idea"       ),
-            new BoosterItem("Reap & Sow Booster Pack"               , "farming"    ),
-            new BoosterItem("Curious Cuisine Booster Pack"          , "cooking"    ),
-            new BoosterItem("Logic and Reason Booster Pack"         , "idea2"      ),
-            new BoosterItem("The Armory Booster Pack"               , "equipment"  ),
-            new BoosterItem("Explorers Booster Pack"                , "locations"  ),
-            new BoosterItem("Order and Structure Booster Pack"      , "structures" ),
+            new BoosterItem("Humble Beginnings Booster Pack"        , "basic"           , BoosterItem.BoosterType.Unlock     ),
+            new BoosterItem("Seeking Wisdom Booster Pack"           , "idea"            , BoosterItem.BoosterType.Unlock     ),
+            new BoosterItem("Reap & Sow Booster Pack"               , "farming"         , BoosterItem.BoosterType.Unlock     ),
+            new BoosterItem("Curious Cuisine Booster Pack"          , "cooking"         , BoosterItem.BoosterType.Unlock     ),
+            new BoosterItem("Logic and Reason Booster Pack"         , "idea2"           , BoosterItem.BoosterType.Unlock     ),
+            new BoosterItem("The Armory Booster Pack"               , "equipment"       , BoosterItem.BoosterType.Unlock     ),
+            new BoosterItem("Explorers Booster Pack"                , "locations"       , BoosterItem.BoosterType.Unlock     ),
+            new BoosterItem("Order and Structure Booster Pack"      , "structures"      , BoosterItem.BoosterType.Unlock     ),
 
             // Blueprint Bundles
             new IdeaItem("Idea: Animal Pen"           , Cards.blueprint_animalpen           ),
@@ -121,11 +122,11 @@ namespace Stacklands_Randomizer_Mod
             #region Traps
 
             // Traps
-            new MiscItem("Feed Villagers Trap"      , string.Empty      , ItemHandler.TriggerFeedVillagers      , null     ),
+            new MiscItem("Feed Villagers Trap"      , string.Empty      , ItemHandler.TriggerFeedVillagers                                  , null     ),
             //new MiscItem("Flip Trap"                , string.Empty      , ItemReceivedHandler.FlipRandomCard            , null     ),
-            new MiscItem("Mob Trap"                 , string.Empty      , ItemHandler.SpawnRandomMob            , null     ),
-            new MiscItem("Sell Cards Trap"          , string.Empty      , ItemHandler.TriggerSellCards          , null     ),
-            new MiscItem("Structure Trap"           , string.Empty      , ItemHandler.SpawnRandomStructure      , null     ),
+            new MiscItem("Mob Trap"                 , string.Empty      , () => ItemHandler.SpawnRandomCard(TrapMapping.MobTrapCards)       , null     ),
+            new MiscItem("Sell Cards Trap"          , string.Empty      , ItemHandler.TriggerSellCards                                      , null     ),
+            new MiscItem("Structure Trap"           , string.Empty      , () => ItemHandler.SpawnRandomCard(TrapMapping.StructureTrapCards) , null     ),
 
             #endregion
         };
