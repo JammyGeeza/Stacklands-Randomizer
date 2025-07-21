@@ -24,6 +24,7 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string TAG_DEATHLINK = "death_link";
         private static readonly string TAG_GOAL = "goal";
         private static readonly string TAG_MOBSANITY = "mobsanity";
+        private static readonly string TAG_MOON_LENGTH = "moon_length";
         private static readonly string TAG_PAUSE_ENABLED = "pausing";
         private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
 
@@ -119,6 +120,11 @@ namespace Stacklands_Randomizer_Mod
         /// Gets or sets whether Mobsanity is enabled.
         /// </summary>
         public bool MobsanityEnabled { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the Moon Length for the run.
+        /// </summary>
+        public MoonLength MoonLength { get; private set; }
 
         /// <summary>
         /// Get the player name for the current world.
@@ -745,6 +751,13 @@ namespace Stacklands_Randomizer_Mod
                         : false; // Default to false if not found
 
                     Debug.Log($"Mobsanity enabled for this run: {MobsanityEnabled}");
+
+                    // Set moon length for this run
+                    MoonLength = _slotData.TryGetValue(TAG_MOON_LENGTH, out object moonLength)
+                        ? (MoonLength)Convert.ToInt32(moonLength)
+                        : MoonLength.Normal;
+
+                    Debug.Log($"Moon Length for this run: {MoonLength}");
 
                     return true;
                 }
