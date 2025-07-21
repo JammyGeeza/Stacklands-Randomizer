@@ -12,5 +12,9 @@ namespace Stacklands_Randomizer_Mod
         Resource = 2,    // Resource Cards
         Structure = 3,   // Structures
         Trap = 4,        // Traps
+        Buff = 5,        // Buffs (Board Expansion, for example)
+
+        Stack = 6,
+        Misc = 7,
     }
 }

@@ -26,6 +26,7 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string TAG_MOBSANITY = "mobsanity";
         private static readonly string TAG_MOON_LENGTH = "moon_length";
         private static readonly string TAG_PAUSE_ENABLED = "pausing";
+        private static readonly string TAG_SELL_CARD_AMOUNT = "sell_card_trap_amount";
         private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
 
         public static StacklandsRandomizer instance;
@@ -141,6 +142,11 @@ namespace Stacklands_Randomizer_Mod
             IsConnected
                 ? instance._session.RoomState.Seed
                 : string.Empty;
+
+        /// <summary>
+        /// Gets or sets the amount of cards to be sold in a 'Sell Cards Trap'.
+        /// </summary>
+        public int SellCardTrapAmount { get; private set; }
 
 
         public Dictionary<string, int> StartInventory => _slotData.TryGetValue(TAG_STARTING_INVENTORY, out object inv)
@@ -559,7 +565,7 @@ namespace Stacklands_Randomizer_Mod
             // Add starting inventory to queue (if any)
             if (StartInventory.Count > 0)
             {
-                ItemSyncHandler.SyncItems(StartInventory.Keys, forceCreate);
+                ItemSyncedHandler.SyncItems(StartInventory.Keys, forceCreate);
             }
 
             Debug.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
@@ -567,7 +573,7 @@ namespace Stacklands_Randomizer_Mod
             // Add all received items from server (if any)
             if (_session.Items.AllItemsReceived.Count > 0)
             {
-                ItemSyncHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
+                ItemSyncedHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
             }
         }
 
@@ -644,7 +650,7 @@ namespace Stacklands_Randomizer_Mod
         private void Items_ItemReceived(ReceivedItemsHelper itemsHelper)
         {
             Debug.Log($"Item received! Adding to queue...");
-            AddToItemQueue(() => ItemHandler.SpawnItem(itemsHelper.DequeueItem()));
+            AddToItemQueue(() => ItemHandler.ReceiveItem(itemsHelper.DequeueItem()));
         }
 
         /// <summary>
@@ -758,6 +764,12 @@ namespace Stacklands_Randomizer_Mod
                         : MoonLength.Normal;
 
                     Debug.Log($"Moon Length for this run: {MoonLength}");
+
+                    SellCardTrapAmount = _slotData.TryGetValue(TAG_SELL_CARD_AMOUNT, out object sellCardAmount)
+                        ? Convert.ToInt32(sellCardAmount)
+                        : 3;
+
+                    Debug.Log($"Sell Card Trap Amount for this run: {SellCardTrapAmount}");
 
                     return true;
                 }
@@ -1204,7 +1216,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            AddToItemQueue(() => ItemHandler.SpawnItem(item.Name));
+            AddToItemQueue(() => ItemHandler.ReceiveItem(item.Name));
         }
 
         /// <summary>

@@ -10,6 +10,96 @@ namespace Stacklands_Randomizer_Mod
     public static class ItemHandler
     {
         /// <summary>
+        /// Get how many times a specified item has been received in this session.
+        /// </summary>
+        /// <param name="item">The <see cref="Item"/> to retrieve the count for.</param>
+        /// <returns>The amount of times the item has been received - returns 0 if not found.</returns>
+        private static int GetMarkedItemCount(Item item)
+        {
+            return WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair kvp
+                ? Convert.ToInt32(kvp.Value)
+                : 0;
+        }
+
+        private static Vector3 GetRandomBoardPosition(GameBoard board)
+        {
+            Bounds bounds = board.WorldBounds;
+
+            // Select random X,Z coordinates within board bounds
+            float x = Mathf.Lerp(bounds.min.x, bounds.max.x, UnityEngine.Random.Range(0.1f, 0.9f));
+            float z = Mathf.Lerp(bounds.min.z, bounds.max.z, UnityEngine.Random.Range(0.1f, 0.9f));
+
+            return new Vector3(x, 0f, z);
+        }
+
+        /// <summary>
+        /// Handle an incoming <see cref="BoosterItem"/>
+        /// </summary>
+        /// <param name="booster">The booster item to be handled.</param>
+        /// <param name="forceCreate">(Optional) Bypass logic and force the booster to be unlocked.</param>
+        public static void HandleBooster(BoosterItem booster, bool forceCreate = false)
+        {
+            // Unlock booster pack if forced to create to or has not yet been discovered
+            if (forceCreate || !IsBoosterPackDiscovered(booster.ItemId))
+            {
+                UnlockBoosterPack(booster.ItemId);
+            }
+        }
+
+        /// <summary>
+        /// Handle an incoming <see cref="IdeaItem"/>.
+        /// </summary>
+        /// <param name="idea">The idea item to be handled.</param>
+        /// <param name="boardId">The board to spawn the idea to.</param>
+        /// <param name="position">(Optional) The position to spawn the item to.</param>
+        /// <param name="checkAddToStack">(Optional) Add to an existing stack if one exists in the same position.</param>
+        /// <param name="forceCreate">(Optional) Bypass logic and force the idea to be created.</param>
+        public static void HandleIdea(IdeaItem idea, Vector3? position = null, bool checkAddToStack = false, bool forceCreate = false)
+        {
+            // Spawn idea if forced to create or if idea has not been discovered yet
+            if (forceCreate || !IsIdeaDiscovered(idea.ItemId))
+            {
+                SpawnCard(idea.ItemId, position, checkAddToStack);
+            }
+        }
+
+        /// <summary>
+        /// Handle an incoming <see cref="MiscItem"/>.
+        /// </summary>
+        /// <param name="misc">The misc item to be handled.</param>
+        /// <param name="forceCreate"></param>
+        /// <param name="log"></param>
+        public static void HandleMisc(MiscItem misc, bool forceCreate = false, bool log = true)
+        {
+            // Invoke the received item action
+            misc.ReceivedAction.Invoke();
+
+            // Log receipt of item if required
+            if (log)
+            {
+                MarkItemAsReceived(misc);
+            }
+        }
+
+        /// <summary>
+        /// Handle an incoming <see cref="StackItem"/>.
+        /// </summary>
+        /// <param name="stack">The stack item to be handled.</param>
+        /// <param name="boardId">The board to spawn the idea to.</param>
+        /// <param name="position">(Optional) The position to spawn the item to.</param>
+        public static void HandleStack(StackItem stack, Vector3? position = null, bool log = true)
+        {
+            // Spawn idea if forced to create or if idea has not been discovered yet
+            SpawnStackToBoard(stack.BoardId, stack.ItemId, stack.Amount, position);
+
+            // Log receipt of item
+            if (log)
+            {
+                MarkItemAsReceived(stack);
+            }
+        }
+
+        /// <summary>
         /// Check if a booster pack has been discovered in the current save.
         /// </summary>
         /// <param name="boosterId">The ID of the booster pack to check.</param>
@@ -29,13 +119,12 @@ namespace Stacklands_Randomizer_Mod
             return WorldManager.instance.CurrentSave.FoundCardIds.Contains(ideaId);
         }
 
-
         /// <summary>
         /// Log a filler <see cref="Item"/> (of type <see cref="ItemType.Resource"/>) as received in this session.
         /// </summary>
         /// <param name="item">The <see cref="Item"/> (of type <see cref="ItemType.Resource"/>) to be logged.</param>
         /// <param name="totaloverride">(OPTIONAL) Override the current stored total. If left blank, current total will be incremented by 1.</param>
-        public static void LogFillerItem(Item item, int? totaloverride = null)
+        public static void MarkItemAsReceived(Item item, int? totaloverride = null)
         {
             //LogFillerItem(item.Name, totaloverride);
 
@@ -63,11 +152,11 @@ namespace Stacklands_Randomizer_Mod
         /// Spawn a received item from the Archipelago server.
         /// </summary>
         /// <param name="itemInfo">The received <see cref="ItemInfo"/> to be spawned.</param>
-        public static void SpawnItem(ItemInfo itemInfo)
+        public static void ReceiveItem(ItemInfo itemInfo)
         {
             if (ItemMapping.Map.SingleOrDefault(m => m.Matches(itemInfo.ItemName)) is Item mappedItem)
             {
-                SpawnItem(mappedItem, itemInfo);
+                ReceiveItem(mappedItem, itemInfo);
             }
             else
             {
@@ -79,11 +168,11 @@ namespace Stacklands_Randomizer_Mod
         /// Spawn a received item from the Archipelago server by the item name.
         /// </summary>
         /// <param name="itemName">The received item name to be spawned.</param>
-        public static void SpawnItem(string itemName)
+        public static void ReceiveItem(string itemName)
         {
             if (ItemMapping.Map.SingleOrDefault(m => m.Matches(itemName)) is Item mappedItem)
             {
-                SpawnItem(mappedItem, null);
+                ReceiveItem(mappedItem, null);
             }
             else
             {
@@ -96,72 +185,48 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         /// <param name="mappedItem">The received <see cref="Item"/> to be spawned.</param>
         /// <param name="itemInfo">Accompanying <see cref="ItemInfo"/> for in-game notification logic.</param>
-        private static void SpawnItem(Item mappedItem, ItemInfo? itemInfo)
+        private static void ReceiveItem(Item mappedItem, ItemInfo? itemInfo)
         {
             Debug.Log($"Handling item '{mappedItem.Name}'...");
 
-            // Check if we are in-game
+            // Ignore if not currently in-game
             if (!StacklandsRandomizer.instance.IsInGame)
             {
-                Debug.Log($"Not currently in game. Skipping...");
+                Debug.LogWarning($"Not currently in game - skipping received item.");
                 return;
             }
 
-            // Text for notification
-            string title = string.Empty;
-
-            switch (mappedItem.ItemType)
+            switch (mappedItem)
             {
-                case ItemType.BoosterPack:
+                case BoosterItem booster:
                     {
-                        // Handle unlocking of booster pack
-                        UnlockBoosterPackItem(mappedItem);
-
-                        title = $"Booster Pack Received!";
+                        HandleBooster(booster);
                     }
                     break;
 
-                case ItemType.Idea:
+                case IdeaItem idea:
                     {
-                        // Handle creation of idea
-                        SpawnIdeaItem(mappedItem);
-
-                        title = $"Idea Received!";
+                        HandleIdea(idea);
                     }
                     break;
 
-                case ItemType.Resource:
+                case MiscItem misc:
                     {
-                        // Spawn the resource item
-                        SpawnResourceItem(mappedItem);
-
-                        title = $"Resource Received!";
+                        HandleMisc(misc);
                     }
                     break;
 
-                case ItemType.Structure:
+                case StackItem stack:
                     {
-                        // Spawn the structure item
-                        //SpawnStructureItem(mappedItem);
-
-                        title = $"Structure Received!";
-                    }
-                    break;
-
-                case ItemType.Trap:
-                    {
-                        // Spawn the trap item
-                        SpawnTrapItem(mappedItem);
-
-                        title = $"Trap Received!";
+                        HandleStack(stack);
                     }
                     break;
 
                 default:
                     {
-                        Debug.LogError($"Unhandled item type '{mappedItem.ItemType}'");
+                        Debug.LogWarning($"Item '{mappedItem.Name}' was not handled due to it being an unhandled item type.");
                     }
-                    return;
+                    break;
             }
 
             // If not forcefully created and not sent from the current player...
@@ -169,37 +234,8 @@ namespace Stacklands_Randomizer_Mod
             {
                 // Display message
                 StacklandsRandomizer.instance.DisplayNotification(
-                    title,
+                    "Item Received",
                     $"{mappedItem.Name} was sent to you by {itemInfo.Player.Name}\n({itemInfo.LocationName})");
-            }
-        }
-
-        /// <summary>
-        /// Spawn required cards for an <see cref="Item"/> of type <see cref="ItemType.Idea"/>.
-        /// </summary>
-        /// <param name="item">The idea item to be spawned.</param>
-        public static void SpawnIdeaItem(Item item)
-        {
-            if (item.ItemType is ItemType.Idea)
-            {
-                try
-                {
-                    // Create card (automatically marks as found)
-                    WorldManager.instance.CreateCard(
-                        WorldManager.instance.GetRandomSpawnPosition(),
-                        item.ItemId,
-                        true,
-                        false,
-                        true);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"Failed to spawn Idea item '{item.Name}'. Reason: '{ex.Message}'.");
-                }
-            }
-            else
-            {
-                Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as an Idea.");
             }
         }
 
@@ -207,17 +243,21 @@ namespace Stacklands_Randomizer_Mod
         /// Spawn a card to the current board.
         /// </summary>
         /// <param name="cardId">The ID of the card to be spawned.</param>
-        /// <param name="log">Whether or not to log receipt of this card.</param>
-        public static void SpawnCard(string cardId, bool log = false)
+        /// <param name="position">(Optional) The position to spawn the card in.</param>
+        /// <param name="checkAddToStack">(Optional) Add to an existing stack if one exists in the same position.</param>
+        public static void SpawnCard(string cardId, Vector3? position = null, bool checkAddToStack = false)
         {
             try
             {
+                // Use spawn position or generate one if not provided
+                Vector3 spawnPosition = position ?? WorldManager.instance.GetRandomSpawnPosition();
+
                 // Create card (automatically marks as found)
                 WorldManager.instance.CreateCard(
-                    WorldManager.instance.GetRandomSpawnPosition(),
+                    spawnPosition,
                     cardId,
                     true,
-                    false,
+                    checkAddToStack,
                     true);
             }
             catch (Exception ex)
@@ -231,30 +271,36 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         /// <param name="boardId">The ID of the board to spawn to.</param>
         /// <param name="cardId">The ID of the card to be spawned.</param>
-        /// <param name="log">Whether or not to log receipt of this card.</param>
-        public static void SpawnCardToBoard(string boardId, string cardId, bool log = false)
+        /// <param name="position">(Optional) The position to spawn the card at.</param>
+        public static void SpawnCardToBoard(string boardId, string cardId, Vector3? position = null, bool checkAddToStack = false)
         {
             try
-            {   
+            {
                 // If the target board is the current board, spawn as normal
                 if (WorldManager.instance.CurrentBoard.Id == boardId)
                 {
-                    SpawnCard(cardId, log);
+                    SpawnCard(cardId, position);
                 }
 
                 // Otherwise, spawn to target board
                 else if (WorldManager.instance.GetBoardWithId(boardId) is { } board)
                 {
+                    // Use spawn position or generate one if not provided
+                    Vector3 spawnPosition = position ?? GetRandomBoardPosition(board);
+
                     // Create the card out of view and play no sound
                     CardData cardData = WorldManager.instance.CreateCard(
-                        Vector3.zero,
+                        spawnPosition,
                         cardId,
                         true,
-                        false,
+                        checkAddToStack,
                         false);
 
+                    // Get normalized board position from world position
+                    Vector2 normalizedSpawnPosition = board.WorldPosToNormalizedPos(spawnPosition);
+
                     // Immediately send the card to the target board
-                    WorldManager.instance.SendToBoard(cardData.MyGameCard, board, Vector2.zero);
+                    WorldManager.instance.SendToBoard(cardData.MyGameCard, board, normalizedSpawnPosition);
                 }
             }
             catch (Exception ex)
@@ -264,61 +310,24 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Spawn an idea to the current board.
-        /// </summary>
-        /// <param name="cardId"></param>
-        public static void SpawnIdea(string cardId)
-        {
-            // Spawn if idea has not been found already
-            if (!WorldManager.instance.HasFoundCard(cardId))
-            {
-                SpawnCard(cardId, false);
-            }
-        }
-
-        /// <summary>
-        /// Spawn a stack of resources to the current board.
-        /// </summary>
-        /// <param name="cardId">The ID of the resource to spawn.</param>
-        /// <param name="amount">The amount of the resource to spawn.</param>
-        /// <param name="log">Whether or not to log receipt of this resource.</param>
-        public static void SpawnResource(string cardId, int amount, bool log = true)
-        {
-            SpawnStack(cardId, amount, log);
-        }
-
-        /// <summary>
-        /// Spawn a structure to the current board.
-        /// </summary>
-        /// <param name="cardId">The ID of the structure to spawn.</param>
-        /// <param name="log">Whether or not to log receipt of this structure.</param>
-        public static void SpawnStructure(string cardId, bool log = false)
-        {
-            SpawnCard(cardId, log);
-        }
-
-        /// <summary>
         /// Spawn a card stack to the current board.
         /// </summary>
         /// <param name="cardId">The ID of the card to spawn.</param>
         /// <param name="amount">The amount to spawn in the stack.</param>
-        /// <param name="log">Whether or not to log receipt of this card.</param>
-        public static void SpawnStack(string cardId, int amount, bool log = false)
+        /// <param name="position">(Optional) The position to spawn the stack at.</param>
+        private static void SpawnStack(string cardId, int amount, Vector3? position = null)
         {
             try
             {
+                // Use spawn position or generate one if not provided
+                Vector3 spawnPosition = position ?? WorldManager.instance.GetRandomSpawnPosition();
+
                 // Create stack
                 WorldManager.instance.CreateCardStack(
-                    WorldManager.instance.GetRandomSpawnPosition(),
+                    spawnPosition,
                     amount,
                     cardId,
                     false);
-
-                // Log receipt of item if required
-                if (log)
-                {
-                    //LogFillerItem(cardId);
-                }
             }
             catch (Exception ex)
             {
@@ -333,32 +342,36 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="cardId">The ID of the card to be spawned.</param>
         /// <param name="amount">The amount of this card to spawn.</param>
         /// <param name="log">Whether or not to log receipt of this card.</param>
-        public static void SpawnStackToBoard(string boardId, string cardId, int amount, bool log = false)
+        public static void SpawnStackToBoard(string boardId, string cardId, int amount, Vector3? position = null)
         {
             try
             {
                 // If the target board is the current board, spawn as normal
                 if (WorldManager.instance.CurrentBoard.Id == boardId)
                 {
-                    SpawnStack(cardId, amount, log);
+                    SpawnStack(cardId, amount, position);
                 }
 
                 // Otherwise, spawn to target board
                 else if (WorldManager.instance.GetBoardWithId(boardId) is { } board)
                 {
-                    Debug.Log($"Found board: {board.Id}");
+                    // Use spawn position or generate one if not provided
+                    Vector3 spawnPosition = position ?? GetRandomBoardPosition(board);
 
                     // Create stack
                     GameCard rootCard = WorldManager.instance.CreateCardStack(
-                        WorldManager.instance.GetRandomSpawnPosition(),
+                        spawnPosition,
                         amount,
                         cardId,
                         false);
 
                     Debug.Log($"Attempting to send {rootCard.CardNameText.text} stack to board: {board.Id}");
 
+                    // Get normalized board position from world position
+                    Vector2 normalizedSpawnPosition = board.WorldPosToNormalizedPos(spawnPosition);
+
                     // Immediately send the card to the target board
-                    WorldManager.instance.SendStackToBoard(rootCard, board, Vector2.zero);
+                    WorldManager.instance.SendStackToBoard(rootCard, board, normalizedSpawnPosition);
                 }
             }
             catch (Exception ex)
@@ -368,87 +381,184 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Spawn required cards for an <see cref="Item"/> of type <see cref="ItemType.Resource"/>.
+        /// Sync a list of items to the current game save.
         /// </summary>
-        /// <param name="item">The resource item to be spawned.</param>
-        public static void SpawnResourceItem(Item item)
+        /// <param name="itemNames">A list of all item names to be synced.</param>
+        public static void SyncItems(IEnumerable<string> itemNames, bool forceCreate = false)
         {
-            if (item.ItemType is ItemType.Resource)
-            {
-                try
-                {
-                    // Create resources as a stack (automatically marks as found)
-                    WorldManager.instance.CreateCardStack(
-                        WorldManager.instance.GetRandomSpawnPosition(),
-                        item.Amount,
-                        item.ItemId,
-                        false);
-
-                    // Increment the received count of this filler item.
-                    LogFillerItem(item);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"Failed to spawn Resource item '{item.Name}'. Reason: '{ex.Message}'.");
-                }
-            }
-            else
-            {
-                Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as a Resource.");
-            }
+            SyncItems(itemNames.Select(name => ItemMapping.Map.SingleOrDefault(m => m.Name == name)).ToArray(), forceCreate);
         }
 
         /// <summary>
-        /// Spawn required cards for an <see cref="Item"/> of type <see cref="ItemType.Trap"/>.
+        /// Sync a list of items to the current game save.
         /// </summary>
-        /// <param name="item">The trap item to be spawned.</param>
-        public static void SpawnTrapItem(Item item)
+        /// <param name="items">A list of all <see cref="ItemInfo"/> to be synced.</param>
+        public static void SyncItems(IEnumerable<ItemInfo> items, bool forceCreate = false)
         {
-            if (item.ItemType is ItemType.Trap)
+            SyncItems(items.Select(item => ItemMapping.Map.SingleOrDefault(m => m.Name == item.ItemName)).ToArray(), forceCreate);
+        }
+
+        /// <summary>
+        /// Sync a list of items to the current game save.
+        /// </summary>
+        /// <param name="items">A list of all <see cref="Item"/> to be synced.</param>
+        public static void SyncItems(IEnumerable<Item> items, bool forceCreate = false)
+        {
+            Debug.Log($"Syncing bulk set of {items.Count()} items...");
+
+            // Ignore if not currently in-game
+            if (!StacklandsRandomizer.instance.IsInGame)
             {
-                try
-                {
-                    // Randomly place each trap
-                    for (int i = 0; i < item.Amount; i++)
-                    {
-                        WorldManager.instance.CreateCard(
-                            WorldManager.instance.GetRandomSpawnPosition(),
-                            item.ItemId,
-                            true,
-                            false,
-                            true);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"Failed to spawn Trap item '{item.Name}'. Reason: '{ex.Message}'.");
-                }
+                Debug.LogWarning($"Not currently in-game - skipping item sync...");
+                return;
             }
-            else
+
+            // Group items by item type
+            foreach (IGrouping<ItemType, Item> typeGroup in items.GroupBy(item => item.ItemType))
             {
-                Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as a Trap.");
+                Debug.Log($"Handling {typeGroup.Count()} items of type '{typeGroup.Key}'...");
+
+                switch (typeGroup.Key)
+                {
+                    // Items in singles
+                    case ItemType.BoosterPack:
+                        {
+                            SyncBoosters(typeGroup.Select(booster => booster as BoosterItem), forceCreate);
+                        }
+                        break;
+
+                    case ItemType.Idea:
+                        {
+                            SyncIdeas(typeGroup.Select(idea => idea as IdeaItem), forceCreate);
+                        }
+                        break;
+
+                    case ItemType.Misc:
+                        {
+                            SyncMiscs(typeGroup.Select(misc => misc as MiscItem), forceCreate);
+                        }
+                        break;
+
+                    case ItemType.Stack:
+                        {
+                            SyncStacks(typeGroup.Select(stack => stack as StackItem), forceCreate);
+                        }
+                        break;
+
+                    default:
+                        {
+                            Debug.LogWarning($"Item group '{typeGroup.Key}' was skipped due to it being an unhandled item type.");
+                        }
+                        break;
+                }
             }
         }
 
         /// <summary>
         /// 
         /// </summary>
-        public static void TriggerFlipRandomCard()
+        /// <param name="boosterItems"></param>
+        /// <param name="forceCreate"></param>
+        private static void SyncBoosters(IEnumerable<BoosterItem> boosterItems, bool forceCreate = false)
         {
-            // Get all cards on current board
-            List<GameCard> cards = WorldManager.instance.GetAllCardsOnBoard(WorldManager.instance.CurrentBoard.Id);
-
-            // Select one at random
-            int index = UnityEngine.Random.Range(0, cards.Count - 1);
-
-            // Flip the card over
-            if (cards.ElementAt(index) is { } card)
+            // Handle each booster
+            foreach (BoosterItem booster in boosterItems)
             {
-                //card.IsDemoCard = true;
-                card.SetFaceUp(false);
+                HandleBooster(booster, forceCreate);
             }
-            
         }
+
+        private static void SyncIdeas(IEnumerable<IdeaItem> ideaItems, bool forceCreate = false)
+        {
+            // Get a random spawn position
+            Vector3 spawnPosition = WorldManager.instance.GetRandomSpawnPosition();
+
+            // Handle each idea
+            foreach (IdeaItem idea in ideaItems)
+            {
+                HandleIdea(idea, spawnPosition, true, forceCreate);
+            }
+        }
+
+        private static void SyncMiscs(IEnumerable<MiscItem> miscItems, bool forceCreate = false)
+        {
+            foreach (IGrouping<string, MiscItem> itemGroup in miscItems.GroupBy(misc => misc.Name))
+            {
+                // Get group count
+                int groupCount = itemGroup.Count();
+
+                Debug.Log($"Syncing {groupCount} of the '{itemGroup.Key}' item...");
+
+                // Get count logged in save (or set to 0 if forcing creation)
+                int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
+
+                // If not forcing to create, check if item count matches session
+                if (!forceCreate && groupCount <= sessionCount)
+                {
+                    Debug.LogWarning($"Item '{itemGroup.Key}' has already been received {sessionCount} time(s) - skipping...");
+                    return;
+                }
+
+                Debug.Log($"Item '{itemGroup.Key}' has been received {groupCount - sessionCount} additional time(s) - creating...");
+
+                // Invoke sync action for each un-received repeat item
+                for (int i = 0; i < groupCount - sessionCount; i++)
+                {
+                    MiscItem misc = itemGroup.ElementAt(i);
+                    misc.SyncAction?.Invoke(forceCreate);
+                }
+            }
+        }
+
+        private static void SyncStacks(IEnumerable<StackItem> stackItems, bool forceCreate = false)
+        {
+            foreach (IGrouping<string, StackItem> itemGroup in stackItems.GroupBy(misc => misc.Name))
+            { 
+                // Get group count
+                int groupCount = itemGroup.Count();
+
+                Debug.Log($"Syncing {groupCount} of the '{itemGroup.Key}' item...");
+
+                // Get count logged in save (or set to 0 if forcing creation)
+                int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
+
+                // If not forcing to create, check if item count matches session
+                if (!forceCreate && groupCount <= sessionCount)
+                {
+                    Debug.LogWarning($"Item '{itemGroup.Key}' has already been received {sessionCount} time(s) - skipping...");
+                    return;
+                }
+
+                Debug.Log($"Item '{itemGroup.Key}' has been received {groupCount - sessionCount} additional time(s) - creating...");
+
+                // Invoke sync action for each un-received repeat item
+                for (int i = 0; i < groupCount - sessionCount; i++)
+                {
+                    StackItem stack = itemGroup.ElementAt(i);
+                    HandleStack(stack, forceCreate);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        //public static void TriggerFlipRandomCard()
+        //{
+        //    // Get all cards on current board
+        //    List<GameCard> cards = WorldManager.instance.GetAllCardsOnBoard(WorldManager.instance.CurrentBoard.Id);
+
+        //    // Select one at random
+        //    int index = UnityEngine.Random.Range(0, cards.Count - 1);
+
+        //    // Flip the card over
+        //    if (cards.ElementAt(index) is { } card)
+        //    {
+        //        //card.IsDemoCard = true;
+        //        card.SetFaceUp(false);
+        //    }
+
+        //}
 
         /// <summary>
         /// Trigger the 'Feed Villagers' eating phase.
@@ -467,37 +577,15 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Trigger the 'Sell Cards' phase.
         /// </summary>
-        /// <param name="amount">The amount of cards that must be sold immediately.</param>
-        public static void TriggerSellCards(int amount)
+        public static void TriggerSellCards()
         {
             // Check if not currently in dark forest
             if (WorldManager.instance.CurrentBoard.Id != Board.Forest)
             {
                 // Queue the cutscene
-                WorldManager.instance.QueueCutscene(CustomCutscenes.SellCards(amount));
-            }
-        }
-
-        /// <summary>
-        /// Unlock required booster pack for an <see cref="Item"/> of type <see cref="ItemType.BoosterPack"/>.
-        /// </summary>
-        /// <param name="item">The booster pack to be unlocked.</param>
-        public static void UnlockBoosterPackItem(Item item)
-        {
-            if (item.ItemType is ItemType.BoosterPack)
-            {
-                try
-                {
-                    WorldManager.instance.CurrentSave.FoundBoosterIds.Add(item.ItemId);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError($"Failed to spawn Booster Pack item '{item.Name}'. Reason: '{ex.Message}'.");
-                }
-            }
-            else
-            {
-                Debug.LogError($"Item '{item.Name}' is of type '{item.ItemType}' so cannot be spawned as a Booster Pack.");
+                WorldManager.instance.QueueCutscene(
+                    CustomCutscenes.SellCards(
+                        StacklandsRandomizer.instance.SellCardTrapAmount));
             }
         }
 
@@ -505,19 +593,25 @@ namespace Stacklands_Randomizer_Mod
         /// Unlock a booster pack if it has not already been found.
         /// </summary>
         /// <param name="boosterId">The booster pack to be unlocked.</param>
-        public static void UnlockBoosterPack(string boosterId)
+        public static void UnlockBoosterPack(string boosterId, bool forceUnlock = false)
         {
             try
-            {   
-                // Add booster if not already unlocked
-                if (!WorldManager.instance.CurrentSave.FoundBoosterIds.Contains(boosterId))
+            {
+                Debug.Log($"Unlocking booster pack '{boosterId}'...");
+
+                // Unlock booster if forcing unlock or has not already been unlocked
+                if (forceUnlock || !IsBoosterPackDiscovered(boosterId))
                 {
                     WorldManager.instance.CurrentSave.FoundBoosterIds.Add(boosterId);
+                }
+                else
+                {
+                    Debug.LogWarning($"Booster '{boosterId}' has already been discovered - skipping...");
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to spawn Booster Pack item '{boosterId}'. Reason: '{ex.Message}'.");
+                Debug.LogError($"Failed to unlock booster pack '{boosterId}'. Reason: '{ex.Message}'.");
             }
         }
     }

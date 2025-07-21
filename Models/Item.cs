@@ -2,15 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace Stacklands_Randomizer_Mod
 {
     public class Item
     {
         /// <summary>
-        /// Gets or sets the name of this item (matched to what is received from AP Server)
+        /// Gets or sets the ID of the item that this item will unlock.
         /// </summary>
-        public string Name { get; set; } = string.Empty;
+        public string ItemId { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets the type of Stacklands item that has been received.
@@ -18,19 +19,29 @@ namespace Stacklands_Randomizer_Mod
         public ItemType ItemType { get; set; }
 
         /// <summary>
-        /// Gets or sets the ID of the item that this item will unlock.
+        /// Gets or sets the name of this item (matched to what is received from AP Server)
         /// </summary>
-        public string ItemId { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
 
         /// <summary>
         /// Gets or sets how many of this item should be received.
         /// </summary>
-        public int Amount { get; set; } = 1;
+        //public int Amount { get; set; } = 1;
+
+        
 
         /// <summary>
-        /// The action to perform when this item is received.
+        /// Constructor for Item class.
         /// </summary>
-        public Action ReceivedAction { get; set; }
+        /// <param name="name">The name of the item.</param>
+        /// <param name="itemid">The ID of the card item.</param>
+        /// <param name="itemType">The type of item.</param>
+        public Item(string name, string itemid, ItemType itemType)
+        {
+            Name = name;
+            ItemId = itemid;
+            ItemType = itemType;
+        }
 
         /// <summary>
         /// Check if an <see cref="ItemInfo"/> matches this item.
@@ -60,6 +71,77 @@ namespace Stacklands_Randomizer_Mod
         public bool Matches(string item)
         {
             return this.Name.Equals(item, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    public class BoosterItem : Item
+    {
+        public enum BoosterType
+        {
+            Spawn,
+            Unlock,
+        }
+
+        /// <summary>
+        /// Gets or sets the type of booster.
+        /// </summary>
+        public BoosterType Type { get; set; }
+
+        public BoosterItem(string name, string boosterId, BoosterType boosterType) : base(name, boosterId, ItemType.BoosterPack)
+        {
+            Type = boosterType;
+
+            //ReceivedAction = () => ItemHandler.HandleBooster(this);
+            //SyncAction = (bool forceCreate, Vector3? position) => ItemHandler.HandleBooster(this, forceCreate);
+        }
+    }
+
+    public class IdeaItem : Item
+    {
+        public IdeaItem(string name, string ideaId) : base(name, ideaId, ItemType.Idea)
+        {
+            //ReceivedAction = () => ItemHandler.HandleIdea(this);
+            //SyncAction = (bool forceCreate, Vector3? position) => ItemHandler.HandleIdea(this, position);
+        }
+    }
+
+    public class MiscItem : Item
+    {
+        /// <summary>
+        /// The action to perform when this item is received.
+        /// </summary>
+        public Action ReceivedAction { get; set; }
+
+        /// <summary>
+        /// The action to perform when this item is synced.
+        /// </summary>
+        public Action<bool>? SyncAction { get; set; }
+
+        public MiscItem(string name, string itemId, Action receivedAction, Action<bool>? syncAction = null) : base(name, itemId, ItemType.Misc)
+        {
+            ReceivedAction = receivedAction;
+            SyncAction = syncAction;
+        }
+    }
+
+    public class StackItem : Item
+    {
+        /// <summary>
+        /// The amount of this item to include in the stack.
+        /// </summary>
+        public int Amount { get; set; }
+
+        /// <summary>
+        /// The ID of the board to create the item on.
+        /// </summary>
+        public string BoardId { get; set; } = string.Empty;
+
+        public StackItem(string name, string cardId, int amount, string board) : base(name, cardId, ItemType.Stack)
+        {
+            Amount = amount;
+
+            //ReceivedAction = () => ItemHandler.HandleStack(this);
+            //SyncAction = (bool forceCreate, Vector3? position) => ItemHandler.HandleStack(this, position);
         }
     }
 }
