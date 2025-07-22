@@ -69,12 +69,13 @@ namespace Stacklands_Randomizer_Mod.GUI
             string status = string.Format(
                 "AP Connected: {0}{1}", 
                 SokLoc.Translate(connected ? SokTerms.label_yes : SokTerms.label_no),
-                string.IsNullOrWhiteSpace(reason) ? "" : $"\n{reason}"
-            );
+                string.IsNullOrWhiteSpace(reason) ? "" : $"\n{reason}");
 
             StartCoroutine(
-                SetConnectionStatus(status)
-            );
+                SetConnectionStatus(status));
+
+            StartCoroutine(
+                SetMainMenuButtons(connected));
         }
 
         /// <summary>
@@ -91,6 +92,21 @@ namespace Stacklands_Randomizer_Mod.GUI
                 _connectionStatusElement.TextMeshPro.text = text;
                 _connectionStatusElement.TextMeshPro.alignment = TextAlignmentOptions.Center;
                 _connectionStatusElement.TextMeshPro.ForceMeshUpdate();
+            }
+        }
+
+        /// <summary>
+        /// Set the state of the main menu buttons
+        /// </summary>
+        /// <param name="connected">Whether or not the connection is established.</param>
+        private IEnumerator SetMainMenuButtons(bool connected)
+        {
+            yield return null;
+
+            if (GameCanvas.instance.GetScreen<MainMenu>() is MainMenu menu)
+            {
+                menu.ContinueButton.ButtonEnabled = connected;
+                menu.NewGameButton.ButtonEnabled = connected;
             }
         }
     }
