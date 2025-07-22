@@ -1,0 +1,201 @@
+{
+  "$schema": "../Schemas/boosterpack.schema.json",
+  "id": "ap_resource_booster",
+  "nameTerm": "ap_resource_booster_name",
+  "cost": 0,
+  "icon": "archipelago.png",
+  "location": "Mainland",
+  "minQuestCount": 0,
+  "cardBags": [
+    {
+      "CardBagType": "Chances",
+      "CardsInPack": 1,
+      "Chances": [
+        {
+          "Id": "apple_tree",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "berrybush",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "iron_deposit",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "rock",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "soil",
+          "Chance": 6,
+          "HasMaxCount": false,
+          "IsEnemy": false,
+          "HasPrerequisiteCard": false
+        },
+        {
+          "Id": "tree",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "IsEnemy": false,
+          "HasPrerequisiteCard": false
+        }
+      ],
+      "Name": "Structures"
+    },
+    {
+      "CardBagType": "Chances",
+      "CardsInPack": 2,
+      "Chances": [
+        {
+          "Id": "apple",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "berry",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "carrot",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "fruit_salad",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "milk",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "milkshake",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "mushroom",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "onion",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "stew",
+          "Chance": 2,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        }
+      ],
+      "Name": "Foods"
+    },
+    {
+      "CardBagType": "Chances",
+      "CardsInPack": 2,
+      "Chances": [
+        {
+          "Id": "bone",
+          "Chance": 6,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "gold",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "goop",
+          "Chance": 2,
+          "HasMaxCount": true,
+          "MaxCountToGive": 1,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "iron_ore",
+          "Chance": 6,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "magic_dust",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "poop",
+          "Chance": 2,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "stone",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "stick",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "wood",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        }
+      ],
+      "Name": "Resources"
+    }
+  ]
+}

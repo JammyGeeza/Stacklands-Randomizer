@@ -3,7 +3,7 @@
   "id": "ap_board_expansion",
   "nameTerm": "ap_board_expansion_name",
   "descriptionTerm": "ap_board_expansion_description",
-  "icon": "warehouse",
+  "icon": "archipelago.png",
   "value": -1,
   "type": "Structures",
   "script": "Stacklands_Randomizer_Mod.BoardExpansion",

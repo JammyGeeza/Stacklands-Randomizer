@@ -39,10 +39,24 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="forceCreate">(Optional) Bypass logic and force the booster to be unlocked.</param>
         public static void HandleBooster(BoosterItem booster, bool forceCreate = false)
         {
-            // Unlock booster pack if forced to create to or has not yet been discovered
-            if (forceCreate || !IsBoosterPackDiscovered(booster.ItemId))
+            if (booster.Type is BoosterItem.BoosterType.Spawn)
             {
-                UnlockBoosterPack(booster.ItemId);
+                SpawnBoosterPack(booster.ItemId);
+
+                // Log receipt of this item
+                MarkItemAsReceived(booster);
+            }
+            else if (booster.Type is BoosterItem.BoosterType.Unlock)
+            {
+                // Unlock booster pack if forced to create to or has not yet been discovered
+                if (forceCreate || !IsBoosterPackDiscovered(booster.ItemId))
+                {
+                    UnlockBoosterPack(booster.ItemId);
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"Booster item '{booster.Name}' skipped due to un-handled booster item type.");
             }
         }
 
@@ -85,8 +99,8 @@ namespace Stacklands_Randomizer_Mod
         /// Handle an incoming <see cref="StackItem"/>.
         /// </summary>
         /// <param name="stack">The stack item to be handled.</param>
-        /// <param name="boardId">The board to spawn the idea to.</param>
         /// <param name="position">(Optional) The position to spawn the item to.</param>
+        /// <param name="log">(Optional) Whether to log this item as received.</param>
         public static void HandleStack(StackItem stack, Vector3? position = null, bool log = true)
         {
             // Spawn idea if forced to create or if idea has not been discovered yet
@@ -126,6 +140,8 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="totaloverride">(OPTIONAL) Override the current stored total. If left blank, current total will be incremented by 1.</param>
         public static void MarkItemAsReceived(Item item, int? totaloverride = null)
         {
+            Debug.Log($"Marking item '{item.Name}' as received.");
+
             //LogFillerItem(item.Name, totaloverride);
             if (WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair kvp)
             {
@@ -191,25 +207,60 @@ namespace Stacklands_Randomizer_Mod
             {
                 case BoosterItem booster:
                     {
-                        HandleBooster(booster);
+                        if (booster.Type is BoosterItem.BoosterType.Spawn)
+                        {
+                            // Spawn booster pack to current board
+                            SpawnBoosterPack(booster.ItemId);
+
+                            // Mark item as received
+                            MarkItemAsReceived(booster);
+                        }
+                        else
+                        {
+                            // Unlock booster pack
+                            UnlockBoosterPack(booster.ItemId);
+                        }
+                    }
+                    break;
+
+                case CardItem card:
+                    {
+                        // Spawn card to specified board
+                        SpawnCardToBoard(card.BoardId, card.ItemId);
+
+                        // Mark item as received
+                        MarkItemAsReceived(card);
                     }
                     break;
 
                 case IdeaItem idea:
                     {
-                        HandleIdea(idea);
+                        // Check if idea has not yet been discovered
+                        if (!IsIdeaDiscovered(idea.ItemId))
+                        {
+                            // Spawn card to current board
+                            SpawnCard(idea.ItemId);
+                        }
                     }
                     break;
 
                 case MiscItem misc:
                     {
-                        HandleMisc(misc);
+                        // Trigger received action
+                        misc.ReceivedAction.Invoke();
+
+                        // Mark item as received
+                        MarkItemAsReceived(misc);
                     }
                     break;
 
                 case StackItem stack:
                     {
-                        HandleStack(stack);
+                        // Spawn stack to specified board
+                        SpawnStackToBoard(stack.BoardId, stack.ItemId, stack.Amount);
+
+                        // Mark item as received
+                        MarkItemAsReceived(stack);
                     }
                     break;
 
@@ -227,6 +278,29 @@ namespace Stacklands_Randomizer_Mod
                 StacklandsRandomizer.instance.DisplayNotification(
                     "Item Received",
                     $"{mappedItem.Name} was sent to you by {itemInfo.Player.Name}\n({itemInfo.LocationName})");
+            }
+        }
+
+        /// <summary>
+        /// Spawn a booster pack to the current board.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack to be spawned.</param>
+        /// <param name="position">(Optional) The position to spawn the booster card in.</param>
+        public static void SpawnBoosterPack(string boosterId, Vector3? position = null)
+        {
+            try
+            {
+                // Use spawn position or generate one if not provided
+                Vector3 spawnPosition = position ?? WorldManager.instance.GetRandomSpawnPosition();
+
+                // Create booster pack
+                WorldManager.instance.CreateBoosterpack(
+                    spawnPosition,
+                    boosterId);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to spawn booster '{boosterId}'. Reason: '{ex.Message}'.");
             }
         }
 
@@ -455,6 +529,12 @@ namespace Stacklands_Randomizer_Mod
                         }
                         break;
 
+                    case ItemType.Card:
+                        {
+                            SyncCards(typeGroup.Select(card => card as CardItem), forceCreate);
+                        }
+                        break;
+
                     case ItemType.Idea:
                         {
                             SyncIdeas(typeGroup.Select(idea => idea as IdeaItem), forceCreate);
@@ -483,99 +563,202 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Sync booster items.
+        /// Sync booster items with current progress.
         /// </summary>
         /// <param name="boosterItems">The booster items to be synced.</param>
         /// <param name="forceCreate">Bypass logic and force the booster items to be unlocked / created.</param>
         private static void SyncBoosters(IEnumerable<BoosterItem> boosterItems, bool forceCreate = false)
         {
-            // Handle each booster
-            foreach (BoosterItem booster in boosterItems)
+            Debug.Log($"Syncing {boosterItems.Count()} booster pack items...");
+
+            // Group by booster type
+            foreach (IGrouping<BoosterItem.BoosterType, BoosterItem> itemGroup in boosterItems.GroupBy(booster => booster.Type))
             {
-                HandleBooster(booster, forceCreate);
+                // Handle by booster type
+                if (itemGroup.Key is BoosterItem.BoosterType.Spawn)
+                {
+                    // Group by item name
+                    foreach (IGrouping<string, BoosterItem> spawnGroup in itemGroup.GroupBy(booster => booster.Name))
+                    {
+                        // Get group and session counts
+                        int groupCount = spawnGroup.Count();
+                        int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
+
+                        // If not forcing to create, check if item count matches session
+                        if (!forceCreate && groupCount <= sessionCount)
+                        {
+                            Debug.LogWarning($"Skipping booster item '{spawnGroup.Key}' because it has already been received {sessionCount} time(s).");
+                            break;
+                        }
+
+                        Debug.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{spawnGroup.Key}' booster pack items...");
+
+                        // Invoke sync action for each un-received repeat item
+                        for (int i = 0; i < groupCount - sessionCount; i++)
+                        {
+                            BoosterItem booster = spawnGroup.ElementAt(i);
+
+                            // Spawn booster pack
+                            SpawnBoosterPack(booster.ItemId);
+
+                            // If first in list
+                            if (i == 0)
+                            {
+                                // Mark as received and correct stored count
+                                MarkItemAsReceived(booster, groupCount);
+                            }
+                        }
+                    }
+                }
+                else if (itemGroup.Key is BoosterItem.BoosterType.Unlock)
+                {
+                    // Handle each booster
+                    foreach (BoosterItem booster in itemGroup)
+                    {
+                        // If forcing to create or not yet discovered, unlock booster pack
+                        if (forceCreate || !IsBoosterPackDiscovered(booster.ItemId))
+                        {
+                            UnlockBoosterPack(booster.ItemId);
+                        }
+                    }
+                }
             }
         }
 
         /// <summary>
-        /// Sync idea items.
+        /// Sync card items with current progress.
+        /// </summary>
+        /// <param name="cardItems">The card items to be synced.</param>
+        /// <param name="forceCreate">(Optional) Bypass logic and force the card items to be created.</param>
+        private static void SyncCards(IEnumerable<CardItem> cardItems, bool forceCreate = false)
+        {
+            Debug.Log($"Syncing {cardItems.Count()} card items...");
+
+            foreach (IGrouping<string, CardItem> itemGroup in cardItems.GroupBy(card => card.Name))
+            {
+                // Get group and session counts
+                int groupCount = itemGroup.Count();
+                int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
+
+                // If not forcing to create and item count does not breach session count
+                if (!forceCreate && groupCount <= sessionCount)
+                {
+                    Debug.LogWarning($"Skipping card item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
+                    break;
+                }
+
+                Debug.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
+
+                // Get board for item(s) and get spawn position
+                GameBoard board = WorldManager.instance.GetBoardWithId(cardItems.First().BoardId);
+                Vector3 spawnPosition = GetRandomBoardPosition(board);
+
+                for (int i = 0; i < groupCount - sessionCount; i++)
+                {
+                    // Get card item
+                    CardItem card = itemGroup.ElementAt(i);
+
+                    // Spawn card to board
+                    SpawnCardToBoard(card.BoardId, card.ItemId, spawnPosition, true);
+
+                    // If the first in the list
+                    if (i == 0)
+                    {
+                        // Mark as received and correct stored count
+                        MarkItemAsReceived(card, groupCount);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sync idea items with current progress.
         /// </summary>
         /// <param name="ideaItems">The idea items to be synced.</param>
-        /// <param name="forceCreate">Bypass logic and force the idea items to be created.</param>
+        /// <param name="forceCreate">(Optional) Bypass logic and force the idea items to be created.</param>
         private static void SyncIdeas(IEnumerable<IdeaItem> ideaItems, bool forceCreate = false)
         {
+            Debug.Log($"Syncing {ideaItems.Count()} idea items...");
+            
             // Get a random spawn position
             Vector3 spawnPosition = WorldManager.instance.GetRandomSpawnPosition();
 
-            // Handle each idea
+            // Spawn ideas
             foreach (IdeaItem idea in ideaItems)
             {
-                HandleIdea(idea, spawnPosition, true, forceCreate);
+                // Spawn if forced to create or idea not yet discovered
+                if (forceCreate || !IsIdeaDiscovered(idea.ItemId))
+                {
+                    SpawnCard(idea.ItemId, spawnPosition, true);
+                }
+
             }
         }
 
         /// <summary>
-        /// Synd misc items.
+        /// Sync misc items with current progress.
         /// </summary>
         /// <param name="miscItems">The misc items to be synced.</param>
-        /// <param name="forceCreate">Bypass logic and force the misc items to be triggered.</param>
+        /// <param name="forceCreate">(Optional) Bypass logic and force the misc items to be triggered.</param>
         private static void SyncMiscs(IEnumerable<MiscItem> miscItems, bool forceCreate = false)
         {
+            Debug.Log($"Syncing {miscItems.Count()} misc items...");
+
             foreach (IGrouping<string, MiscItem> itemGroup in miscItems.GroupBy(misc => misc.Name))
             {
-                // Get group count
+                // Get group and session counts
                 int groupCount = itemGroup.Count();
-
-                Debug.Log($"Syncing {groupCount} of the '{itemGroup.Key}' item...");
-
-                // Get the marked count for this item (or set to 0 if forcing creation)
                 int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
 
                 // If not forcing to create, check if item count matches session
                 if (!forceCreate && groupCount <= sessionCount)
                 {
-                    Debug.LogWarning($"Item '{itemGroup.Key}' has already been received {sessionCount} time(s) - skipping...");
-                    return;
+                    Debug.LogWarning($"Skipping misc item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
+                    break;
                 }
 
-                Debug.Log($"Item '{itemGroup.Key}' has been received {groupCount - sessionCount} additional time(s) - creating...");
+                Debug.Log($"Triggering {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
 
                 // Invoke sync action for each un-received repeat item
                 for (int i = 0; i < groupCount - sessionCount; i++)
                 {
+                    // Get misc item and invoke sync action
                     MiscItem misc = itemGroup.ElementAt(i);
                     misc.SyncAction?.Invoke(forceCreate);
 
-                    // Log item and override count to ensure correct value
-                    MarkItemAsReceived(misc, i);
+                    // If first in list
+                    if (i == 0)
+                    {
+                        // Mark as received and correct stored count
+                        MarkItemAsReceived(misc, groupCount);
+                    }
                 }
             }
         }
 
         /// <summary>
-        /// 
+        /// Sync stack items with current progress.
         /// </summary>
-        /// <param name="stackItems"></param>
-        /// <param name="forceCreate"></param>
+        /// <param name="stackItems">The stack items to be synced.</param>
+        /// <param name="forceCreate">(Optional) Bypass logic and force the stack items to be created.</param>
         private static void SyncStacks(IEnumerable<StackItem> stackItems, bool forceCreate = false)
         {
+            Debug.Log($"Syncing {stackItems.Count()} stack items...");
+
             foreach (IGrouping<string, StackItem> itemGroup in stackItems.GroupBy(misc => misc.Name))
             { 
-                // Get group count
+                // Get group and session counts
                 int groupCount = itemGroup.Count();
-
-                Debug.Log($"Syncing {groupCount} of the '{itemGroup.Key}' item...");
-
-                // Get count logged in save (or set to 0 if forcing creation)
                 int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
 
                 // If not forcing to create, check if item count matches session
                 if (!forceCreate && groupCount <= sessionCount)
                 {
-                    Debug.LogWarning($"Item '{itemGroup.Key}' has already been received {sessionCount} time(s) - skipping...");
-                    return;
+                    Debug.LogWarning($"Skipping stack item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
+                    break;
                 }
 
-                Debug.Log($"Item '{itemGroup.Key}' has been received {groupCount - sessionCount} additional time(s) - creating...");
+                Debug.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
 
                 // Invoke sync action for each un-received repeat item
                 for (int i = 0; i < groupCount - sessionCount; i++)

@@ -280,7 +280,8 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                
+                ItemHandler.HandleBooster(
+                    new BoosterItem("Resource Booster Pack", ModBoosterPacks.resource_bundle, BoosterItem.BoosterType.Spawn));
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -288,7 +289,8 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                
+                ItemHandler.HandleStack(
+                    new StackItem("Board Expansion", ModCards.board_expansion, 1, string.Empty));
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {

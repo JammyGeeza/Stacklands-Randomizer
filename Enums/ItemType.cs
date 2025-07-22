@@ -16,5 +16,6 @@ namespace Stacklands_Randomizer_Mod
 
         Stack = 6,
         Misc = 7,
+        Card = 8
     }
 }

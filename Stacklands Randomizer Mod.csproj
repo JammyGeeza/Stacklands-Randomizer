@@ -107,7 +107,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Icons\" />
+  </ItemGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y&#xD;&#xA;XCOPY &quot;$(TargetDir)\Libraries&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Configs&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Cards\*.json&quot; &quot;%25target%25\Cards&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\localization.tsv&quot; &quot;%25target%25&quot; /S /Y" />
+	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y&#xD;&#xA;XCOPY &quot;$(TargetDir)\Libraries&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Configs&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Cards\*.json&quot; &quot;%25target%25\Cards&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\BoosterPacks\*.json&quot; &quot;%25target%25\BoosterPacks&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Icons\*.png&quot; &quot;%25target%25\Icons&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\localization.tsv&quot; &quot;%25target%25&quot; /S /Y" />
     </Target>
 </Project>

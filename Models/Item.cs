@@ -90,9 +90,19 @@ namespace Stacklands_Randomizer_Mod
         public BoosterItem(string name, string boosterId, BoosterType boosterType) : base(name, boosterId, ItemType.BoosterPack)
         {
             Type = boosterType;
+        }
+    }
 
-            //ReceivedAction = () => ItemHandler.HandleBooster(this);
-            //SyncAction = (bool forceCreate, Vector3? position) => ItemHandler.HandleBooster(this, forceCreate);
+    public class CardItem : Item
+    {
+        /// <summary>
+        /// The ID of the board to spawn this item to. Will default to current board if left blank.
+        /// </summary>
+        public string BoardId { get; private set; }
+
+        public CardItem(string name, string cardId, string boardId) : base(name, cardId, ItemType.Card)
+        {
+            BoardId = boardId;
         }
     }
 
@@ -100,8 +110,7 @@ namespace Stacklands_Randomizer_Mod
     {
         public IdeaItem(string name, string ideaId) : base(name, ideaId, ItemType.Idea)
         {
-            //ReceivedAction = () => ItemHandler.HandleIdea(this);
-            //SyncAction = (bool forceCreate, Vector3? position) => ItemHandler.HandleIdea(this, position);
+
         }
     }
 
