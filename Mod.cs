@@ -74,16 +74,6 @@ namespace Stacklands_Randomizer_Mod
         public LoadedLocSet EnglishLocSet = new LoadedLocSet(LocResources.Default, "English");
 
         /// <summary>
-        /// Check if DeathLink is enabled.
-        /// </summary>
-        public bool IsDeathlinkEnabled =>
-            _session is not null
-            && _deathlink is not null
-            && _slotData is not null
-            && _slotData.TryGetValue(TAG_DEATHLINK, out object result)
-            && Convert.ToBoolean(result);
-
-        /// <summary>
         /// Gets or sets whether a DeathLink trigger is currently being handled.
         /// </summary>
         public bool HandlingDeathLink
@@ -511,7 +501,7 @@ namespace Stacklands_Randomizer_Mod
         public void SendDeathlink(string combatable, string? cause = null)
         {
             // If deathlink is enabled, send trigger
-            if (IsConnected && IsDeathlinkEnabled)
+            if (IsConnected && Options.Deathlink)
             {
                 Debug.Log("Sending Deathlink trigger to server...");
 
@@ -822,7 +812,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // Set deathlink received to true if deathlink is enabled, otherwise false
-            bool deathlinkEnabled = IsDeathlinkEnabled;
+            bool deathlinkEnabled = Options.Deathlink;
             lock (_lock)
             {
                 _handlingDeathLink = deathlinkEnabled;
