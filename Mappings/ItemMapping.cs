@@ -114,19 +114,17 @@ namespace Stacklands_Randomizer_Mod
             #region Board Expansions
 
             // Expansion Bundles
-            new StackItem("Board Expansion: Shed"           , Cards.shed            , 1     , Board.Mainland      ),
-            new StackItem("Board Expansion: Warehouse"      , Cards.warehouse       , 1     , Board.Mainland      ),
+            new StackItem("Board Expansion"                 , ModCards.board_expansion      , 1     , Board.Mainland      ),
 
             #endregion
 
             #region Traps
 
             // Traps
-            new MiscItem("Feed Villagers Trap"      , string.Empty      , ItemHandler.TriggerFeedVillagers                                  , null     ),
-            //new MiscItem("Flip Trap"                , string.Empty      , ItemReceivedHandler.FlipRandomCard            , null     ),
-            new MiscItem("Mob Trap"                 , string.Empty      , () => ItemHandler.SpawnRandomCard(TrapMapping.MobTrapCards)       , null     ),
-            new MiscItem("Sell Cards Trap"          , string.Empty      , ItemHandler.TriggerSellCards                                      , null     ),
-            new MiscItem("Structure Trap"           , string.Empty      , () => ItemHandler.SpawnRandomCard(TrapMapping.StructureTrapCards) , null     ),
+            new MiscItem("Feed Villagers Trap"      , string.Empty                          , ItemHandler.TriggerFeedVillagers                                  , null          ),
+            new MiscItem("Mob Trap"                 , string.Empty                          , () => ItemHandler.SpawnRandomCard(TrapMapping.MobTrapCards)       , null          ),
+            new MiscItem("Sell Cards Trap"          , string.Empty                          , ItemHandler.TriggerSellCards                                      , null          ),
+            new MiscItem("Strange Portal Trap"      , ModCards.trap_strange_portal          , () => ItemHandler.SpawnCard(ModCards.trap_strange_portal)         , null          ),
 
             #endregion
         };

@@ -24,7 +24,7 @@ namespace Stacklands_Randomizer_Mod
             __instance.LongMoon.ButtonEnabled = false;
 
             // Set moon length from session options
-            __instance.CurMoonLength = StacklandsRandomizer.instance.MoonLength;
+            __instance.CurMoonLength = StacklandsRandomizer.instance.Options.MoonLength;
 
             // Disable peaceful mode selection buttons 
             __instance.PeacefulModeOn.ButtonEnabled = false;

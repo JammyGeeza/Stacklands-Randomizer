@@ -616,7 +616,7 @@ namespace Stacklands_Randomizer_Mod
                 // Queue the cutscene
                 WorldManager.instance.QueueCutscene(
                     CustomCutscenes.SellCards(
-                        StacklandsRandomizer.instance.SellCardTrapAmount));
+                        StacklandsRandomizer.instance.Options.SellCardTrapAmount));
             }
         }
 

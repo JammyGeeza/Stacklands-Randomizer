@@ -54,13 +54,13 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
 
             // If mobsanity enabled, add mobsanity quests
-            if (StacklandsRandomizer.instance.MobsanityEnabled)
+            if (StacklandsRandomizer.instance.Options.MobsanityEnabled)
             {
                 Debug.Log("Inserting Mobsanity quests...");
 
                 // Add mobsanity quests (and only include Dark Forest ones if enabled)
                 __result.AddRange(CustomQuestMapping.Map.Where(q => q.CustomQuestGroup == CustomQuestGroup.Mobsanity 
-                    && (StacklandsRandomizer.instance.DarkForestEnabled || q.QuestLocation != Location.Forest)));
+                    && (StacklandsRandomizer.instance.Options.Boards.HasFlag(Boards.Forest) || q.QuestLocation != Location.Forest)));
             }
         }
 

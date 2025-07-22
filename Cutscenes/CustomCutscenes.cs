@@ -13,6 +13,9 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         public static IEnumerator FeedVillagers()
         {
+            // Set title
+            EndOfMonthCutscenes.CutsceneTitle = "Feed Villagers Trap";
+
             // Trigger feed villagers cutscene
             yield return EndOfMonthCutscenes.FeedVillagers();
 
@@ -22,14 +25,15 @@ namespace Stacklands_Randomizer_Mod
                 // Wait for 'okay' click
                 yield return Cutscenes.WaitForContinueClicked(SokLoc.Translate("label_okay"));
 
-                // Reset game state
+                // Continue game
                 GameCanvas.instance.SetScreen<GameScreen>();
-                GameCamera.instance.TargetPositionOverride = null;
-                WorldManager.instance.currentAnimation = null;
-                WorldManager.instance.currentAnimationRoutine = null;
                 WorldManager.instance.SpeedUp = 1f;
-
             }
+
+            // Reset game state
+            GameCamera.instance.TargetPositionOverride = null;
+            WorldManager.instance.currentAnimation = null;
+            WorldManager.instance.currentAnimationRoutine = null;
         }
 
         /// <summary>

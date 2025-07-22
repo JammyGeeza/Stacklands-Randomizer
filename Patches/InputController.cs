@@ -18,7 +18,7 @@ namespace Stacklands_Randomizer_Mod
         public static void OnTime3Triggered_InterceptPause(ref bool __result)
         {
             // Intercept result if set to true and pausing has been disabled
-            __result = __result && StacklandsRandomizer.instance.IsPauseEnabled;
+            __result = __result && StacklandsRandomizer.instance.Options.PauseTimeEnabled;
         }
 
         /// <summary>
@@ -29,7 +29,7 @@ namespace Stacklands_Randomizer_Mod
         public static void OnTimePauseTriggered_InterceptPause(ref bool __result)
         {
             // Intercept result if set to true and pausing has been disabled
-            __result = __result && StacklandsRandomizer.instance.IsPauseEnabled;
+            __result = __result && StacklandsRandomizer.instance.Options.PauseTimeEnabled;
         }
     }
 }

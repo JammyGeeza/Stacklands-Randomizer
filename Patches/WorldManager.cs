@@ -75,6 +75,36 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
+        [HarmonyPatch(nameof(WorldManager.CardCapIncrease))]
+        [HarmonyPostfix]
+        public static void OnCardCapIncrease_CheckForBoardExpansion(WorldManager __instance, ref GameBoard board, ref int __result)
+        {
+            if (StacklandsRandomizer.instance.Options.BoardExpansionMode is BoardExpansionMode.Items)
+            {
+                foreach (GameCard card in __instance.AllCards)
+                {
+                    if (card.MyBoard == board)
+                    {
+                        if (card.CardData.Id == ModCards.board_expansion)
+                        {
+                            // Add expansion amount
+                            __result += StacklandsRandomizer.instance.Options.BoardExpansionAmount;
+                        }
+                        else if (card.CardData.Id == Cards.shed)
+                        {
+                            // Remove bonus for shed
+                            __result -= 4;
+                        }
+                        else if (card.CardData.Id == Cards.warehouse)
+                        {
+                            // Remove bonus for warehouse
+                            __result -= 14;
+                        }
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// When checking if a card has been found, intercept specific card checks
         /// </summary>
@@ -83,7 +113,7 @@ namespace Stacklands_Randomizer_Mod
         public static void OnHasFoundCard_Intercept(WorldManager __instance, ref string cardId, ref bool __result)
         {
             // If dark forest enabled in checks, pretend that Idea: Stable Portal has been found to prevent it automatically spawning when returning from The Dark Forest
-            if (cardId == Cards.blueprint_stable_portal && StacklandsRandomizer.instance.DarkForestEnabled)
+            if (cardId == Cards.blueprint_stable_portal && StacklandsRandomizer.instance.Options.DarkForestEnabled)
             {
                 __result = true;
             }
@@ -99,7 +129,7 @@ namespace Stacklands_Randomizer_Mod
         public static void OnIsPlaying(WorldManager __instance, ref bool __result)
         {
             // Check if pausing is disabled...
-            if (!StacklandsRandomizer.instance.IsPauseEnabled)
+            if (!StacklandsRandomizer.instance.Options.PauseTimeEnabled)
             {
                 // If the game is currently paused...
                 if (__instance.CurrentGameState is WorldManager.GameState.Paused)
@@ -210,7 +240,7 @@ namespace Stacklands_Randomizer_Mod
         public static void OnUpdatePre_OverrideAutoPause(ref WorldManager __instance)
         {
             // Check if pausing is disabled
-            if (!StacklandsRandomizer.instance.IsPauseEnabled)
+            if (!StacklandsRandomizer.instance.Options.PauseTimeEnabled)
             {
                 // Store the current set values
                 _autoPauseControllerValue = AccessibilityScreen.AutoPauseWhenUsingController;
@@ -229,7 +259,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnUpdatePost_OverrideAutoPause(ref WorldManager __instance)
         {
-            if (!StacklandsRandomizer.instance.IsPauseEnabled)
+            if (!StacklandsRandomizer.instance.Options.PauseTimeEnabled)
             {
                 // Set values back to their original state to prevent accidentally overwriting these values in config
                 AccessibilityScreen.AutoPauseWhenUsingController = _autoPauseControllerValue;

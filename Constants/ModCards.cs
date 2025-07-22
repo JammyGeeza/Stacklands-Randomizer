@@ -8,18 +8,20 @@ namespace Stacklands_Randomizer_Mod
     {
         private static readonly string PREFIX = "ap_";
 
+        public static readonly string board_expansion = $"{PREFIX}board_expansion";
+
         public static readonly string chicken = $"{PREFIX}chicken";
 
         public static readonly string rabbit = $"{PREFIX}rabbit";
 
-        public static readonly string trap_mosquito = $"{PREFIX}mosquito";
+        public static readonly string trap_mosquito = $"{PREFIX}trap_mosquito";
 
-        public static readonly string trap_rat = $"{PREFIX}rat";
+        public static readonly string trap_rat = $"{PREFIX}trap_rat";
 
-        public static readonly string trap_slime = $"{PREFIX}slime";
+        public static readonly string trap_slime = $"{PREFIX}trap_slime";
 
-        public static readonly string trap_snake = $"{PREFIX}snake";
+        public static readonly string trap_snake = $"{PREFIX}trap_snake";
 
-        public static readonly string trap_strange_portal = $"{PREFIX}strange_portal";
+        public static readonly string trap_strange_portal = $"{PREFIX}trap_strange_portal";
     }
 }

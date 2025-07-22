@@ -20,6 +20,8 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
+        private static readonly string TAG_BOARD_EXPANSION_MODE = "board_expansion_mode";
+        private static readonly string TAG_BOARD_EXPANSION_AMOUNT = "board_expansion_amount";
         private static readonly string TAG_DARKFOREST = "dark_forest";
         private static readonly string TAG_DEATHLINK = "death_link";
         private static readonly string TAG_GOAL = "goal";
@@ -56,7 +58,7 @@ namespace Stacklands_Randomizer_Mod
         #endregion
 
         #region Public Properties
-        
+
         /// <summary>
         /// English localization set to help translate quest IDs to english names for location checks.
         /// </summary>
@@ -92,22 +94,6 @@ namespace Stacklands_Randomizer_Mod
         private bool _handlingDeathLink = false;
 
         /// <summary>
-        /// Gets or sets the current goal for this run.
-        /// </summary>
-        public Goal CurrentGoal { get; private set; }
-
-        /// <summary>
-        /// Gets or sets whether The Dark Forest is enabled.
-        /// </summary>
-        public bool DarkForestEnabled { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the enabled boards for this run.
-        /// </summary>
-        public List<string> EnabledBoards { get; private set; } = new() { Board.Mainland };
-
-
-        /// <summary>
         /// Check if currently connected to an archipelago server.
         /// </summary>
         public bool IsConnected =>
@@ -115,11 +101,6 @@ namespace Stacklands_Randomizer_Mod
             && _session.Socket is not null
             && _session.Socket.Connected;
 
-        /// <summary>
-        /// Gets or sets whether pausing is enabled for this run.
-        /// </summary>
-        public bool IsPauseEnabled { get; private set; }
-                
 
         /// <summary>
         /// Whether or not we are currently in a game.
@@ -128,14 +109,9 @@ namespace Stacklands_Randomizer_Mod
             WorldManager.instance.CurrentGameState is WorldManager.GameState.Playing or WorldManager.GameState.Paused;
 
         /// <summary>
-        /// Gets or sets whether Mobsanity is enabled.
+        /// Gets or sets the YAML Options for this run.
         /// </summary>
-        public bool MobsanityEnabled { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the Moon Length for the run.
-        /// </summary>
-        public MoonLength MoonLength { get; private set; }
+        public YamlOptions Options { get; private set; }
 
         /// <summary>
         /// Get the player name for the current world.
@@ -152,16 +128,6 @@ namespace Stacklands_Randomizer_Mod
             IsConnected
                 ? instance._session.RoomState.Seed
                 : string.Empty;
-
-        /// <summary>
-        /// Gets or sets the amount of cards to be sold in a 'Sell Cards Trap'.
-        /// </summary>
-        public int SellCardTrapAmount { get; private set; }
-
-
-        public Dictionary<string, int> StartInventory => _slotData.TryGetValue(TAG_STARTING_INVENTORY, out object inv)
-            ? JsonConvert.DeserializeObject<Dictionary<string, int>>(inv.ToString()) ?? new()
-            : new();
 
         #endregion
 
@@ -231,7 +197,7 @@ namespace Stacklands_Randomizer_Mod
                     if (sendGoal.Value)
                     {
                         // Send goal goal completion
-                        SendGoalCompletionAsync(CurrentGoal.Name);
+                        SendGoalCompletionAsync(Options.Goal.Name);
 
                         sendGoal.Value = false;
                         Config.Save();
@@ -286,69 +252,38 @@ namespace Stacklands_Randomizer_Mod
                 PrepareToConnect();
             }
 
-            // Test triggers for development
+            // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                //SimulateCreateStack(Cards.gold, 30);
-
-                ItemHandler.SpawnCard("trap_strange_portal");
-
-                //ItemHandler.SpawnStack(Cards.berry, 12);
-                //ItemHandler.SpawnCard(Cards.villager);
-                //ItemHandler.SpawnCard(Cards.rowboat);
-
-                //WorldManager.instance.GoToBoard(
-                //    WorldManager.instance.GetBoardWithId(Board.Island),
-                //    trans);
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                // Trigger cutscene
-                Debug.Log("Triggering cutscene...");
-
-                ItemHandler.SpawnCard(Cards.goblin);
-
-                //ItemHandler.TriggerFeedVillagers();
-                //WorldManager.instance.QueueCutscene(CustomCutscenes.SellCards(5));
-
                 
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                //SimulateItemReceived(ItemType.Resource);
-
-                foreach (Mob mob in FindObjectsOfType<Mob>())
-                {
-                    mob.InAttack = true;
-                    mob.Damage(100);
-                }
-
-                //ItemHandler.TriggerFlipRandomCard();
-
-                //ItemHandler.SpawnStackToBoard(
-                //    Board.Island, 
-                //    Cards.gold, 
-                //    5);
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
-                //SimulateDeath();
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
-                //SimulateDeathLinkReceived();
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
-                //SimulateQuestComplete(AllQuests.FinishFirstWave);
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F11))
             {
-                //SimulateGoalComplete();
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F12))
             {
-                //SimulateCreateCard(Cards.goop);
+                
             }
 
             // Handle next queue actions, if any
@@ -519,10 +454,10 @@ namespace Stacklands_Randomizer_Mod
                 else
                 {
                     // Is this quest the goal?
-                    if (quest.Id == CurrentGoal.QuestId)
+                    if (quest.Id == Options.Goal.QuestId)
                     {
                         title = $"Goal Completed!";
-                        message = $"Congratulations, you completed '{CurrentGoal.Name}'! Please go to the Mods menu and click 'Send Goal' to complete your run.";
+                        message = $"Congratulations, you completed '{Options.Goal.Name}'! Please go to the Mods menu and click 'Send Goal' to complete your run.";
                     }
                     else
                     {
@@ -564,12 +499,12 @@ namespace Stacklands_Randomizer_Mod
         {
             Debug.Log($"Performing re-sync of all unlocked items from server...");
 
-            Debug.Log($"Total starting items: {StartInventory.Count}");
+            Debug.Log($"Total starting items: {Options.StartInventory.Count}");
 
             // Add starting inventory to queue (if any)
-            if (StartInventory.Count > 0)
+            if (Options.StartInventory.Count > 0)
             {
-                ItemHandler.SyncItems(StartInventory.Keys, forceCreate);
+                ItemHandler.SyncItems(Options.StartInventory.Keys, forceCreate);
             }
 
             Debug.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
@@ -679,7 +614,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // Check if the goal has been completed
-            if (WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(CurrentGoal.QuestId))
+            if (WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(Options.Goal.QuestId))
             {
                 Debug.Log("Goal quest completed!");
 
@@ -735,45 +670,8 @@ namespace Stacklands_Randomizer_Mod
                 {
                     Debug.Log("Logged in successfully!");
 
-                    DarkForestEnabled = _slotData.TryGetValue(TAG_DARKFOREST, out object forest)
-                        ? Convert.ToBoolean(forest)
-                        : true; // Default to false if not found
-
-                    Debug.Log($"Dark Forest enabled for this run: {DarkForestEnabled}");
-
-                    // Set goal setting for this run
-                    CurrentGoal = _slotData.TryGetValue(TAG_GOAL, out object goal)
-                        ? GoalMapping.Map.Single(g => g.Type == (GoalType)Convert.ToInt32(goal))
-                        : GoalMapping.Map.Single(g => g.Type == GoalType.KillDemon); // Default to 'Kill Demon' if not found
-                    
-                    Debug.Log($"Goal for this run: '{CurrentGoal.Name}'");
-
-                    // Set pause enabled setting for this run
-                    IsPauseEnabled = _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)
-                        ? Convert.ToBoolean(pause)
-                        : true; // Default to true if not found
-
-                    Debug.Log($"Pausing enabled for this run: {IsPauseEnabled}");
-
-                    // Set mobsanity setting for this run
-                    MobsanityEnabled = _slotData.TryGetValue(TAG_MOBSANITY, out object mobsanity)
-                        ? Convert.ToBoolean(mobsanity)
-                        : false; // Default to false if not found
-
-                    Debug.Log($"Mobsanity enabled for this run: {MobsanityEnabled}");
-
-                    // Set moon length for this run
-                    MoonLength = _slotData.TryGetValue(TAG_MOON_LENGTH, out object moonLength)
-                        ? (MoonLength)Convert.ToInt32(moonLength)
-                        : MoonLength.Normal;
-
-                    Debug.Log($"Moon Length for this run: {MoonLength}");
-
-                    SellCardTrapAmount = _slotData.TryGetValue(TAG_SELL_CARD_AMOUNT, out object sellCardAmount)
-                        ? Convert.ToInt32(sellCardAmount)
-                        : 3;
-
-                    Debug.Log($"Sell Card Trap Amount for this run: {SellCardTrapAmount}");
+                    // Get and parse options from YAML
+                    Options = new YamlOptions(_slotData);
 
                     return true;
                 }
@@ -1161,7 +1059,7 @@ namespace Stacklands_Randomizer_Mod
             Debug.Log($"Simulating goal complete...");
 
             // Get current goal type
-            switch (CurrentGoal.Type)
+            switch (Options.Goal.Type)
             {
                 case GoalType.KillDemon:
                     {
@@ -1200,7 +1098,7 @@ namespace Stacklands_Randomizer_Mod
                     break;
 
                 default:
-                    Debug.LogError($"Unbound goal type: '{CurrentGoal.Type}'.");
+                    Debug.LogError($"Unbound goal type: '{Options.Goal.Type}'.");
                     break;
             }
         }
