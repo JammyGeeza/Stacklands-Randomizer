@@ -33,7 +33,7 @@
 //            }
 //            else
 //            {
-//                Debug.Log($"Not currently in-game, skipping item sync...");
+//                ModLogger.Log($"Not currently in-game, skipping item sync...");
 //            }
 //        }
 
@@ -49,7 +49,7 @@
 //            }
 //            else
 //            {
-//                Debug.Log($"Not currently in-game, skipping item sync...");
+//                ModLogger.Log($"Not currently in-game, skipping item sync...");
 //            }
 //        }
 
@@ -59,12 +59,12 @@
 //        /// <param name="items">A list of all <see cref="Item"/> to be synced.</param>
 //        public static void SyncItems(IEnumerable<Item> items, bool forceCreate = false)
 //        {
-//            Debug.Log($"Syncing bulk set of {items.Count()} items...");
+//            ModLogger.Log($"Syncing bulk set of {items.Count()} items...");
 
 //            // Group items by item type
 //            foreach (IGrouping<ItemType, Item> typeGroup in items.GroupBy(item => item.ItemType))
 //            {
-//                Debug.Log($"Handling {typeGroup.Count()} items of type '{typeGroup.Key}'...");
+//                ModLogger.Log($"Handling {typeGroup.Count()} items of type '{typeGroup.Key}'...");
 
 //                switch (typeGroup.Key)
 //                {
@@ -87,13 +87,13 @@
 
 //                    case ItemType.Trap:
 //                        {
-//                            Debug.LogWarning("Trap items are not synced to prevent a run being swamped with new trap items.");
+//                            ModLogger.LogWarning("Trap items are not synced to prevent a run being swamped with new trap items.");
 //                        }
 //                        break;
 
 //                    default:
 //                        {
-//                            Debug.LogError($"Unhandled item type '{typeGroup.Key}'.");
+//                            ModLogger.LogError($"Unhandled item type '{typeGroup.Key}'.");
 //                        }
 //                        break;
 //                }
@@ -109,7 +109,7 @@
 //        {
 //            if (!singularitems.Any())
 //            {
-//                Debug.LogWarning($"No items were provided to be synced.");
+//                ModLogger.LogWarning($"No items were provided to be synced.");
 //                return;
 //            }
 
@@ -135,7 +135,7 @@
 //                        {
 //                            if (forceCreate || !ItemHandler.IsIdeaDiscovered(idea.ItemId))
 //                            {
-//                                Debug.Log($"Creating item '{idea.Name}'...");
+//                                ModLogger.Log($"Creating item '{idea.Name}'...");
 
 //                                // Create card and attempt to stack
 //                                WorldManager.instance.CreateCard(
@@ -147,7 +147,7 @@
 //                            }
 //                            else
 //                            {
-//                                Debug.Log($"'{idea.Name}' has already been received. Skipping...");
+//                                ModLogger.Log($"'{idea.Name}' has already been received. Skipping...");
 //                            }
 //                        }
 //                    }
@@ -174,7 +174,7 @@
 //                // Get group count
 //                int groupCount = itemGroup.Count();
 
-//                Debug.Log($"Syncing {groupCount} of the '{itemGroup.Key}' item...");
+//                ModLogger.Log($"Syncing {groupCount} of the '{itemGroup.Key}' item...");
 
 //                // Get count logged in save (or set to 0 if forcing creation)
 //                int sessionCount = !forceCreate ? GetRepeatItemCount(itemGroup.First()) : 0;
@@ -182,11 +182,11 @@
 //                // If not forcing to create, check if item count matches session
 //                if (!forceCreate && groupCount <= sessionCount)
 //                {
-//                    Debug.LogWarning($"Item '{itemGroup.Key}' has already been received {sessionCount} time(s) - skipping...");
+//                    ModLogger.LogWarning($"Item '{itemGroup.Key}' has already been received {sessionCount} time(s) - skipping...");
 //                    return;
 //                }
 
-//                Debug.Log($"Item '{itemGroup.Key}' has been received {groupCount - sessionCount} additional time(s) - creating...");
+//                ModLogger.Log($"Item '{itemGroup.Key}' has been received {groupCount - sessionCount} additional time(s) - creating...");
 
 //                // Invoke received action for each un-received repeat item
 //                for (int i = 0; i < groupCount - sessionCount; i++)
@@ -206,7 +206,7 @@
 //        {
 //            if (!StacklandsRandomizer.instance.IsInGame)
 //            {
-//                Debug.Log($"Not currently in game. Skipping...");
+//                ModLogger.Log($"Not currently in game. Skipping...");
 //                return;
 //            }
 
@@ -217,7 +217,7 @@
 //            {
 //                if (forceCreate || !ItemHandler.IsIdeaDiscovered(idea.ItemId))
 //                {
-//                    Debug.Log($"Creating '{idea.Name}'...");
+//                    ModLogger.Log($"Creating '{idea.Name}'...");
 
 //                    // Create card and attempt to stack
 //                    WorldManager.instance.CreateCard(
@@ -229,7 +229,7 @@
 //                }
 //                else
 //                {
-//                    Debug.Log($"'{idea.Name}' has already been received. Skipping...");
+//                    ModLogger.Log($"'{idea.Name}' has already been received. Skipping...");
 //                }
 //            }
 //        }

@@ -6,10 +6,10 @@ using System.Text;
 namespace Stacklands_Randomizer_Mod
 {
     [Flags]
-    public enum Boards
+    public enum GoalFlags
     {
-        None        = 0,
-        Mainland    = 1 << 0,
-        Forest      = 1 << 1,
+        None                    = 0,
+        Kill_the_Demon          = 1 << 0,
+        Kill_the_Wicked_Witch   = 1 << 1,
     }
 }

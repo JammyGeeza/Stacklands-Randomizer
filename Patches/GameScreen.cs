@@ -129,7 +129,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnAwake_OverridePause(GameScreen __instance)
         {
-            Debug.Log($"{nameof(GameScreen)}.Awake Postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(GameScreen)}.Awake Postfix!");
 
             // Is pause disabled?
             if (!StacklandsRandomizer.instance.Options.PauseTimeEnabled)
@@ -164,7 +164,7 @@ namespace Stacklands_Randomizer_Mod
                 .. QuestManager.instance.AllQuests.Where(q =>
                     !UnsupportedQuests.List.Contains(q.Id) // Quest is not in the specified unsupported list
                     && ((q.QuestLocation is Location.Mainland && (q is not CustomQuest cq || (StacklandsRandomizer.instance.Options.MobsanityEnabled && cq.CustomQuestGroup is CustomQuestGroup.Mobsanity))) // Quest is in Mainland (excluding Mobsanity quests if disabled)
-                    || (q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.Boards.HasFlag(Boards.Forest)))) // or Quest is in The Dark Forest and Dark Forest is enabled
+                    || (q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest)))) // or Quest is in The Dark Forest and Dark Forest is enabled
             ];
 
             __instance.questElements = CreateQuestElements(__instance.QuestsParent, source.ToList());

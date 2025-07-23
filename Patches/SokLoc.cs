@@ -40,7 +40,7 @@ namespace Stacklands_Randomizer_Mod.Patches
                 {
                     if (!disableWarning)
                     {
-                        Debug.LogError("Term " + term + " has been found more than once in the localisation sheet. Using last item in sheet.");
+                        StacklandsRandomizer.instance.ModLogger.LogError("Term " + term + " has been found more than once in the localisation sheet. Using last item in sheet.");
                     }
 
                     StacklandsRandomizer.instance.EnglishLocSet.TermLookup[term] = sokTerm;

@@ -20,8 +20,8 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPrefix]
         public static void OnAwake_Setup(WorldManager __instance)
         {
-            Debug.Log($"{nameof(WorldManager)}.Awake Postfix!");
-            Debug.Log($"Determined save ID: {SaveManager.instance.CurrentSave.SaveId}...");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.Awake Postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"Determined save ID: {SaveManager.instance.CurrentSave.SaveId}...");
 
             // Set current save to Archipelago save
             SaveManager.instance.CurrentSave = CommonPatchMethods.FindOrCreateArchipelagoSave(SaveManager.instance);
@@ -34,7 +34,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnClearSaveAndRestart_SyncItemsWithServer(WorldManager __instance)
         {
-            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.ClearSaveAndRestart)} Postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.ClearSaveAndRestart)} Postfix!");
 
             // Re-sync all items with server
             StacklandsRandomizer.instance.SyncAllReceivedItems(true);
@@ -47,8 +47,8 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPrefix]
         public static void OnCreateCard_Intercept(WorldManager __instance, ref CardData cardDataPrefab)
         {
-            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.CreateCard)} Prefix!");
-            Debug.Log($"Creating Card with ID: {cardDataPrefab.Id}");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.CreateCard)} Prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"Creating Card with ID: {cardDataPrefab.Id}");
 
             if (cardDataPrefab is Equipable equipable && equipable.blueprint != null)
             {
@@ -63,7 +63,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPrefix]
         public static void OnGetRandomCard_ReplaceBlueprint(ref List<CardChance> chances, ref bool removeCard)
         {
-            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.GetRandomCard)} Prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.GetRandomCard)} Prefix!");
 
             foreach (CardChance chance in chances)
             {
@@ -147,12 +147,12 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnKillVillagerCoroutine_SendDeathLink(WorldManager __instance, ref Combatable combatable)
         {
-            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.KillVillagerCoroutine)} Postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.KillVillagerCoroutine)} Postfix!");
 
             // Check if object is definitely a villager
             if (combatable is BaseVillager baseVillager)
             {
-                Debug.Log($"Villager '{baseVillager.Name}' has died!");
+                StacklandsRandomizer.instance.ModLogger.Log($"Villager '{baseVillager.Name}' has died!");
 
                 // If this death was not triggered by a deathlink, send deathlink
                 if (!StacklandsRandomizer.instance.HandlingDeathLink)
@@ -172,7 +172,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnLoadSaveRound_SendAllCompletedLocations(WorldManager __instance)
         {
-            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.LoadSaveRound)} Prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.LoadSaveRound)} Prefix!");
 
             // Set 'is new game' to false
             _isNewRun = false;
@@ -186,7 +186,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static async void OnPlay_SyncLocations(WorldManager __instance)
         {
-            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.Play)} Postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.Play)} Postfix!");
 
             // Add 'combat intro' to found booster packs to prevent it from spawning
             if (!__instance.CurrentSave.FoundBoosterIds.Contains("combat_intro"))
@@ -212,8 +212,8 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPrefix]
         public static async void OnQuestCompleted_SendLocation(Quest quest)
         {
-            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.QuestCompleted)} Prefix!");
-            Debug.Log($"Quest completed: {quest.Id}.");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.QuestCompleted)} Prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"Quest completed: {quest.Id}.");
 
             // Queue sending completed quest as location check
             await AsyncQueue.Enqueue(() => StacklandsRandomizer.instance.SendCompletedLocation(quest, true));
@@ -226,7 +226,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnStartNewRound_SendAllCompletedLocations(ref WorldManager __instance)
         {
-            Debug.Log($"{nameof(WorldManager)}.{nameof(WorldManager.StartNewRound)} Prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.StartNewRound)} Prefix!");
 
             // Set 'is new game' to true
             _isNewRun = true;

@@ -13,6 +13,9 @@ namespace Stacklands_Randomizer_Mod.GUI
         public static GUIManager instance;
         private static CustomButton _connectionStatusElement;
 
+        private static bool _lastStatus = false;
+        private static string _lastReason = string.Empty;
+
         private void Awake()
         {
             if (instance == null)
@@ -36,7 +39,7 @@ namespace Stacklands_Randomizer_Mod.GUI
 
             if (GameCanvas.instance.GetScreen<MainMenu>() is MainMenu menu)
             {
-                Debug.Log($"Creating archipelago connection status UI element...");
+                StacklandsRandomizer.instance.ModLogger.Log($"Creating archipelago connection status UI element...");
 
                 // Instantiate a clone of the Join Discord button
                 CustomButton ele = Instantiate(menu.JoinDiscordButton, menu.transform.parent);
@@ -61,14 +64,27 @@ namespace Stacklands_Randomizer_Mod.GUI
         }
 
         /// <summary>
+        /// Refresh existing connection status element (in case of language change)
+        /// </summary>
+        public void RefreshConnectionStatus()
+        {
+            SetConnectionStatus(_lastStatus, _lastReason);
+        }
+
+        /// <summary>
         /// Set the connection status UI element text.
         /// </summary>
         /// <param name="connected">Whether or not it is currently connected.</param>
-        public void SetConnectionStatus(bool connected, string reason = null)
+        public void SetConnectionStatus(bool connected, string? reason = null)
         {
+            // Store as most recent
+            _lastStatus = connected;
+            _lastReason = reason ?? string.Empty;
+
+            // Format the status text
             string status = string.Format(
-                "AP Connected: {0}{1}", 
-                SokLoc.Translate(connected ? SokTerms.label_yes : SokTerms.label_no),
+                "Archipelago: {0}{1}",
+                connected ? "Connected" : "Disconnected",
                 string.IsNullOrWhiteSpace(reason) ? "" : $"\n{reason}");
 
             StartCoroutine(

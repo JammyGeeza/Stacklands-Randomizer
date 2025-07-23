@@ -56,7 +56,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else
             {
-                Debug.LogWarning($"Booster item '{booster.Name}' skipped due to un-handled booster item type.");
+                StacklandsRandomizer.instance.ModLogger.LogWarning($"Booster item '{booster.Name}' skipped due to un-handled booster item type.");
             }
         }
 
@@ -64,7 +64,6 @@ namespace Stacklands_Randomizer_Mod
         /// Handle an incoming <see cref="IdeaItem"/>.
         /// </summary>
         /// <param name="idea">The idea item to be handled.</param>
-        /// <param name="boardId">The board to spawn the idea to.</param>
         /// <param name="position">(Optional) The position to spawn the item to.</param>
         /// <param name="checkAddToStack">(Optional) Add to an existing stack if one exists in the same position.</param>
         /// <param name="forceCreate">(Optional) Bypass logic and force the idea to be created.</param>
@@ -140,7 +139,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="totaloverride">(OPTIONAL) Override the current stored total. If left blank, current total will be incremented by 1.</param>
         public static void MarkItemAsReceived(Item item, int? totaloverride = null)
         {
-            Debug.Log($"Marking item '{item.Name}' as received.");
+            StacklandsRandomizer.instance.ModLogger.Log($"Marking item '{item.Name}' as received.");
 
             //LogFillerItem(item.Name, totaloverride);
             if (WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair kvp)
@@ -167,7 +166,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else
             {
-                Debug.LogError($"Item '{itemInfo.ItemName}' could not be found in the items mapping.");
+                StacklandsRandomizer.instance.ModLogger.LogError($"Item '{itemInfo.ItemName}' could not be found in the items mapping.");
             }
         }
 
@@ -183,7 +182,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else
             {
-                Debug.LogError($"Item '{itemName}' could not be found in the items mapping.");
+                StacklandsRandomizer.instance.ModLogger.LogError($"Item '{itemName}' could not be found in the items mapping.");
             }
         }
 
@@ -194,12 +193,12 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="itemInfo">Accompanying <see cref="ItemInfo"/> for in-game notification logic.</param>
         private static void ReceiveItem(Item mappedItem, ItemInfo? itemInfo)
         {
-            Debug.Log($"Handling item '{mappedItem.Name}'...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Handling item '{mappedItem.Name}'...");
 
             // Ignore if not currently in-game
             if (!StacklandsRandomizer.instance.IsInGame)
             {
-                Debug.LogWarning($"Not currently in game - skipping received item.");
+                StacklandsRandomizer.instance.ModLogger.LogWarning($"Not currently in game - skipping received item.");
                 return;
             }
 
@@ -266,7 +265,7 @@ namespace Stacklands_Randomizer_Mod
 
                 default:
                     {
-                        Debug.LogWarning($"Item '{mappedItem.Name}' was not handled due to it being an unhandled item type.");
+                        StacklandsRandomizer.instance.ModLogger.LogWarning($"Item '{mappedItem.Name}' was not handled due to it being an unhandled item type.");
                     }
                     break;
             }
@@ -300,7 +299,7 @@ namespace Stacklands_Randomizer_Mod
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to spawn booster '{boosterId}'. Reason: '{ex.Message}'.");
+                StacklandsRandomizer.instance.ModLogger.LogError($"Failed to spawn booster '{boosterId}'. Reason: '{ex.Message}'.");
             }
         }
 
@@ -327,7 +326,7 @@ namespace Stacklands_Randomizer_Mod
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to spawn card '{cardId}'. Reason: '{ex.Message}'.");
+                StacklandsRandomizer.instance.ModLogger.LogError($"Failed to spawn card '{cardId}'. Reason: '{ex.Message}'.");
             }
         }
 
@@ -370,7 +369,7 @@ namespace Stacklands_Randomizer_Mod
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to spawn card '{cardId}' to the board '{boardId}'. Reason: '{ex.Message}'");
+                StacklandsRandomizer.instance.ModLogger.LogError($"Failed to spawn card '{cardId}' to the board '{boardId}'. Reason: '{ex.Message}'");
             }
         }
 
@@ -433,7 +432,7 @@ namespace Stacklands_Randomizer_Mod
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to spawn card '{cardId}'. Reason: '{ex.Message}'.");
+                StacklandsRandomizer.instance.ModLogger.LogError($"Failed to spawn card '{cardId}'. Reason: '{ex.Message}'.");
             }
         }
 
@@ -467,7 +466,7 @@ namespace Stacklands_Randomizer_Mod
                         cardId,
                         false);
 
-                    Debug.Log($"Attempting to send {rootCard.CardNameText.text} stack to board: {board.Id}");
+                    StacklandsRandomizer.instance.ModLogger.Log($"Attempting to send {rootCard.CardNameText.text} stack to board: {board.Id}");
 
                     // Get normalized board position from world position
                     Vector2 normalizedSpawnPosition = board.WorldPosToNormalizedPos(spawnPosition);
@@ -478,7 +477,7 @@ namespace Stacklands_Randomizer_Mod
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to spawn card '{cardId}' to the board '{boardId}'. Reason: '{ex.Message}'");
+                StacklandsRandomizer.instance.ModLogger.LogError($"Failed to spawn card '{cardId}' to the board '{boardId}'. Reason: '{ex.Message}'");
             }
         }
 
@@ -506,19 +505,19 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="items">A list of all <see cref="Item"/> to be synced.</param>
         public static void SyncItems(IEnumerable<Item> items, bool forceCreate = false)
         {
-            Debug.Log($"Syncing bulk set of {items.Count()} items...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Syncing bulk set of {items.Count()} items...");
 
             // Ignore if not currently in-game
             if (!StacklandsRandomizer.instance.IsInGame)
             {
-                Debug.LogWarning($"Not currently in-game - skipping item sync...");
+                StacklandsRandomizer.instance.ModLogger.LogWarning($"Not currently in-game - skipping item sync...");
                 return;
             }
 
             // Group items by item type
             foreach (IGrouping<ItemType, Item> typeGroup in items.GroupBy(item => item.ItemType))
             {
-                Debug.Log($"Handling {typeGroup.Count()} items of type '{typeGroup.Key}'...");
+                StacklandsRandomizer.instance.ModLogger.Log($"Handling {typeGroup.Count()} items of type '{typeGroup.Key}'...");
 
                 switch (typeGroup.Key)
                 {
@@ -555,7 +554,7 @@ namespace Stacklands_Randomizer_Mod
 
                     default:
                         {
-                            Debug.LogWarning($"Item group '{typeGroup.Key}' was skipped due to it being an unhandled item type.");
+                            StacklandsRandomizer.instance.ModLogger.LogWarning($"Item group '{typeGroup.Key}' was skipped due to it being an unhandled item type.");
                         }
                         break;
                 }
@@ -569,7 +568,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="forceCreate">Bypass logic and force the booster items to be unlocked / created.</param>
         private static void SyncBoosters(IEnumerable<BoosterItem> boosterItems, bool forceCreate = false)
         {
-            Debug.Log($"Syncing {boosterItems.Count()} booster pack items...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Syncing {boosterItems.Count()} booster pack items...");
 
             // Group by booster type
             foreach (IGrouping<BoosterItem.BoosterType, BoosterItem> itemGroup in boosterItems.GroupBy(booster => booster.Type))
@@ -587,11 +586,11 @@ namespace Stacklands_Randomizer_Mod
                         // If not forcing to create, check if item count matches session
                         if (!forceCreate && groupCount <= sessionCount)
                         {
-                            Debug.LogWarning($"Skipping booster item '{spawnGroup.Key}' because it has already been received {sessionCount} time(s).");
+                            StacklandsRandomizer.instance.ModLogger.LogWarning($"Skipping booster item '{spawnGroup.Key}' because it has already been received {sessionCount} time(s).");
                             break;
                         }
 
-                        Debug.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{spawnGroup.Key}' booster pack items...");
+                        StacklandsRandomizer.instance.ModLogger.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{spawnGroup.Key}' booster pack items...");
 
                         // Invoke sync action for each un-received repeat item
                         for (int i = 0; i < groupCount - sessionCount; i++)
@@ -632,7 +631,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="forceCreate">(Optional) Bypass logic and force the card items to be created.</param>
         private static void SyncCards(IEnumerable<CardItem> cardItems, bool forceCreate = false)
         {
-            Debug.Log($"Syncing {cardItems.Count()} card items...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Syncing {cardItems.Count()} card items...");
 
             foreach (IGrouping<string, CardItem> itemGroup in cardItems.GroupBy(card => card.Name))
             {
@@ -643,11 +642,11 @@ namespace Stacklands_Randomizer_Mod
                 // If not forcing to create and item count does not breach session count
                 if (!forceCreate && groupCount <= sessionCount)
                 {
-                    Debug.LogWarning($"Skipping card item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
+                    StacklandsRandomizer.instance.ModLogger.LogWarning($"Skipping card item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
                     break;
                 }
 
-                Debug.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
+                StacklandsRandomizer.instance.ModLogger.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
 
                 // Get board for item(s) and get spawn position
                 GameBoard board = WorldManager.instance.GetBoardWithId(cardItems.First().BoardId);
@@ -678,7 +677,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="forceCreate">(Optional) Bypass logic and force the idea items to be created.</param>
         private static void SyncIdeas(IEnumerable<IdeaItem> ideaItems, bool forceCreate = false)
         {
-            Debug.Log($"Syncing {ideaItems.Count()} idea items...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Syncing {ideaItems.Count()} idea items...");
             
             // Get a random spawn position
             Vector3 spawnPosition = WorldManager.instance.GetRandomSpawnPosition();
@@ -702,7 +701,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="forceCreate">(Optional) Bypass logic and force the misc items to be triggered.</param>
         private static void SyncMiscs(IEnumerable<MiscItem> miscItems, bool forceCreate = false)
         {
-            Debug.Log($"Syncing {miscItems.Count()} misc items...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Syncing {miscItems.Count()} misc items...");
 
             foreach (IGrouping<string, MiscItem> itemGroup in miscItems.GroupBy(misc => misc.Name))
             {
@@ -713,11 +712,11 @@ namespace Stacklands_Randomizer_Mod
                 // If not forcing to create, check if item count matches session
                 if (!forceCreate && groupCount <= sessionCount)
                 {
-                    Debug.LogWarning($"Skipping misc item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
+                    StacklandsRandomizer.instance.ModLogger.LogWarning($"Skipping misc item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
                     break;
                 }
 
-                Debug.Log($"Triggering {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
+                StacklandsRandomizer.instance.ModLogger.Log($"Triggering {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
 
                 // Invoke sync action for each un-received repeat item
                 for (int i = 0; i < groupCount - sessionCount; i++)
@@ -743,7 +742,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="forceCreate">(Optional) Bypass logic and force the stack items to be created.</param>
         private static void SyncStacks(IEnumerable<StackItem> stackItems, bool forceCreate = false)
         {
-            Debug.Log($"Syncing {stackItems.Count()} stack items...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Syncing {stackItems.Count()} stack items...");
 
             foreach (IGrouping<string, StackItem> itemGroup in stackItems.GroupBy(misc => misc.Name))
             { 
@@ -754,11 +753,11 @@ namespace Stacklands_Randomizer_Mod
                 // If not forcing to create, check if item count matches session
                 if (!forceCreate && groupCount <= sessionCount)
                 {
-                    Debug.LogWarning($"Skipping stack item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
+                    StacklandsRandomizer.instance.ModLogger.LogWarning($"Skipping stack item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
                     break;
                 }
 
-                Debug.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
+                StacklandsRandomizer.instance.ModLogger.Log($"Creating {groupCount - sessionCount} additional un-redeemed '{itemGroup.Key}' card items...");
 
                 // Invoke sync action for each un-received repeat item
                 for (int i = 0; i < groupCount - sessionCount; i++)
@@ -811,7 +810,7 @@ namespace Stacklands_Randomizer_Mod
         {
             try
             {
-                Debug.Log($"Unlocking booster pack '{boosterId}'...");
+                StacklandsRandomizer.instance.ModLogger.Log($"Unlocking booster pack '{boosterId}'...");
 
                 // Unlock booster if forcing unlock or has not already been unlocked
                 if (forceUnlock || !IsBoosterPackDiscovered(boosterId))
@@ -820,12 +819,12 @@ namespace Stacklands_Randomizer_Mod
                 }
                 else
                 {
-                    Debug.LogWarning($"Booster '{boosterId}' has already been discovered - skipping...");
+                    StacklandsRandomizer.instance.ModLogger.LogWarning($"Booster '{boosterId}' has already been discovered - skipping...");
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to unlock booster pack '{boosterId}'. Reason: '{ex.Message}'.");
+                StacklandsRandomizer.instance.ModLogger.LogError($"Failed to unlock booster pack '{boosterId}'. Reason: '{ex.Message}'.");
             }
         }
     }

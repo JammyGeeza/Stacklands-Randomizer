@@ -16,7 +16,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnAwake_Setup(ref RunOptionsScreen __instance)
         {
-            Debug.Log($"{nameof(RunOptionsScreen)}.Awake prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(RunOptionsScreen)}.Awake prefix!");
 
             // Disable all moon selection buttons
             __instance.ShortMoon.ButtonEnabled = false;

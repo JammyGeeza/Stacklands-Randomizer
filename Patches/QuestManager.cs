@@ -16,9 +16,9 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnActionComplete_Intercept(CardData card, string action, CardData focusCard = null)
         {
-            Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.ActionComplete)} Postfix!");
-            Debug.Log($"CardData: {card.Name}");
-            Debug.Log($"Action: {action}");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(QuestManager)}.{nameof(QuestManager.ActionComplete)} Postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"CardData: {card.Name}");
+            StacklandsRandomizer.instance.ModLogger.Log($"Action: {action}");
         }
 
         /// <summary>
@@ -51,16 +51,16 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnGetAllQuests_AddCustomQuests(ref List<Quest> __result)
         {
-            Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
 
             // If mobsanity enabled, add mobsanity quests
             if (StacklandsRandomizer.instance.Options.MobsanityEnabled)
             {
-                Debug.Log("Inserting Mobsanity quests...");
+                StacklandsRandomizer.instance.ModLogger.Log("Inserting Mobsanity quests...");
 
                 // Add mobsanity quests (and only include Dark Forest ones if enabled)
                 __result.AddRange(CustomQuestMapping.Map.Where(q => q.CustomQuestGroup == CustomQuestGroup.Mobsanity 
-                    && (StacklandsRandomizer.instance.Options.Boards.HasFlag(Boards.Forest) || q.QuestLocation != Location.Forest)));
+                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest) || q.QuestLocation != Location.Forest)));
             }
         }
 
@@ -94,14 +94,14 @@ namespace Stacklands_Randomizer_Mod
         {
             if (action != "pause_game") // <- Prevents it constantly printing every frame on pause
             {
-                Debug.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Prefix!");
-                Debug.Log($"CardData: {card?.Name}");
-                Debug.Log($"Special Action: {action}");
+                StacklandsRandomizer.instance.ModLogger.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Prefix!");
+                StacklandsRandomizer.instance.ModLogger.Log($"CardData: {card?.Name}");
+                StacklandsRandomizer.instance.ModLogger.Log($"Special Action: {action}");
 
                 // If 'Unlock All Booster Packs' action and not all boosters have been found, block it
                 if ((action is "unlock_all_packs" or "unlocked_all_packs") && !WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.MAINLAND_PACKS))
                 {
-                    Debug.Log($"Intercepting '{action}' - not all mainland packs have been discovered yet.");
+                    StacklandsRandomizer.instance.ModLogger.Log($"Intercepting '{action}' - not all mainland packs have been discovered yet.");
                     return false;
                 }
             }

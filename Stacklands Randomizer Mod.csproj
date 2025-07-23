@@ -21,9 +21,6 @@
       <HintPath>$(stacklands)/Stacklands_Data/Managed/0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Archipelago.MultiClient.Net">
-      <HintPath>Libraries\Archipelago.MultiClient.Net.dll</HintPath>
-    </Reference>
     <Reference Include="GameScripts">
       <HintPath>$(stacklands)/Stacklands_Data/Managed/GameScripts.dll</HintPath>
       <Private>False</Private>
@@ -82,35 +79,32 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Cards\chicken.json">
+	<Content Include="BoosterPacks\*.json">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+    <Content Include="Cards\*.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Cards\mosquito.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Cards\board_expansion.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Cards\strange_portal.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Cards\snake.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Cards\slime.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Cards\rat.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Cards\rabbit.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+	<Content Include="Icons\*.png">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	<Content Include="localization.tsv">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+	  <Content Include="Configs\manifest.json">
+		  <Link>\manifest.json</Link>
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
   </ItemGroup>
   <ItemGroup>
+	<Folder Include="BoosterPacks\" />
+	<Folder Include="Cards\" />
     <Folder Include="Icons\" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Archipelago.MultiClient.Net" Version="6.6.1" />
+  </ItemGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y&#xD;&#xA;XCOPY &quot;$(TargetDir)\Libraries&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Configs&quot; &quot;%25target%25&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Cards\*.json&quot; &quot;%25target%25\Cards&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\BoosterPacks\*.json&quot; &quot;%25target%25\BoosterPacks&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\Icons\*.png&quot; &quot;%25target%25\Icons&quot; /S /Y&#xD;&#xA;XCOPY &quot;$(SolutionDir)\localization.tsv&quot; &quot;%25target%25&quot; /S /Y" />
+	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y" />
     </Target>
 </Project>

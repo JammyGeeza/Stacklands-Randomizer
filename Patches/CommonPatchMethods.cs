@@ -51,13 +51,13 @@ namespace Stacklands_Randomizer_Mod
         /// <returns>A found or newly created <see cref="SaveGame"/>.</returns>
         public static SaveGame FindOrCreateArchipelagoSave(SaveManager instance)
         {
-            Debug.Log($"Attempting to retrieve Archipelago save...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Attempting to retrieve Archipelago save...");
 
             // Check if archipelago save exists
             SaveGame save = SaveManager.LoadSaveFromFile(SaveId);
             if (save is null)
             {
-                Debug.Log($"Archipelago save not found. Creating a new one...");
+                StacklandsRandomizer.instance.ModLogger.Log($"Archipelago save not found. Creating a new one...");
 
                 // Create a new save and copy its settings
                 save = SaveGame.LoadFromString("", SaveId);
@@ -68,7 +68,7 @@ namespace Stacklands_Randomizer_Mod
                 instance.Save(save);
             }
 
-            Debug.Log($"Re-routing to save '{SaveId}'...");
+            StacklandsRandomizer.instance.ModLogger.Log($"Re-routing to save '{SaveId}'...");
 
             // Return archipelago save
             return save;
