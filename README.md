@@ -53,7 +53,8 @@ For the list of currently known issues, please see the [open issues](https://git
    - _This path will typically be: `C:\Users\[your user]\AppData\LocalLow\sokpop\Stacklands\Mods`_
 3. Extract the contents of the `StacklandsRandomizer-vX.X.X.zip` file to this directory.
    - _Your file and directory structure should look like: `..\sokpop\Stacklands\Mods\StacklandsRandomizer\[all .dll, .json etc. files here]`_
-     ![image](https://github.com/user-attachments/assets/d83d0da5-e053-4de8-af1d-aa01b02e669c)
+     <img width="1352" height="495" alt="image" src="https://github.com/user-attachments/assets/8c9f0a4b-05c6-4fd7-af27-491e7520465f" />
+     _NOTE: The `config.json` file will be generated when you start the game with the mod enabled._
 4. Start the game
 
 ## How to Use the Mod
