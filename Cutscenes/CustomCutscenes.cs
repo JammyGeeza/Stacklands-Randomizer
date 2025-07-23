@@ -82,6 +82,7 @@ namespace Stacklands_Randomizer_Mod
             int targetCount = startingCount - cardsToSellCount;
 
             // Set cutscene text and wait for continue click
+            EndOfMonthCutscenes.CutsceneTitle = "Sell Cards Trap";
             EndOfMonthCutscenes.CutsceneText = SokLoc.Translate("label_too_many_cards", LocParam.Plural("count", cardsToSellCount));
             yield return Cutscenes.WaitForContinueClicked(
                 SokLoc.Translate("label_sell_x_cards", LocParam.Plural("count", cardsToSellCount)));
