@@ -9,6 +9,12 @@ using HarmonyLib.Tools;
 using Archipelago.MultiClient.Net.Models;
 using Newtonsoft.Json;
 using System.Collections;
+using UnityEngine.SceneManagement;
+using System.Net.NetworkInformation;
+using TMPro;
+using UnityEngine.UI;
+using Stacklands_Randomizer_Mod.GUI;
+using static UnityEngine.InputSystem.InputRemoting;
 
 namespace Stacklands_Randomizer_Mod
 {
@@ -17,19 +23,18 @@ namespace Stacklands_Randomizer_Mod
         #region Private members
 
         // Static Member(s)
+        private static readonly string EXPECTED_APWORLD_VERSION = "0.1.6";
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
-        private static readonly string TAG_DARKFOREST = "dark_forest";
+        // Slot Data Tags
         private static readonly string TAG_DEATHLINK = "death_link";
-        private static readonly string TAG_GOAL = "goal";
-        private static readonly string TAG_MOBSANITY = "mobsanity";
-        private static readonly string TAG_PAUSE_ENABLED = "pausing";
-        private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
 
         public static StacklandsRandomizer instance;
+        public ModLogger ModLogger => this.Logger;
 
         // Queue(s)
+        private readonly Queue<Action> _actionQueue = new();
         private readonly Queue<Action> _itemQueue = new();
         private readonly Queue<Action> _deathlinkQueue = new();
 
@@ -50,20 +55,18 @@ namespace Stacklands_Randomizer_Mod
 
         // Other(s)
         private CustomButton _connectionStatus;
+        //private SokScreen _connectionStatus;
+        private bool _initialized = false;
+        private string initialConnectionReason = string.Empty;
 
         #endregion
 
         #region Public Properties
 
         /// <summary>
-        /// Check if DeathLink is enabled.
+        /// English localization set to help translate quest IDs to english names for location checks.
         /// </summary>
-        public bool IsDeathlinkEnabled =>
-            _session is not null
-            && _deathlink is not null
-            && _slotData is not null
-            && _slotData.TryGetValue(TAG_DEATHLINK, out object result)
-            && Convert.ToBoolean(result);
+        public LoadedLocSet EnglishLocSet = new LoadedLocSet(LocResources.Default, "English");
 
         /// <summary>
         /// Gets or sets whether a DeathLink trigger is currently being handled.
@@ -85,17 +88,6 @@ namespace Stacklands_Randomizer_Mod
         private bool _handlingDeathLink = false;
 
         /// <summary>
-        /// Gets or sets the current goal for this run.
-        /// </summary>
-        public Goal CurrentGoal { get; private set; }
-
-        /// <summary>
-        /// Gets or sets whether The Dark Forest is enabled.
-        /// </summary>
-        public bool DarkForestEnabled { get; private set; }
-
-
-        /// <summary>
         /// Check if currently connected to an archipelago server.
         /// </summary>
         public bool IsConnected =>
@@ -103,11 +95,6 @@ namespace Stacklands_Randomizer_Mod
             && _session.Socket is not null
             && _session.Socket.Connected;
 
-        /// <summary>
-        /// Gets or sets whether pausing is enabled for this run.
-        /// </summary>
-        public bool IsPauseEnabled { get; private set; }
-                
 
         /// <summary>
         /// Whether or not we are currently in a game.
@@ -116,9 +103,9 @@ namespace Stacklands_Randomizer_Mod
             WorldManager.instance.CurrentGameState is WorldManager.GameState.Playing or WorldManager.GameState.Paused;
 
         /// <summary>
-        /// Gets or sets whether Mobsanity is enabled.
+        /// Gets or sets the YAML Options for this run.
         /// </summary>
-        public bool MobsanityEnabled { get; private set; }
+        public YamlOptions Options { get; private set; }
 
         /// <summary>
         /// Get the player name for the current world.
@@ -135,11 +122,6 @@ namespace Stacklands_Randomizer_Mod
             IsConnected
                 ? instance._session.RoomState.Seed
                 : string.Empty;
-
-
-        public Dictionary<string, int> StartInventory => _slotData.TryGetValue(TAG_STARTING_INVENTORY, out object inv)
-            ? JsonConvert.DeserializeObject<Dictionary<string, int>>(inv.ToString()) ?? new()
-            : new();
 
         #endregion
 
@@ -200,7 +182,13 @@ namespace Stacklands_Randomizer_Mod
                 Config.Save();
 
                 // Attempt to connect and log in
-                if (ConnectAndLogin(host.Value, slotName.Value, password.Value.Length > 0 ? password.Value : null))
+                (bool success, string reason) = ConnectAndLogin(host.Value, slotName.Value, password.Value.Length > 0 ? password.Value : null);
+
+                ModLogger.Log($"Connected and Logged In: {success}");
+                ModLogger.Log($"Reason: {reason}");
+
+                // Check for success
+                if (success)
                 {
                     // For some reason, trying to connect in any method other than Awake() causes the game to completely freeze.
                     // I haven't figured out why yet, so to get around this, the OP quick-restarts the game to force Awake() to call again.
@@ -208,8 +196,8 @@ namespace Stacklands_Randomizer_Mod
                     // If 'Send Goal' is set to true, send the goal
                     if (sendGoal.Value)
                     {
-                        // Send goal goal completion
-                        SendGoalCompletionAsync(CurrentGoal.Name);
+                        // Send goal completion
+                        SendGoalCompletionAsync();
 
                         sendGoal.Value = false;
                         Config.Save();
@@ -217,15 +205,18 @@ namespace Stacklands_Randomizer_Mod
                 }
                 else
                 {
+                    // Set initial connection reason
+                    initialConnectionReason = reason;
+
                     // Disconnect and clear
-                    Disconnect();
+                    Disconnect(reason);
                 }
             }
 
             // Apply patches only if successfully connected
             if (IsConnected)
             {
-                Debug.Log($"Applying patches...");
+                ModLogger.Log($"Applying patches...");
 
                 // Apply patches
                 HarmonyFileLog.Enabled = true;
@@ -237,7 +228,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else
             {
-                Debug.Log($"Patches not applied due to no archipelago connection.");
+                ModLogger.Log($"Patches not applied due to no archipelago connection.");
             }
         }
 
@@ -246,11 +237,40 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         public void Start()
         {
-            Debug.Log($"Start...");
+            ModLogger.Log($"Start...");
 
-            // Create connection status in menu
-            CreateConnectionStatus();
-            UpdateConnectionStatus(IsConnected);
+            // Set connection status
+            SetConnectionStatus(IsConnected, initialConnectionReason);
+        }
+
+        /// <summary>
+        /// Mod is ready
+        /// </summary>
+        public override void Ready()
+        {
+            ModLogger.Log("Ready...");
+
+            // Prevent being called multiple times
+            if (!_initialized)
+            {
+                _initialized = true;
+
+                if (GUIManager.instance is null)
+                {
+                    new GameObject("GUIManager").AddComponent<GUIManager>();
+                }
+
+                SokLoc.instance.LanguageChanged += SokLoc_LanguageChanged;
+
+                // Hook into scene loaded event
+                SceneManager.sceneLoaded += (Scene scene, LoadSceneMode mode) =>
+                {
+                    ModLogger.Log($"Scene '{scene.name}' loaded!");
+
+                    // Create connection status element
+                    GUIManager.instance.CreateConnectionStatusElement();
+                };
+            }
         }
 
         /// <summary>
@@ -264,38 +284,38 @@ namespace Stacklands_Randomizer_Mod
                 PrepareToConnect();
             }
 
-            // Test triggers for development
+            // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                //SimulateCreateStack(Cards.gold, 30);
+
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                //SimulateCreateCard(Cards.strange_portal);
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                //SimulateItemReceived(ItemType.Resource);
+
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
-                //SimulateDeath();
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
-                //SimulateDeathLinkReceived();
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
-                //SimulateQuestComplete(AllQuests.FinishFirstWave);
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F11))
             {
-                //SimulateGoalComplete();
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F12))
             {
-                //SimulateCreateCard(Cards.goop);
+                
             }
 
             // Handle next queue actions, if any
@@ -311,7 +331,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         public void Disconnect(string? reason = null)
         {
-            Debug.Log($"Disconnecting. Reason: {reason}");
+            ModLogger.LogWarning($"Disconnecting from archipelago server. Reason: {reason}");
 
             if (_session is not null && _session.Socket is not null)
             {
@@ -320,8 +340,8 @@ namespace Stacklands_Randomizer_Mod
 
             _session = null;
 
-            // Update connection status
-            UpdateConnectionStatus(false);
+            // Set connection status
+            SetConnectionStatus(IsConnected, reason);
         }
 
         /// <summary>
@@ -334,12 +354,11 @@ namespace Stacklands_Randomizer_Mod
             // Only display if in-game
             if (WorldManager.instance.CurrentGameState is not WorldManager.GameState.InMenu or WorldManager.GameState.GameOver)
             {
-                Debug.Log($"Displaying notification...");
+                ModLogger.Log($"Displaying notification...");
 
                 GameScreen.instance.AddNotification(title, message);
             }
         }
-
         
         /// <summary>
         /// Prepare the game to attempt a connection to the Archipelago server.
@@ -388,14 +407,16 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
-            // Get english description (as these are used in the apworld)
-            string description = quest.DescriptionTermOverride != null
-                ? quest.RequiredCount != -1
-                    ? SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTermOverride, LocParam.Create("count", quest.RequiredCount.ToString()))
-                    : SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTermOverride)
-                : SokLoc.FallbackSet.TranslateTerm(quest.DescriptionTerm);
+            ModLogger.Log($"Attempting to send completed location with Desc: '{quest.DescriptionTerm}' and DescOver: '{quest.DescriptionTerm}'");
 
-            Debug.Log($"Processing completed quest: '{description}' as a location check...");
+            // Get english description (as these are used in the apworld)
+            string description = !string.IsNullOrWhiteSpace(quest.DescriptionTermOverride)
+                ? quest.RequiredCount != -1
+                    ? EnglishLocSet.TranslateTerm(quest.DescriptionTermOverride, LocParam.Create("count", quest.RequiredCount.ToString()))
+                    : EnglishLocSet.TranslateTerm(quest.DescriptionTermOverride)
+                : EnglishLocSet.TranslateTerm(quest.DescriptionTerm);
+
+            ModLogger.Log($"Processing completed quest: '{description}' as a location check...");
 
             ScoutedItemInfo location = null;
 
@@ -408,16 +429,16 @@ namespace Stacklands_Randomizer_Mod
                 // Check if location has been returned
                 if (locations.TryGetValue(locationId, out location))
                 {
-                    Debug.Log($"Location Check found with ID: {locationId}");
+                    ModLogger.Log($"Location Check found with ID: {locationId}");
                 }
                 else
                 {
-                    Debug.Log($"Location '{quest.Description}' does not appear to be a location check.");
+                    ModLogger.Log($"Location '{quest.Description}' does not appear to be a location check.");
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Error when attempting to find '{quest.Description}' as a location check.. Reason: '{ex.Message}'.");
+                ModLogger.LogError($"Error when attempting to find '{quest.Description}' as a location check.. Reason: '{ex.Message}'.");
             }
 
             // Did this quest exist as a location?
@@ -426,14 +447,14 @@ namespace Stacklands_Randomizer_Mod
                 // Has it already been checked?
                 if (!_session.Locations.AllLocationsChecked.Contains(location.LocationId))
                 {
-                    Debug.Log($"Sending location check completion...");
+                    ModLogger.Log($"Sending location check completion...");
 
                     // Send completed location
                     await _session.Locations.CompleteLocationChecksAsync(location.LocationId);
                 }
                 else
                 {
-                    Debug.Log($"This location has already been checked.");
+                    ModLogger.Log($"This location has already been checked.");
 
                     // Do not notify
                     notify = false;
@@ -463,11 +484,11 @@ namespace Stacklands_Randomizer_Mod
                 // If it wasn't...
                 else
                 {
-                    // Is this quest the goal?
-                    if (quest.Id == CurrentGoal.QuestId)
+                    // Are all goals completed?
+                    if (CheckGoalCompleted())
                     {
                         title = $"Goal Completed!";
-                        message = $"Congratulations, you completed '{CurrentGoal.Name}'! Please go to the Mods menu and click 'Send Goal' to complete your run.";
+                        message = $"Congratulations, you have completed your goal! Please go to the Mods menu and click 'Send Goal' to complete your run.";
                     }
                     else
                     {
@@ -487,9 +508,9 @@ namespace Stacklands_Randomizer_Mod
         public void SendDeathlink(string combatable, string? cause = null)
         {
             // If deathlink is enabled, send trigger
-            if (IsConnected && IsDeathlinkEnabled)
+            if (IsConnected && Options.Deathlink)
             {
-                Debug.Log("Sending Deathlink trigger to server...");
+                ModLogger.Log("Sending Deathlink trigger to server...");
 
                 // Send the deathlink trigger
                 _deathlink.SendDeathLink(new DeathLink(PlayerName, cause));
@@ -501,54 +522,60 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
+        
+
         /// <summary>
         /// Sync all received items from the server and spawn them if necessary.
         /// </summary>
         /// <param name="forceCreate">Whether or not to force creation of all items.</param>
         public void SyncAllReceivedItems(bool forceCreate)
         {
-            Debug.Log($"Performing re-sync of all unlocked items from server...");
+            ModLogger.Log($"Performing re-sync of all unlocked items from server...");
 
-            Debug.Log($"Total starting items: {StartInventory.Count}");
+            ModLogger.Log($"Total starting items: {Options.StartInventory.Count}");
 
             // Add starting inventory to queue (if any)
-            if (StartInventory.Count > 0)
+            if (Options.StartInventory.Count > 0)
             {
-                ItemSyncHandler.SyncItems(StartInventory.Keys, forceCreate);
+                ItemHandler.SyncItems(Options.StartInventory.Keys, forceCreate);
             }
 
-            Debug.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
+            ModLogger.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
 
             // Add all received items from server (if any)
             if (_session.Items.AllItemsReceived.Count > 0)
             {
-                ItemSyncHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
+                ItemHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
             }
         }
 
         /// <summary>
-        /// 
+        /// Set the connection status
         /// </summary>
         /// <param name="connected"></param>
-        public void UpdateConnectionStatus(bool connected)
+        public void SetConnectionStatus(bool connected, string reason = null)
         {
-            Debug.Log($"Attempting to update connection status...");
+            ModLogger.Log($"Attempting to update connection status to {connected} with reason: {reason}");
 
             // Show notification if in-game
             if (WorldManager.instance is not null && WorldManager.instance.CurrentGameState is not WorldManager.GameState.InMenu)
             {
-                Debug.Log($"Sending notification of connection status...");
+                ModLogger.Log($"Sending notification of connection status...");
 
-                DisplayNotification(
-                    string.Empty,
-                    $"{(connected ? "Connected to" : "Disconnected from")} Archipelago server.");
+                string message = string.Format(
+                    "{0} the archipelago server.{1}",
+                    connected ? "Connected to" : "Disconnected from",
+                    connected ? "" : "\nPlease re-connect to the server manually using the Mods menu."
+                );
+
+                // Display message to user
+                DisplayNotification(string.Empty, message);
             }
 
-            // Update text in alert
-            if (_connectionStatus is not null)
+            // Set connection status of the UI element
+            if (GUIManager.instance is not null)
             {
-                Debug.Log($"Updating status in Main Menu...");
-                _connectionStatus.TextMeshPro.text = $"Archipelago: {(connected ? "Connected" : "Disconnected")}";
+                GUIManager.instance.SetConnectionStatus(connected, reason);
             }
         }
 
@@ -561,9 +588,9 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void ConnectButton_Clicked()
         {
-            Debug.Log($"Server: {host.Value}");
-            Debug.Log($"Slot: {slotName.Value}");
-            Debug.Log($"Password: {password.Value}");
+            ModLogger.Log($"Server: {host.Value}");
+            ModLogger.Log($"Slot: {slotName.Value}");
+            ModLogger.Log($"Password: {password.Value}");
 
             // Set 'Attempt Connection' value to true to trigger a connection attempt
             attemptConnection.Value = true;
@@ -598,17 +625,8 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="itemsHelper">The <see cref="ReceivedItemsHelper"/> from the event.</param>
         private void Items_ItemReceived(ReceivedItemsHelper itemsHelper)
         {
-            Debug.Log($"Item received! Adding to queue...");
-            AddToItemQueue(() => ItemHandler.SpawnItem(itemsHelper.DequeueItem()));
-        }
-
-        /// <summary>
-        /// Triggered when the session socket closes.
-        /// </summary>
-        /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
-        private void Socket_SocketClosed(string reason)
-        {
-            AddToItemQueue(() => Disconnect(reason));
+            ModLogger.Log($"Item received! Adding to queue...");
+            AddToItemQueue(() => ItemHandler.ReceiveItem(itemsHelper.DequeueItem()));
         }
 
         /// <summary>
@@ -616,23 +634,56 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void SendGoalButton_Clicked()
         {
-            Debug.Log("Completed Achievements:");
-
-            foreach(string completedAchievementId in WorldManager.instance.CurrentSave.CompletedAchievementIds)
+            // Check that all goals are completed
+            if (CheckGoalCompleted())
             {
-                Debug.Log(completedAchievementId);
-            }
-
-            // Check if the goal has been completed
-            if (WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(CurrentGoal.QuestId))
-            {
-                Debug.Log("Goal quest completed!");
+                ModLogger.Log("Goal has been reached, preparing to send goal update...");
 
                 attemptConnection.Value = true;
                 sendGoal.Value = true;
 
                 Config.Save();
             }
+            else
+            {
+                ModLogger.Log("Goal quest(s) have not yet been completed.");
+            }
+        }
+
+        /// <summary>
+        /// Triggered when the session socket closes.
+        /// </summary>
+        /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
+        private void Socket_ErrorReceived(Exception e, string message)
+        {
+            // If message is empty it's usually because we've purposely disconnected
+            if (!string.IsNullOrEmpty(message))
+            {
+                AddToActionQueue(() => ModLogger.Log("Socket error received"));
+                AddToActionQueue(() => Disconnect($"Socket Error: {message}"));
+            }
+        }
+
+        /// <summary>
+        /// Triggered when the session socket closes.
+        /// </summary>
+        /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
+        private void Socket_SocketClosed(string reason)
+        {  
+            // If a reason is provided, it's probably because it was unexpected.
+            if (!string.IsNullOrEmpty(reason))
+            {
+                AddToActionQueue(() => ModLogger.Log("Socket closed received"));
+                AddToActionQueue(() => Disconnect(reason));
+            }
+        }
+
+        /// <summary>
+        /// Triggered when the language is changed.
+        /// </summary>
+        private void SokLoc_LanguageChanged()
+        {
+            AddToActionQueue(() => GUIManager.instance.RefreshConnectionStatus());
         }
 
         #endregion
@@ -640,7 +691,19 @@ namespace Stacklands_Randomizer_Mod
         #region Private Methods
 
         /// <summary>
-        /// Add an action to the deathlink queue.
+        /// Add an action to the action queue.
+        /// </summary>
+        /// <param name="action">The action to be added to the queue.</param>
+        private void AddToActionQueue(Action action)
+        {
+            lock (_lock)
+            {
+                _actionQueue.Enqueue(action);
+            }
+        }
+
+        /// <summary>
+        /// Add an item action to the deathlink queue.
         /// </summary>
         /// <param name="action">The action to be added to the queue.</param>
         private void AddToDeathlinkQueue(Action action)
@@ -652,7 +715,7 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Add an action to the item queue.
+        /// Add a death action to the item queue.
         /// </summary>
         /// <param name="action">The action to be added to the queue.</param>
         private void AddToItemQueue(Action action)
@@ -670,78 +733,50 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="slotName">The name of the slot to join as.</param>
         /// <param name="password">The password for the session, if required.</param>
         /// <returns></returns>
-        private bool ConnectAndLogin(string host, string slotName, string? password)
+        private (bool, string) ConnectAndLogin(string host, string slotName, string? password)
         {
+            bool success = false;
+            string reason = string.Empty;
+
             if (CreateSession(host))
             {
-                Debug.Log("Attempting to log in...");
+                ModLogger.Log("Attempting to log in...");
 
-                if (Login(slotName, password))
+                (bool loginSuccess, string loginReason) = Login(slotName, password);
+
+                if (loginSuccess)
                 {
-                    Debug.Log("Logged in successfully!");
+                    ModLogger.Log("Logged in successfully!");
 
-                    DarkForestEnabled = _slotData.TryGetValue(TAG_DARKFOREST, out object forest)
-                        ? Convert.ToBoolean(forest)
-                        : true; // Default to false if not found
+                    // Get and parse options from YAML
+                    Options = new YamlOptions(_slotData);
 
-                    Debug.Log($"Dark Forest enabled for this run: {DarkForestEnabled}");
-
-                    // Set goal setting for this run
-                    CurrentGoal = _slotData.TryGetValue(TAG_GOAL, out object goal)
-                        ? GoalMapping.Map.Single(g => g.Type == (GoalType)Convert.ToInt32(goal))
-                        : GoalMapping.Map.Single(g => g.Type == GoalType.KillDemon); // Default to 'Kill Demon' if not found
-                    
-                    Debug.Log($"Goal for this run: '{CurrentGoal.Name}'");
-
-                    // Set pause enabled setting for this run
-                    IsPauseEnabled = _slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)
-                        ? Convert.ToBoolean(pause)
-                        : true; // Default to true if not found
-
-                    Debug.Log($"Pausing enabled for this run: {IsPauseEnabled}");
-
-                    // Set mobsanity setting for this run
-                    MobsanityEnabled = _slotData.TryGetValue(TAG_MOBSANITY, out object mobsanity)
-                        ? Convert.ToBoolean(mobsanity)
-                        : false; // Default to false if not found
-
-                    Debug.Log($"Mobsanity enabled for this run: {MobsanityEnabled}");
-
-                    return true;
+                    // Set return variables
+                    success = EXPECTED_APWORLD_VERSION.Equals(Options.Version);
+                    reason = success ? string.Empty : $".apworld version {Options.Version} does not match expected version '{EXPECTED_APWORLD_VERSION}'";
                 }
                 else
                 {
-                    Debug.LogError("Failed to log in to archipelago session.");
+                    reason = loginReason;
                 }
             }
             else
             {
-                Debug.LogError("Failed to create archipelago session.");
+                reason = "Failed to create archipelago session.";
             }
 
-            return false;
+            return (success, reason);
         }
 
         /// <summary>
-        /// Create a connection status UI element in the main menu.
+        /// Check if the goal has been completed.
         /// </summary>
-        private void CreateConnectionStatus()
+        /// <returns>True if completed, false if not.</returns>
+        private bool CheckGoalCompleted()
         {
-            if (GameCanvas.instance.GetScreen<MainMenu>() is MainMenu menu)
-            {
-                Debug.Log($"Creating archipelago connection status UI element...");
-
-                // Add new button to menu
-                CustomButton status = Instantiate(PrefabManager.instance.ButtonPrefab, menu.ContinueButton.transform.parent);
-                status.transform.SetAsFirstSibling();
-                status.transform.localScale = Vector3.one;
-                status.transform.localPosition = Vector3.one;
-                status.transform.localRotation = Quaternion.identity;
-                status.ButtonEnabled = false;
-
-                _connectionStatus = status;
-            }
+            return Options.GoalQuests.All(gq => QuestManager.instance.QuestIsComplete(gq));
         }
+        
 
         /// <summary>
         /// Create a session for the archipelago connection.
@@ -750,23 +785,27 @@ namespace Stacklands_Randomizer_Mod
         /// <returns><see cref="true"/> on success, <see cref="false"/> on failure.</returns>
         private bool CreateSession(string host)
         {
-            Debug.Log("Attempting to create session...");
+            ModLogger.Log("Attempting to create session...");
 
             try
             {
                 _session = ArchipelagoSessionFactory.CreateSession(host);
 
-                Debug.Log("Session created successfully!");
+                // Add event handlers
+                _session.Socket.SocketClosed += Socket_SocketClosed;
+                _session.Socket.ErrorReceived += Socket_ErrorReceived;
+
+                ModLogger.Log("Session created successfully!");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Unable to create archipelago session. Reason: '{ex.Message}'.");
+                ModLogger.LogError($"Unable to create archipelago session. Reason: '{ex.Message}'.");
             }
 
             return false;
-        }        
+        }
 
         /// <summary>
         /// Retrieve all items that have been received so far this session.
@@ -794,7 +833,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="deathLink">The DeathLink trigger that has been received.</param>
         private IEnumerator HandleDeathLink(DeathLink deathLink)
         {
-            Debug.Log($"DeathLink trigger received!");
+            ModLogger.Log($"DeathLink trigger received!");
 
             // Wait for current animation to end
             while (!WorldManager.instance.CanInteract) 
@@ -803,7 +842,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // Set deathlink received to true if deathlink is enabled, otherwise false
-            bool deathlinkEnabled = IsDeathlinkEnabled;
+            bool deathlinkEnabled = Options.Deathlink;
             lock (_lock)
             {
                 _handlingDeathLink = deathlinkEnabled;
@@ -812,12 +851,12 @@ namespace Stacklands_Randomizer_Mod
             if (!_handlingDeathLink)
             {
                 // Bail out if we are not handling DeathLinks (due to them being disabled)
-                Debug.Log($"Ignoring DeathLink - it is not enabled.");
+                ModLogger.Log($"Ignoring DeathLink - it is not enabled.");
             }
             else if (!IsInGame)
             {
                 // Bail out if we are not currently in-game
-                Debug.Log($"Ignoring DeathLink - not currently in-game.");
+                ModLogger.Log($"Ignoring DeathLink - not currently in-game.");
             }
             else
             {
@@ -839,7 +878,7 @@ namespace Stacklands_Randomizer_Mod
                 .Cast<Villager>()
                 .ToList();
 
-            Debug.Log($"Villagers found: {activeVillagers.Count}");
+            ModLogger.Log($"Villagers found: {activeVillagers.Count}");
 
             try
             {
@@ -865,7 +904,7 @@ namespace Stacklands_Randomizer_Mod
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to handle DeathLink. Reason: '{ex.Message}'.");
+                ModLogger.LogError($"Failed to handle DeathLink. Reason: '{ex.Message}'.");
             }
         }
 
@@ -875,8 +914,11 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="slotName">The name of the slot to log in as.</param>
         /// <param name="password">The password for the session, if required.</param>
         /// <returns></returns>
-        private bool Login(string slotName, string? password = null)
+        private (bool, string) Login(string slotName, string? password = null)
         {
+            bool success = false;
+            string reason = string.Empty;
+
             try
             {
                 // Attempt to connect to slot in session
@@ -886,7 +928,7 @@ namespace Stacklands_Randomizer_Mod
                     ItemsHandlingFlags.AllItems,
                     password: password);
 
-                Debug.Log($"Login attempt success: {result.Successful}");
+                ModLogger.Log($"Login attempt success: {result.Successful}");
 
                 if (result.Successful)
                 {
@@ -897,25 +939,23 @@ namespace Stacklands_Randomizer_Mod
                         _slotData = slotData;
                     }
 
-                    Debug.Log($"Slot data retrieved with tags: {string.Join(", ", _slotData.Keys)}");
+                    ModLogger.Log($"Slot data retrieved with tags: {string.Join(", ", _slotData.Keys)}");
 
                     // Add event handlers
                     _session.Items.ItemReceived += Items_ItemReceived;
-                    //_session.Socket.PacketReceived += Socket_PacketReceived;
-                    _session.Socket.SocketClosed += Socket_SocketClosed;
 
                     try
                     {
                         // If deathlink is enabled for this slot, attempt to create deathlink service
                         if (_slotData.TryGetValue(TAG_DEATHLINK, out object deathlink) ? Convert.ToBoolean(deathlink) : false)
                         {
-                            Debug.Log("Attempting to create deathlink service...");
+                            ModLogger.Log("Attempting to create deathlink service...");
 
                             // Create and store deathlink service
                             DeathLinkService deathlinkService = _session.CreateDeathLinkService();
                             if (deathlinkService is not null)
                             {
-                                Debug.Log($"Deathlink service created: {deathlinkService != null}");
+                                ModLogger.Log($"Deathlink service created: {deathlinkService != null}");
 
                                 lock (_lock)
                                 {
@@ -928,26 +968,32 @@ namespace Stacklands_Randomizer_Mod
                             }
                             else
                             {
-                                Debug.LogError("DeathLink service was unexpectedly null.");
+                                ModLogger.LogError("DeathLink service was unexpectedly null.");
                             }
                         }
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogError($"Failed to start deathlink service. Reason: '{ex.Message}'.");
+                        // Continue as success, this won't stop the session from running
+                        reason = $"Deathlink unavailable - failed to start deathlink service.";
+                        ModLogger.LogError($"Failed to start deathlink service. Reason: '{ex.Message}'.");
                     }
 
-                    return true;
+                    success = true;
                 }
-
-                Debug.LogError(result);
+                else
+                {
+                    reason = "Login attempt was unsuccessful.";
+                    ModLogger.LogError(result.ToString());
+                }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Unable to log in to session. Reason: '{ex.Message}',");
+                reason = "An error occurred when attempting login.";
+                ModLogger.LogError($"Unable to log in to session. Reason: '{ex.Message}',");
             }
 
-            return false;
+            return (success, reason);
         }
 
         /// <summary>
@@ -955,15 +1001,22 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void ProcessAllInQueue()
         {
-            // Handle all remaining actions in queue
+            // Handle all remaining items in queue
             while (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
             }
 
+            // Handle all remaining deaths in queue
             while (_deathlinkQueue.TryDequeue(out Action deathlink))
             {
                 deathlink.Invoke();
+            }
+
+            // Handle all remaining actions in queue
+            while (_actionQueue.TryDequeue(out Action action))
+            {
+                action.Invoke();
             }
         }
 
@@ -972,31 +1025,36 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void ProcessNextInQueue()
         {
-            // Handle next action in queue
+            // Handle next item in queue
             if (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
             }
 
-            // Handle next action in queue
+            // Handle next death in queue
             if (_deathlinkQueue.TryDequeue(out Action deathlink))
             {
                 deathlink.Invoke();
+            }
+
+            // Handle next action in queue
+            if (_actionQueue.TryDequeue(out Action action))
+            {
+                action.Invoke();
             }
         }
 
         /// <summary>
         /// Send a goal completion trigger to the server.
         /// </summary>
-        /// <param name="goalDescription">The name of the goal that has been completed.</param>
-        private void SendGoalCompletionAsync(string goalDescription)
+        private void SendGoalCompletionAsync()
         {
-            Debug.Log($"Sending goal completion...");
+            ModLogger.Log($"Sending goal completion...");
 
             // Send goal completion
             _session.SetGoalAchieved();
 
-            Debug.Log($"Sent goal completion status!");
+            ModLogger.Log($"Sent goal completion status!");
         }
 
         /// <summary>
@@ -1061,7 +1119,7 @@ namespace Stacklands_Randomizer_Mod
 
             if (!string.IsNullOrWhiteSpace(unfoundBooster))
             {
-                ItemHandler.UnlockBoosterPackItem(new Item() { ItemId = unfoundBooster, ItemType = ItemType.BoosterPack, Name = "Test Booster Unlock" });
+                ItemHandler.UnlockBoosterPack(unfoundBooster, true);
             }
         }
 
@@ -1070,7 +1128,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void SimulateDeath(bool deathLink = false)
         {
-            Debug.Log($"Simulating villager death...");
+            ModLogger.Log($"Simulating villager death...");
             WorldManager.instance.GetCard<Villager>()?.Die();
         }
 
@@ -1079,7 +1137,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void SimulateDeathLinkReceived()
         {
-            Debug.Log($"Simulating DeathLink received...");
+            ModLogger.Log($"Simulating DeathLink received...");
 
             // Add deathlink action to the queue
             AddToDeathlinkQueue(() => StartCoroutine(HandleDeathLink(new DeathLink("A Test", "Ran a test DeathLink received."))));
@@ -1090,50 +1148,48 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void SimulateGoalComplete()
         {
-            Debug.Log($"Simulating goal complete...");
+            ModLogger.Log($"Simulating goal complete...");
 
-            // Get current goal type
-            switch (CurrentGoal.Type)
+            foreach (Quest quest in Options.GoalQuests)
             {
-                case GoalType.KillDemon:
+                // If kill demon quest
+                if (quest.Id == AllQuests.KillDemon.Id)
+                {
+                    // Create a demon
+                    WorldManager.instance.CreateCard(
+                        WorldManager.instance.GetRandomSpawnPosition(),
+                        Cards.demon,
+                        true,
+                        false,
+                        true);
+
+                    // Find the demon and kill it
+                    if (FindObjectOfType<Demon>() is Demon demon)
                     {
-                        // Create a demon
-                        WorldManager.instance.CreateCard(
-                            WorldManager.instance.GetRandomSpawnPosition(),
-                            Cards.demon,
-                            true,
-                            false,
-                            true);
-
-                        // Find the demon and kill it
-                        if (FindObjectOfType<Demon>() is Demon demon)
-                        {
-                            demon.Die();
-                        }
+                        demon.Die();
                     }
-                    break;
+                }
+                else if (quest.Id == AllQuests.FightWickedWitch.Id)
+                {
 
-                case GoalType.KillWickedWitch:
+                    // Create a demon lord
+                    WorldManager.instance.CreateCard(
+                        WorldManager.instance.GetRandomSpawnPosition(),
+                        Cards.wicked_witch,
+                        true,
+                        false,
+                        true);
+
+                    // Find the witch and kill it
+                    if (FindObjectOfType<WickedWitch>() is WickedWitch witch)
                     {
-                        // Create a demon lord
-                        WorldManager.instance.CreateCard(
-                            WorldManager.instance.GetRandomSpawnPosition(),
-                            Cards.wicked_witch,
-                            true,
-                            false,
-                            true);
-
-                        // Find the witch and kill it
-                        if (FindObjectOfType<WickedWitch>() is WickedWitch witch)
-                        {
-                            witch.Die();
-                        }
+                        witch.Die();
                     }
-                    break;
-
-                default:
-                    Debug.LogError($"Unbound goal type: '{CurrentGoal.Type}'.");
-                    break;
+                }
+                else
+                {
+                    ModLogger.LogError($"Unbound goal quest: '{quest.Id}'.");
+                }
             }
         }
 
@@ -1143,7 +1199,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="type">The type of item to simulate.</param>
         private void SimulateItemReceived(ItemType type)
         {
-            Debug.Log($"Simulating {type} item received...");
+            ModLogger.Log($"Simulating {type} item received...");
 
             // Get all possible item unlocks
             List<Item> items = ItemMapping.Map
@@ -1152,7 +1208,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            AddToItemQueue(() => ItemHandler.SpawnItem(item.Name));
+            AddToItemQueue(() => ItemHandler.ReceiveItem(item.Name));
         }
 
         /// <summary>
@@ -1160,7 +1216,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void SimulateQuestComplete()
         {
-            Debug.Log($"Simulating quest completion...");
+            ModLogger.Log($"Simulating quest completion...");
 
             // Get a list of all currently incomplete quests (for mainland)
             List<Quest> incompleteQuests = QuestManager.instance.AllQuests
@@ -1179,7 +1235,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         private void SimulateSpecialAction(string specialAction)
         {
-            Debug.Log($"Simulating special action '{specialAction}'...");
+            ModLogger.Log($"Simulating special action '{specialAction}'...");
             
             // Trigger special action
             QuestManager.instance.SpecialActionComplete(specialAction);

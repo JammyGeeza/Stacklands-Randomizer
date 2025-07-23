@@ -1,9 +1,9 @@
 {
   "$schema": "../schemas/card.schema.json",
-  "id": "ap_trap_rat",
-  "nameTerm": "ap_trap_rat_name",
-  "descriptionTerm": "ap_trap_rat_description",
-  "icon": "rat",
+  "id": "ap_trap_mosquito",
+  "nameTerm": "ap_trap_mosquito_name",
+  "descriptionTerm": "ap_trap_mosquito_description",
+  "icon": "mosquito",
   "value": -1,
   "type": "Mobs",
   "script": "Enemy",
@@ -11,7 +11,7 @@
   "_HealthPoints": 5,
   "_HideFromCardopedia": true,
   "_InheritCombatStatsFromOtherCard": true,
-  "_InheritCombatStatsFrom": "rat",
+  "_InheritCombatStatsFrom": "mosquito",
   "_IsAggressive": true,
   "_MoveTime": 3
 }

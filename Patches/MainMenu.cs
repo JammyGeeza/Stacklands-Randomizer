@@ -16,7 +16,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPrefix]
         public static void OnAwake_Setup(ref MainMenu __instance)
         {
-            Debug.Log($"{nameof(MainMenu)}.Awake prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(MainMenu)}.Awake prefix!");
 
             // Add an event handler to disconnect the session when quitting the game
             __instance.QuitButton.Clicked += () =>
@@ -32,7 +32,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnAwake_DisplayConnectionStatus(ref MainMenu __instance)
         {
-            Debug.Log($"{nameof(MainMenu)}.Awake postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(MainMenu)}.Awake postfix!");
 
             // Display if we are connected
             if (StacklandsRandomizer.instance.IsConnected)

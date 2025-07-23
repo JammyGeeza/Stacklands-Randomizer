@@ -16,8 +16,8 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPrefix]
         public static bool OnStartBlueprintTimer_BlockWhereNecessary(ref string blueprintId)
         {
-            Debug.Log($"{nameof(GameCard)}.{nameof(GameCard.StartBlueprintTimer)} Prefix!");
-            Debug.Log($"Blueprint Timer ID: {blueprintId}");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(GameCard)}.{nameof(GameCard.StartBlueprintTimer)} Prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"Blueprint Timer ID: {blueprintId}");
 
             // Block timers for cards if idea not yet discovered
             return !CommonPatchMethods.ShouldCardBeBlocked(blueprintId);

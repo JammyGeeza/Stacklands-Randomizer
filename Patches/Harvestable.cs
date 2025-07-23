@@ -16,8 +16,8 @@ namespace Stacklands_Randomizer_Mod.Patches
         [HarmonyPostfix]
         public static void OnGetCardsInBag_ReplaceWhereNecessary(Harvestable __instance, ref ICardId __result)
         {
-            Debug.Log($"{nameof(Harvestable)}.{nameof(Harvestable.GetCardToGive)} Postfix!");
-            Debug.Log($"Card ID {__result.Id} selected.");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(Harvestable)}.{nameof(Harvestable.GetCardToGive)} Postfix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"Card ID {__result.Id} selected.");
 
             // If card should be blocked, replace it with a random basic card.
             if (CommonPatchMethods.ShouldCardBeBlocked(__result.Id))

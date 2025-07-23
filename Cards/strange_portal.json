@@ -1,0 +1,11 @@
+{
+  "$schema": "../schemas/card.schema.json",
+  "id": "ap_trap_strange_portal",
+  "nameTerm": "ap_trap_strange_portal_name",
+  "descriptionTerm": "ap_trap_strange_portal_description",
+  "icon": "strange_portal",
+  "value": -1,
+  "type": "Mobs",
+  "script": "Stacklands_Randomizer_Mod.TrapStrangePortal",
+  "_HideFromCardopedia": true
+}

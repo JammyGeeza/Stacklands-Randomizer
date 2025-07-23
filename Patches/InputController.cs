@@ -17,10 +17,8 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnTime3Triggered_InterceptPause(ref bool __result)
         {
-            // Debug.Log($"{nameof(InputController)}.{nameof(InputController.Time3_Triggered)} Postfix!"); <- Triggers constantly
-
             // Intercept result if set to true and pausing has been disabled
-            __result = __result && StacklandsRandomizer.instance.IsPauseEnabled;
+            __result = __result && StacklandsRandomizer.instance.Options.PauseTimeEnabled;
         }
 
         /// <summary>
@@ -30,10 +28,8 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnTimePauseTriggered_InterceptPause(ref bool __result)
         {
-            // Debug.Log($"{nameof(InputController)}.{nameof(InputController.TimePauseTriggered)} Postfix!"); <- Triggers constantly
-
             // Intercept result if set to true and pausing has been disabled
-            __result = __result && StacklandsRandomizer.instance.IsPauseEnabled;
+            __result = __result && StacklandsRandomizer.instance.Options.PauseTimeEnabled;
         }
     }
 }
