@@ -240,7 +240,7 @@ namespace Stacklands_Randomizer_Mod
             ModLogger.Log($"Start...");
 
             // Set connection status
-            //SetConnectionStatus(IsConnected, initialConnectionReason);
+            SetConnectionStatus(IsConnected, initialConnectionReason);
         }
 
         /// <summary>
@@ -660,8 +660,12 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
         private void Socket_ErrorReceived(Exception e, string message)
         {
-            AddToActionQueue(() => ModLogger.Log("Socket error received"));
-            AddToActionQueue(() => Disconnect($"Socket Error: {message}"));
+            // If message is empty it's usually because we've purposely disconnected
+            if (!string.IsNullOrEmpty(message))
+            {
+                AddToActionQueue(() => ModLogger.Log("Socket error received"));
+                AddToActionQueue(() => Disconnect($"Socket Error: {message}"));
+            }
         }
 
         /// <summary>
@@ -669,9 +673,13 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         /// <param name="packet">The <see cref="ArchipelagoPacketBase"/> received from the socket.</param>
         private void Socket_SocketClosed(string reason)
-        {
-            AddToActionQueue(() => ModLogger.Log("Socket closed received"));
-            AddToActionQueue(() => Disconnect(reason));
+        {  
+            // If a reason is provided, it's probably because it was unexpected.
+            if (!string.IsNullOrEmpty(reason))
+            {
+                AddToActionQueue(() => ModLogger.Log("Socket closed received"));
+                AddToActionQueue(() => Disconnect(reason));
+            }
         }
 
         /// <summary>
