@@ -1,42 +1,48 @@
 # Stacklands Archipelago Randomizer
 A mod for Stacklands that allows it to be integrated into an Archipelago world.
 
-This repo was forked from and is a continuation of the development of the original mod: [chandler05/Stacklands-Randomizer](https://github.com/chandler05/Stacklands-Randomizer)
+This repo was forked from and is a continuation of the development of the original mod by **chandler05**: [chandler05/Stacklands-Randomizer](https://github.com/chandler05/Stacklands-Randomizer)
 
-## How it Works
-In an archipelago run of Stacklands, you will be completing the in-game quests to complete Location Checks and items received will be Ideas _(AKA 'Blueprints')_ to make craftable items.
-Quest completions remain the same as the base game, but the order in which they can be completed will depend on the randomisation of the ideas received.
+## How does this AP Randomizer work?
+In an archipelago randomized run of Stacklands, all quests are Location Checks and all Progression Items received will be **Ideas** _(AKA 'Blueprints')_ in order to make the craftable items required to complete the quests. The quests themselves have not changed so the requirements for each quest remain the same as vanilla, but the order in which they are completed will depend on the randomisation of the **Ideas** and the order in which you receive them.
 
-### Locations
-The locations available in this AP randomizer are:
+### Goals
+- Complete the **Kill the Demon** quest on Mainland
+- Complete the **Fight the Wicked Witch** quest on The Dark Forest
+- Complete both of the aboce
 
-- 'Mainland' Quests
-- 'The Dark Forest' Quests _(toggled on/off in YAML)_
-- Mobsanity _(killing one of each enemy type - toggled on/off in YAML)_
+### Location Checks
+- All **Mainland** Quests
+- All **The Dark Forest** Quests
+- **Mobsanity** Quests _(killing one of each enemy type)_
+- _More coming soon..._
 
-### Items
-The items available in this AP randomizer are:
-
-**Progression** 
+### Progression Items
 - Booster Packs
-- Ideas _(AKA 'Blueprints')_ for items required to complete Quests such as `Plank`, `Quarry`, `Smithy`, `Temple` etc. 
+- Ideas for items required to complete Quests such as `Plank`, `Quarry`, `Smithy`, `Temple` etc.
+- Board Expansion _(works like Shed and Warehouse and expands your card limit and board size)_
 
-**Useful** 
-- Ideas _(AKA 'Blueprints')_ for items that help make the run easier but don't impact progression such as `Coin Chest`, `Hammer`, `Warehouse` etc.
+### Useful Items
+- Ideas for items that help make the run easier but don't impact progression such as `Coin Chest`, `Hammer`, `Warehouse` etc.
 
-**Filler / Junk**
-- Food and Material resources such as `Apple`, `Wood`, `Coin` etc.
+### Filler / Junk Items
+- Ideas for items that have very little impact on progression such as `Butchery`, `Club`, `Dustbin` etc.
+- Resource Booster Pack _(pulls 1x Structure, 2x Food and 2x Resource cards)_
+- _More to be added soon..._
 
-**Traps**
-- Enemy Spawns
-- Flood of useless items worth 0 coins
-- _(More to be added soon...)_
+### Trap Items
+- Feed Villagers Trap _(immediately forces the 'Feed Villagers' cutscene)_
+- Mob Trap _(spawns a random, basic enemy)_
+- Sell Cards Trap _(immediately forces the 'Sell Cards' cutscene)_
+- Strange Portal Trap _(spawns a strange portal)_
+- _More to be added soon..._
 
-### Current Support
+## Current In-Game Support
 - Mainland _(full support)_
 - The Dark Forest _(full support)_
 - ~~The Island~~ _(coming soon...)_
-- ~~DLC~~ _(not yet planned)_
+- ~~Stacklands 2000 DLC~~ _(not yet planned)_
+- ~~Cursed Worlds DLC~~ _(not yet planned)_
 
 ## Known Issues
 For the list of currently known issues, please see the [open issues](https://github.com/JammyGeeza/Stacklands-Randomizer/issues)
