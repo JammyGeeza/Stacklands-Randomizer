@@ -338,7 +338,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                // ItemHandler.SpawnStack(Cards.gold, 25);
+                ItemHandler.SpawnStack(Cards.gold, 25);
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {

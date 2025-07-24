@@ -1,0 +1,10 @@
+{
+  "$schema": "../Schemas/boosterpack.schema.json",
+  "id": "ap_check_booster",
+  "nameTerm": "ap_check_booster_name",
+  "cost": 3,
+  "icon": "archipelago.png",
+  "location": "Mainland",
+  "minQuestCount": 0,
+  "cardBags": []
+}
