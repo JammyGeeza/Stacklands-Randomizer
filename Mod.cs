@@ -23,7 +23,7 @@ namespace Stacklands_Randomizer_Mod
         #region Private members
 
         // Static Member(s)
-        private static readonly string EXPECTED_APWORLD_VERSION = "0.1.6";
+        private static readonly string EXPECTED_APWORLD_VERSION = "0.1.7";
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
@@ -287,7 +287,9 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
+                ItemHandler.SpawnBoosterPack(ModBoosterPacks.resource_booster);
 
+                //SimulateUnlockBooster();
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -295,7 +297,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-
+                //ItemHandler.SpawnStack(Cards.gold, 25);
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {

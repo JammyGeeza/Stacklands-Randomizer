@@ -28,12 +28,14 @@ namespace Stacklands_Randomizer_Mod
             // Order quests by completion and by group
             List<IGrouping<string, Quest>> questGroups = quests
                 .OrderBy(q => !QuestManager.instance.QuestIsComplete(q))
-                .GroupBy(q => q is CustomQuest cq ? cq.CustomQuestGroup.ToString().ToLower() : q.QuestGroup.ToString().ToLower())
+                .GroupBy(q => EnumHelper.GetName<QuestGroup>((int)q.QuestGroup).ToLower())
                 .OrderBy(g => GetQuestGroupOrder(g.Key))
                 .ToList();
 
             foreach (IGrouping<string, Quest> group in questGroups)
             {
+                StacklandsRandomizer.instance.ModLogger.Log($"Handling quest group: {group.Key}");
+
                 if (addLabels)
                 {
                     // Create expandable section
@@ -82,8 +84,9 @@ namespace Stacklands_Randomizer_Mod
                 "building" => 8,
                 "survival" => 9,
                 "mobsanity" => 10,
-                "other" => 11,
-                _ => 12,
+                "packsanity" => 11,
+                "other" => 12,
+                _ => 13
             };
         }
 
@@ -162,9 +165,11 @@ namespace Stacklands_Randomizer_Mod
             Dictionary<object, bool> dictionary = WasExpandedDict(__instance.QuestsParent.GetComponentsInChildren<ExpandableLabel>());
             IEnumerable<Quest> source = [
                 .. QuestManager.instance.AllQuests.Where(q =>
-                    !UnsupportedQuests.List.Contains(q.Id) // Quest is not in the specified unsupported list
-                    && ((q.QuestLocation is Location.Mainland && (q is not CustomQuest cq || (StacklandsRandomizer.instance.Options.MobsanityEnabled && cq.CustomQuestGroup is CustomQuestGroup.Mobsanity))) // Quest is in Mainland (excluding Mobsanity quests if disabled)
-                    || (q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest)))) // or Quest is in The Dark Forest and Dark Forest is enabled
+                    !UnsupportedQuests.List.Contains(q.Id)                                                                                              // Quest is not in the specified unsupported list
+                    && (q.QuestLocation is Location.Mainland && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland)     // Quest location is Mainland and Mainland is enabled
+                        || q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest))     // Quest location is Forest and Forest is enabled
+                    && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)         // Mobsanity is enabled OR quest group is not Mobsanity
+                    && (StacklandsRandomizer.instance.Options.PacksanityEnabled || q.QuestGroup != EnumExtensionHandler.PacksanityQuestGroupEnum))      // Packsanity is enabled OR quest group is not Packsanity
             ];
 
             __instance.questElements = CreateQuestElements(__instance.QuestsParent, source.ToList());

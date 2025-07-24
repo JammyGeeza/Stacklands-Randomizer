@@ -16,6 +16,7 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string TAG_GOAL = "goal";
         private static readonly string TAG_MOBSANITY = "mobsanity";
         private static readonly string TAG_MOON_LENGTH = "moon_length";
+        private static readonly string TAG_PACKSANITY = "packsanity";
         private static readonly string TAG_PAUSE_ENABLED = "pausing";
         private static readonly string TAG_SELL_CARD_AMOUNT = "sell_card_trap_amount";
         private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
@@ -70,6 +71,11 @@ namespace Stacklands_Randomizer_Mod
         /// Gets or sets the moon length for this run.
         /// </summary>
         public MoonLength MoonLength { get; private set; }
+
+        /// <summary>
+        /// Gets or sets whether Packsanity is enabled for this run.
+        /// </summary>
+        public bool PacksanityEnabled { get; private set; }
 
         /// <summary>
         /// Gets or sets the quests that are included in this run.
@@ -148,6 +154,12 @@ namespace Stacklands_Randomizer_Mod
                 : MoonLength.Normal; // Default to Normal if not found
 
             StacklandsRandomizer.instance.ModLogger.Log($"Moon Length for this run: {MoonLength}");
+
+            PacksanityEnabled = slotData.TryGetValue(TAG_PACKSANITY, out object packsanity)
+                ? Convert.ToBoolean(packsanity)
+                : false; // Default to false if not found
+
+            StacklandsRandomizer.instance.ModLogger.Log($"Packsanity Enabled for this run: {PacksanityEnabled}");
 
             QuestChecks = slotData.TryGetValue(TAG_BOARDS, out object boards)
                 ? (QuestCheckFlags)Convert.ToInt32(boards)
