@@ -4,7 +4,7 @@
   "nameTerm": "ap_resource_booster_name",
   "cost": 0,
   "icon": "archipelago.png",
-  "location": "Mainland",
+  "location": "Archipelago",
   "minQuestCount": 0,
   "cardBags": [
     {

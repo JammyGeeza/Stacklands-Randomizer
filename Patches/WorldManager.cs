@@ -41,6 +41,28 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// When getting a board with the <see cref="Location"/> enum, fake an extra board to prevent default booster pack behaviour.
+        /// </summary>
+        [HarmonyPatch(nameof(WorldManager.GetBoardWithLocation))]
+        [HarmonyPostfix]
+        public static void OnGetBoardWithLocation_PreventStandardPackBehaviour(ref Location loc, ref GameBoard __result)
+        {
+            // If the board being searched for is the 'Archipelago' fictional board
+            if (loc == EnumExtensionHandler.ArchipelagoLocationEnum)
+            {
+                // Prevent it from behaving the same way as other booster packs
+                __result = new GameBoard()
+                {
+                    Id = "archipelago",
+                    BoardOptions = new BoardOptions()
+                    {
+                        NewVillagerSpawnsFromPack = false, // Prevent it spawning villagers
+                    }
+                };
+            }
+        }
+
+        /// <summary>
         /// When a card is created, remove blueprints from equipable items to prevent mobs from dropping them too early.
         /// </summary>
         [HarmonyPatch(nameof(WorldManager.CreateCard), [typeof(Vector3), typeof(CardData), typeof(bool), typeof(bool), typeof(bool), typeof(bool)])]

@@ -134,6 +134,10 @@ namespace Stacklands_Randomizer_Mod
         {
             instance = this;
 
+            // Extend Location enum (need to do this early so the mod can load the
+            // resource_booster.json correctly
+            EnumHelper.ExtendEnum<Location>("Archipelago");
+
             // Prepare mod config
             host = Config.GetEntry<string>("Server", "archipelago.gg:12345");
             slotName = Config.GetEntry<string>("Slot Name", "Slot");
@@ -288,8 +292,6 @@ namespace Stacklands_Randomizer_Mod
             if (InputController.instance.GetKeyDown(Key.F5))
             {
                 ItemHandler.SpawnBoosterPack(ModBoosterPacks.resource_booster);
-
-                //SimulateUnlockBooster();
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -297,11 +299,11 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                //ItemHandler.SpawnStack(Cards.gold, 25);
+                ItemHandler.SpawnStack(Cards.gold, 25);
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
-                
+                SimulateUnlockBooster();
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
