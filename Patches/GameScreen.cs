@@ -47,8 +47,8 @@ namespace Stacklands_Randomizer_Mod
                     expandableLabel.SetText(achievementGroupName);
                     expandableLabel.SetExpanded(true);
 
-                    // Add quests to expandable section
-                    foreach (Quest quest in group)
+                    // Add quests to expandable section (only include completed quests if 'Hide Quests' option is false
+                    foreach (Quest quest in group.Where(q => !StacklandsRandomizer.instance.HideCompletedQuests || !QuestManager.instance.QuestIsComplete(q)))
                     {
                         AchievementElement achievementElement = UnityEngine.Object.Instantiate(PrefabManager.instance.AchievementElementPrefab);
                         achievementElement.SetQuest(quest);

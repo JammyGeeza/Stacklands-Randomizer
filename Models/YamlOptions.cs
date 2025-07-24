@@ -43,11 +43,6 @@ namespace Stacklands_Randomizer_Mod
         public bool DarkForestEnabled { get; private set; }
 
         /// <summary>
-        /// Gets or sets whether deathlink is enabled for this run.
-        /// </summary>
-        public bool Deathlink { get; private set; }
-
-        /// <summary>
         /// Gets or sets the goal for this run.
         /// </summary>
         public GoalFlags Goal {  get; private set; }
@@ -110,12 +105,6 @@ namespace Stacklands_Randomizer_Mod
                 : BoardExpansionMode.Ideas; // Default to 'Ideas' if not found 
             
             StacklandsRandomizer.instance.ModLogger.Log($"Board Expansion Mode for this run: {BoardExpansionMode}");
-
-            Deathlink = slotData.TryGetValue(TAG_DEATHLINK, out object deathlink)
-                ? Convert.ToBoolean(deathlink)
-                : false; // Default to false if not found
-
-            StacklandsRandomizer.instance.ModLogger.Log($"Deathlink Enabled for this run: {DarkForestEnabled}");
 
             Goal = slotData.TryGetValue(TAG_GOAL, out object goal)
                 ? (GoalFlags)Convert.ToInt32(goal)
