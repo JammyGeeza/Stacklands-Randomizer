@@ -11,14 +11,15 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string TAG_BOARD_EXPANSION_MODE = "board_expansion_mode";
         private static readonly string TAG_BOARD_EXPANSION_AMOUNT = "board_expansion_amount";
         private static readonly string TAG_BOARDS = "boards";
-        private static readonly string TAG_DARKFOREST = "dark_forest";
-        private static readonly string TAG_DEATHLINK = "death_link";
         private static readonly string TAG_GOAL = "goal";
         private static readonly string TAG_MOBSANITY = "mobsanity";
         private static readonly string TAG_MOON_LENGTH = "moon_length";
         private static readonly string TAG_PACKSANITY = "packsanity";
         private static readonly string TAG_PAUSE_ENABLED = "pausing";
         private static readonly string TAG_SELL_CARD_AMOUNT = "sell_card_trap_amount";
+        private static readonly string TAG_SPENDSANITY = "spendsanity";
+        private static readonly string TAG_SPENDSANITY_COST = "spendsanity_cost";
+        private static readonly string TAG_SPENDSANITY_COUNT = "spendsanity_count";
         private static readonly string TAG_STARTING_INVENTORY = "start_inventory";
         private static readonly string TAG_VERSION = "version";
 
@@ -81,6 +82,21 @@ namespace Stacklands_Randomizer_Mod
         /// Gets or sets the amount of cards to be sold in a 'Sell Cards Trap' for this run.
         /// </summary>
         public int SellCardTrapAmount { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the Spendsanity mode.
+        /// </summary>
+        public Spendsanity Spendsanity { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the spendsanity cost.
+        /// </summary>
+        public int SpendsanityCost { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the amount of spendsanity checks.
+        /// </summary>
+        public int SpendsanityCount { get; private set; }
 
         /// <summary>
         /// Gets or sets the starting inventory for this run.
@@ -161,6 +177,24 @@ namespace Stacklands_Randomizer_Mod
                 : 3; // Default to 3 if not found
 
             StacklandsRandomizer.instance.ModLogger.Log($"Sell Card Trap Amount for this run: {SellCardTrapAmount}");
+
+            Spendsanity = slotData.TryGetValue(TAG_SPENDSANITY, out object spendsanity)
+                ? (Spendsanity)Convert.ToInt32(spendsanity)
+                : Spendsanity.Off; // Default to off if not found
+
+            StacklandsRandomizer.instance.ModLogger.Log($"Spendsanity Mode for this run: {Spendsanity}");
+
+            SpendsanityCost = slotData.TryGetValue(TAG_SPENDSANITY_COST, out object spendsanityCost)
+                ? Convert.ToInt32(spendsanityCost)
+                : 3; // Default to 3 if not found
+
+            StacklandsRandomizer.instance.ModLogger.Log($"Spendsanity Cost for this run: {SpendsanityCost}");
+
+            SpendsanityCount = slotData.TryGetValue(TAG_SPENDSANITY_COUNT, out object spendsanityCount)
+                ? Convert.ToInt32(spendsanityCount)
+                : 0; // Default to 0 if not found
+
+            StacklandsRandomizer.instance.ModLogger.Log($"Spendsanity Count for this run: {SpendsanityCount}");
 
             StartInventory = slotData.TryGetValue(TAG_STARTING_INVENTORY, out object inv)
                 ? JsonConvert.DeserializeObject<Dictionary<string, int>>(inv.ToString()) ?? new()

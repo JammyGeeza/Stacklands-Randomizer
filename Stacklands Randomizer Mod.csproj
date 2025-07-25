@@ -7,7 +7,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="BoosterPacks\check_booster.json" />
+    <None Remove="BoosterPacks\spendsanity_booster.json" />
     <None Remove="Cards\board_expansion.json" />
     <None Remove="Cards\chicken.json" />
     <None Remove="Cards\mosquito.json" />

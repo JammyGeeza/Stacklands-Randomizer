@@ -85,7 +85,7 @@ namespace Stacklands_Randomizer_Mod
             new IdeaItem("Idea: Wooden Shield"        , Cards.blueprint_wooden_shield       ),
 
             // Resource Booster Packs
-            new BoosterItem("Resource Booster Pack"   , ModBoosterPacks.resource_booster      , BoosterItem.BoosterType.Spawn  ),
+            new BoosterItem("Resource Booster Pack"   , ModBoosterPacks.resource      , BoosterItem.BoosterType.Spawn  ),
 
             #endregion
 

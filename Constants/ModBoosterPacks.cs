@@ -8,8 +8,8 @@ namespace Stacklands_Randomizer_Mod
     {
         private static readonly string PREFIX = "ap_";
 
-        public static readonly string check_booster = $"{PREFIX}check_booster";
+        public static readonly string spendsanity = $"{PREFIX}spendsanity";
 
-        public static readonly string resource_booster = $"{PREFIX}resource_booster";
+        public static readonly string resource = $"{PREFIX}resource";
     }
 }

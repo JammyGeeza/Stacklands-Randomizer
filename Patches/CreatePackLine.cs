@@ -16,20 +16,23 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPrefix]
         public static void OnCreateBoosterBoxes_AddCustomBoosters(CreatePackLine __instance, ref List<string> boosters, ref BoardCurrency currency)
         {
-            // TODO: Only do this if enabled in YAML options
             // TODO: Set cost on creation based on how many times previously purchased
 
-            switch (currency)
+            // Insert booster pack if speedsanity enabled.
+            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off)
             {
-                case BoardCurrency.Gold:
-                    {
-                        // Add AP Check booster pack to the list
-                        boosters.Add(ModBoosterPacks.check_booster);
+                switch (currency)
+                {
+                    case BoardCurrency.Gold:
+                        {
+                            // Add AP Check booster pack to the list
+                            boosters.Add(ModBoosterPacks.spendsanity);
 
-                        // Set as unlocked
-                        WorldManager.instance.CurrentSave.FoundBoosterIds.Add(ModBoosterPacks.check_booster);
-                    }
-                    break;
+                            // Set as unlocked
+                            WorldManager.instance.CurrentSave.FoundBoosterIds.Add(ModBoosterPacks.spendsanity);
+                        }
+                        break;
+                }
             }
         }
     }

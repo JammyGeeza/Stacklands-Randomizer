@@ -20,5 +20,10 @@ namespace Stacklands_Randomizer_Mod
         /// Extended enum value for Packsanity quest group
         /// </summary>
         public static readonly QuestGroup PacksanityQuestGroupEnum = EnumHelper.ExtendEnum<QuestGroup>("Packsanity");
+
+        /// <summary>
+        /// Extended enum value for Spendsanity quest group
+        /// </summary>
+        public static readonly QuestGroup SpendsanityQuestGroupEnum = EnumHelper.ExtendEnum<QuestGroup>("Spendsanity");
     }
 }

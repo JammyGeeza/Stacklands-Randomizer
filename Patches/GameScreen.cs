@@ -85,7 +85,8 @@ namespace Stacklands_Randomizer_Mod
                 "survival" => 9,
                 "mobsanity" => 10,
                 "packsanity" => 11,
-                "other" => 12,
+                "spendsanity" => 12,
+                "other" => 13,
                 _ => 13
             };
         }
@@ -169,7 +170,8 @@ namespace Stacklands_Randomizer_Mod
                     && (q.QuestLocation is Location.Mainland && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland)     // Quest location is Mainland and Mainland is enabled
                         || q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest))     // Quest location is Forest and Forest is enabled
                     && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)         // Mobsanity is enabled OR quest group is not Mobsanity
-                    && (StacklandsRandomizer.instance.Options.PacksanityEnabled || q.QuestGroup != EnumExtensionHandler.PacksanityQuestGroupEnum))      // Packsanity is enabled OR quest group is not Packsanity
+                    && (StacklandsRandomizer.instance.Options.PacksanityEnabled || q.QuestGroup != EnumExtensionHandler.PacksanityQuestGroupEnum)       // Packsanity is enabled OR quest group is not Packsanity
+                    && (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off || q.QuestGroup != EnumExtensionHandler.SpendsanityQuestGroupEnum))    // Spendsanity is enabled OR quest group is not Spendsanity   
             ];
 
             __instance.questElements = CreateQuestElements(__instance.QuestsParent, source.ToList());

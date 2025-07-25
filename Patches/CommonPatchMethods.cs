@@ -45,6 +45,17 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Get the amount of times a booster pack has been bought in this save.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack.</param>
+        public static int GetTimesBoosterPackBought(string boosterId)
+        {
+            return WorldManager.instance.SaveExtraKeyValues.GetWithKey(boosterId) is SerializedKeyValuePair kvp
+                ? Convert.ToInt32(kvp.Value)
+                : 0;
+        }
+
+        /// <summary>
         /// Find an existing or create a new archipelago save.
         /// </summary>
         /// <param name="instance">The instance of <see cref="SaveManager"/> to refer to.</param>
@@ -82,6 +93,32 @@ namespace Stacklands_Randomizer_Mod
         public static string GetRandomBasicCard()
         {
             return BASIC_CARDS.ElementAt(UnityEngine.Random.Range(0, BASIC_CARDS.Count));
+        }
+
+        /// <summary>
+        /// Add one to the amount of times a booster pack has been bought.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack.</param>
+        /// <returns>New count.</returns>
+        public static int IncrementTimesBoosterPackBought(string boosterId)
+        {
+            int boughtCount = GetTimesBoosterPackBought(boosterId);
+            int newCount = boughtCount + 1;
+
+            return SetTimesBoosterPackBought(boosterId, newCount);
+        }
+
+        /// <summary>
+        /// Set the amount of times a booster pack has been bought.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack.</param>
+        /// <param name="count">The amount of times the booster has been bought.</param>
+        /// <returns>New count.</returns>
+        public static int SetTimesBoosterPackBought(string boosterId, int count)
+        {
+            WorldManager.instance.SaveExtraKeyValues.SetOrAdd(boosterId, count.ToString());
+
+            return count;
         }
 
         /// <summary>

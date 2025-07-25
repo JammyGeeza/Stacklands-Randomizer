@@ -72,6 +72,17 @@ namespace Stacklands_Randomizer_Mod
                 __result.AddRange(CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.PacksanityQuestGroupEnum
                     && q.QuestLocation == Location.Mainland));
             }
+
+            // If spendsanity enabled, add spendsanity quests
+            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off)
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Inserting Spendsanity quests...");
+
+                // Add spendsanity quests (up to the amount 
+                __result.AddRange(CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.SpendsanityQuestGroupEnum
+                    && q.QuestLocation == Location.Mainland
+                    && q.RequiredCount <= StacklandsRandomizer.instance.Options.SpendsanityCount));
+            }
         }
 
         /// <summary>

@@ -16,18 +16,27 @@ namespace Stacklands_Randomizer_Mod
         public static bool OnCreateBoosterPack_PreventBoosterPack(BuyBoosterBox __instance)
         {
             // If booster box is for the AP Check booster pack
-            if (__instance.BoosterId == ModBoosterPacks.check_booster)
+            if (__instance.BoosterId == ModBoosterPacks.spendsanity)
             {
+                // Increment bought count
+                int boughtCount = CommonPatchMethods.IncrementTimesBoosterPackBought(__instance.BoosterId);
+
                 // Fire special action to trigger check
-                QuestManager.instance.SpecialActionComplete($"buy_{__instance.BoosterId}_pack");
+                QuestManager.instance.SpecialActionComplete($"buy_{ModBoosterPacks.spendsanity}_pack");
 
-                // TODO: Implement YAML options for this
-                // TODO: Increment cost by amount in YAML option and store the current cost (may not be required due to next TODO)
-                // TODO: Increment total times purchased this session (or find out if this is already stored somewhere)
-                // TODO: If max check amount reached, prevent further purchases
-
-                // Increase cost
-                __instance.Cost += 5;
+                // Check if maximum reached
+                if (boughtCount < StacklandsRandomizer.instance.Options.SpendsanityCount)
+                {
+                    // Increase cost if incremental spendsanity mode
+                    if (StacklandsRandomizer.instance.Options.Spendsanity is Spendsanity.Incremental)
+                    {
+                        __instance.Cost += StacklandsRandomizer.instance.Options.SpendsanityCost;
+                    }
+                }
+                else
+                {
+                    __instance.enabled = false;
+                }
 
                 // Prevent original method actions
                 return false;
