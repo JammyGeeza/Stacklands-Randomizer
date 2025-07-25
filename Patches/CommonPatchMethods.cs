@@ -45,19 +45,6 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Get the last stored amount of a booster pack in this save.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack.</param>
-        public static int GetLastBoosterPackStoredamount(string boosterId)
-        {
-            // Get bought key for booster id
-            int value = KeyValueHelper.GetExtraKeyValue($"{boosterId}_amount");
-
-            // Return 0 if not found
-            return value < 0 ? 0 : value;
-        }
-
-        /// <summary>
         /// Get the amount of times a booster pack has been bought in this run.
         /// </summary>
         /// <param name="boosterId">The ID of the booster pack.</param>
@@ -107,52 +94,6 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Add one to the amount of times a booster pack has been bought.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack.</param>
-        /// <returns>New count.</returns>
-        public static int IncrementTimesBoosterPackBought(string boosterId)
-        {
-            int boughtCount = GetTimesBoosterPackBought(boosterId);
-            int newCount = boughtCount + 1;
-
-            return SetTimesBoosterPackBought(boosterId, newCount);
-        }
-
-        /// <summary>
-        /// Set the amount of times a booster pack has been bought.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack.</param>
-        /// <param name="cost">The current cost of the booster pack.</param>
-        /// <returns>New count.</returns>
-        public static int SetLastBoosterPackCost(string boosterId, int cost)
-        {
-            return KeyValueHelper.SetExtraKeyValue($"{boosterId}_cost", cost);
-        }
-
-        /// <summary>
-        /// Set the amount of times a booster pack has been bought.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack.</param>
-        /// <param name="cost">The current cost of the booster pack.</param>
-        /// <returns>New count.</returns>
-        public static int SetLastBoosterPackStoredAmount(string boosterId, int cost)
-        {
-            return KeyValueHelper.SetExtraKeyValue($"{boosterId}_amount", cost);
-        }
-
-        /// <summary>
-        /// Set the amount of times a booster pack has been bought.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack.</param>
-        /// <param name="count">The amount of times the booster has been bought.</param>
-        /// <returns>New count.</returns>
-        public static int SetTimesBoosterPackBought(string boosterId, int count)
-        {
-            return KeyValueHelper.SetExtraKeyValue($"{boosterId}_bought", count);
-        }
-
-        /// <summary>
         /// Check whether a card should be blocked from spawning.
         /// </summary>
         /// <param name="cardId">The ID of the card to check.</param>
@@ -161,17 +102,7 @@ namespace Stacklands_Randomizer_Mod
         {
             // Block card if it exists as a mapped idea and has not yet been discovered
             return ItemMapping.Map.Exists(m => m.ItemType is ItemType.Idea && m.ItemId == cardId)
-                && !ItemHandler.IsIdeaDiscovered(cardId);
-        }
-
-        /// <summary>
-        /// Check whether a booster pack should be blocked from spawning.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack to check.</param>
-        /// <returns><see cref="true"/> if it should be blocked, <see cref="false"/> if it shouldn't.</returns>
-        public static bool ShouldBoosterPackBeBlocked(string boosterId)
-        {
-            return boosterId == "combat_intro";
+                && !ItemHelper.IsIdeaDiscovered(cardId);
         }
     }
 }

@@ -338,7 +338,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                ItemHandler.SpawnStack(Cards.gold, 25);
+                ItemHelper.SpawnStack(Cards.gold, 25);
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
@@ -570,8 +570,7 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Sync all received items from the server and spawn them if necessary.
         /// </summary>
-        /// <param name="forceCreate">Whether or not to force creation of all items.</param>
-        public void SyncAllReceivedItems(bool forceCreate)
+        public void SyncAllReceivedItems()
         {
             ModLogger.Log($"Performing re-sync of all unlocked items from server...");
 
@@ -580,7 +579,7 @@ namespace Stacklands_Randomizer_Mod
             // Add starting inventory to queue (if any)
             if (Options.StartInventory.Count > 0)
             {
-                ItemHandler.SyncItems(Options.StartInventory.Keys, forceCreate);
+                ItemHelper.SyncItems(Options.StartInventory.Keys);
             }
 
             ModLogger.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
@@ -588,7 +587,7 @@ namespace Stacklands_Randomizer_Mod
             // Add all received items from server (if any)
             if (_session.Items.AllItemsReceived.Count > 0)
             {
-                ItemHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
+                ItemHelper.SyncItems(_session.Items.AllItemsReceived);
             }
         }
 
@@ -669,7 +668,7 @@ namespace Stacklands_Randomizer_Mod
         private void Items_ItemReceived(ReceivedItemsHelper itemsHelper)
         {
             ModLogger.Log($"Item received! Adding to queue...");
-            AddToItemQueue(() => ItemHandler.ReceiveItem(itemsHelper.DequeueItem()));
+            AddToItemQueue(() => ItemHelper.ReceiveItem(itemsHelper.DequeueItem()));
         }
 
         /// <summary>
@@ -1163,7 +1162,7 @@ namespace Stacklands_Randomizer_Mod
 
             if (!string.IsNullOrWhiteSpace(unfoundBooster))
             {
-                ItemHandler.UnlockBoosterPack(unfoundBooster, true);
+                ItemHelper.UnlockBoosterPack(unfoundBooster, true);
             }
         }
 
@@ -1252,7 +1251,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            AddToItemQueue(() => ItemHandler.ReceiveItem(item.Name));
+            AddToItemQueue(() => ItemHelper.ReceiveItem(item.Name));
         }
 
         /// <summary>

@@ -105,10 +105,10 @@ namespace Stacklands_Randomizer_Mod
             #region Traps
 
             // Traps
-            new MiscItem("Feed Villagers Trap"      , string.Empty                          , ItemHandler.TriggerFeedVillagers                                  , null          ),
-            new MiscItem("Mob Trap"                 , string.Empty                          , () => ItemHandler.SpawnRandomCard(TrapMapping.MobTrapCards)       , null          ),
-            new MiscItem("Sell Cards Trap"          , string.Empty                          , ItemHandler.TriggerSellCards                                      , null          ),
-            new MiscItem("Strange Portal Trap"      , ModCards.trap_strange_portal          , () => ItemHandler.SpawnCard(ModCards.trap_strange_portal)         , null          ),
+            new MiscItem("Feed Villagers Trap"      , string.Empty                          , ItemHelper.TriggerFeedVillagers                                  , null          ),
+            new MiscItem("Mob Trap"                 , string.Empty                          , () => ItemHelper.SpawnRandomCard(TrapMapping.MobTrapCards)       , null          ),
+            new MiscItem("Sell Cards Trap"          , string.Empty                          , ItemHelper.TriggerSellCards                                      , null          ),
+            new MiscItem("Strange Portal Trap"      , ModCards.trap_strange_portal          , () => ItemHelper.SpawnCard(ModCards.trap_strange_portal)         , null          ),
 
             #endregion
         };

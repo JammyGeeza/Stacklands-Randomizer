@@ -58,7 +58,7 @@
     },
     {
       "CardBagType": "Chances",
-      "CardsInPack": 2,
+      "CardsInPack": 1,
       "Chances": [
         {
           "Id": "apple",

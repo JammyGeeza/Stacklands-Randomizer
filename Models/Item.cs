@@ -124,9 +124,9 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// The action to perform when this item is synced.
         /// </summary>
-        public Action<bool>? SyncAction { get; set; }
+        public Action? SyncAction { get; set; }
 
-        public MiscItem(string name, string itemId, Action receivedAction, Action<bool>? syncAction = null) : base(name, itemId, ItemType.Misc)
+        public MiscItem(string name, string itemId, Action receivedAction, Action? syncAction = null) : base(name, itemId, ItemType.Misc)
         {
             ReceivedAction = receivedAction;
             SyncAction = syncAction;
@@ -149,9 +149,6 @@ namespace Stacklands_Randomizer_Mod
         {
             Amount = amount;
             BoardId = board;
-
-            //ReceivedAction = () => ItemHandler.HandleStack(this);
-            //SyncAction = (bool forceCreate, Vector3? position) => ItemHandler.HandleStack(this, position);
         }
     }
 }

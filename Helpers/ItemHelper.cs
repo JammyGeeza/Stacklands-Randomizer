@@ -7,20 +7,13 @@ using UnityEngine;
 
 namespace Stacklands_Randomizer_Mod
 {
-    public static class ItemHandler
+    public static class ItemHelper
     {
         /// <summary>
-        /// Get how many times a specified item has been received in this session.
+        /// Get a random position on a board.
         /// </summary>
-        /// <param name="item">The <see cref="Item"/> to retrieve the count for.</param>
-        /// <returns>The amount of times the item has been received - returns 0 if not found.</returns>
-        private static int GetMarkedItemCount(Item item)
-        {
-            return WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair kvp
-                ? Convert.ToInt32(kvp.Value)
-                : 0;
-        }
-
+        /// <param name="board">The board to get a random position for.</param>
+        /// <returns>A randomly generated position within the board's bounds.</returns>
         private static Vector3 GetRandomBoardPosition(GameBoard board)
         {
             Bounds bounds = board.WorldBounds;
@@ -30,86 +23,6 @@ namespace Stacklands_Randomizer_Mod
             float z = Mathf.Lerp(bounds.min.z, bounds.max.z, UnityEngine.Random.Range(0.1f, 0.9f));
 
             return new Vector3(x, 0f, z);
-        }
-
-        /// <summary>
-        /// Handle an incoming <see cref="BoosterItem"/>
-        /// </summary>
-        /// <param name="booster">The booster item to be handled.</param>
-        /// <param name="forceCreate">(Optional) Bypass logic and force the booster to be unlocked.</param>
-        public static void HandleBooster(BoosterItem booster, bool forceCreate = false)
-        {
-            if (booster.Type is BoosterItem.BoosterType.Spawn)
-            {
-                SpawnBoosterPack(booster.ItemId);
-
-                // Log receipt of this item
-                MarkItemAsReceived(booster);
-            }
-            else if (booster.Type is BoosterItem.BoosterType.Unlock)
-            {
-                // Unlock booster pack if forced to create to or has not yet been discovered
-                if (forceCreate || !IsBoosterPackDiscovered(booster.ItemId))
-                {
-                    UnlockBoosterPack(booster.ItemId);
-                }
-            }
-            else
-            {
-                StacklandsRandomizer.instance.ModLogger.LogWarning($"Booster item '{booster.Name}' skipped due to un-handled booster item type.");
-            }
-        }
-
-        /// <summary>
-        /// Handle an incoming <see cref="IdeaItem"/>.
-        /// </summary>
-        /// <param name="idea">The idea item to be handled.</param>
-        /// <param name="position">(Optional) The position to spawn the item to.</param>
-        /// <param name="checkAddToStack">(Optional) Add to an existing stack if one exists in the same position.</param>
-        /// <param name="forceCreate">(Optional) Bypass logic and force the idea to be created.</param>
-        public static void HandleIdea(IdeaItem idea, Vector3? position = null, bool checkAddToStack = false, bool forceCreate = false)
-        {
-            // Spawn idea if forced to create or if idea has not been discovered yet
-            if (forceCreate || !IsIdeaDiscovered(idea.ItemId))
-            {
-                SpawnCard(idea.ItemId, position, checkAddToStack);
-            }
-        }
-
-        /// <summary>
-        /// Handle an incoming <see cref="MiscItem"/>.
-        /// </summary>
-        /// <param name="misc">The misc item to be handled.</param>
-        /// <param name="forceCreate"></param>
-        /// <param name="log"></param>
-        public static void HandleMisc(MiscItem misc, bool forceCreate = false, bool log = true)
-        {
-            // Invoke the received item action
-            misc.ReceivedAction.Invoke();
-
-            // Log receipt of item if required
-            if (log)
-            {
-                MarkItemAsReceived(misc);
-            }
-        }
-
-        /// <summary>
-        /// Handle an incoming <see cref="StackItem"/>.
-        /// </summary>
-        /// <param name="stack">The stack item to be handled.</param>
-        /// <param name="position">(Optional) The position to spawn the item to.</param>
-        /// <param name="log">(Optional) Whether to log this item as received.</param>
-        public static void HandleStack(StackItem stack, Vector3? position = null, bool log = true)
-        {
-            // Spawn idea if forced to create or if idea has not been discovered yet
-            SpawnStackToBoard(stack.BoardId, stack.ItemId, stack.Amount, position);
-
-            // Log receipt of item
-            if (log)
-            {
-                MarkItemAsReceived(stack);
-            }
         }
 
         /// <summary>
@@ -137,21 +50,21 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         /// <param name="item">The <see cref="Item"/> (of type <see cref="ItemType.Resource"/>) to be logged.</param>
         /// <param name="totaloverride">(OPTIONAL) Override the current stored total. If left blank, current total will be incremented by 1.</param>
-        public static void MarkItemAsReceived(Item item, int? totaloverride = null)
+        public static void MarkAsReceived(Item item, int? totaloverride = null)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"Marking item '{item.Name}' as received.");
 
-            //LogFillerItem(item.Name, totaloverride);
-            if (WorldManager.instance.SaveExtraKeyValues.GetWithKey(item.Name) is SerializedKeyValuePair kvp)
+            if (totaloverride is not null)
             {
-                // Add to count or override with new value, if provided
-                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, (totaloverride ?? Convert.ToInt32(kvp.Value) + 1).ToString());
+                KeyValueHelper.SetExtraKeyValue(item.Name, totaloverride.Value);
             }
             else
             {
-                // Set count as 1 or override with new value, if provided.
-                WorldManager.instance.SaveExtraKeyValues.SetOrAdd(item.Name, (totaloverride ?? 1).ToString());
+                // Get existing value and replace - incrementing if exists
+                int currentCount = KeyValueHelper.GetExtraKeyValue(item.Name);
+                KeyValueHelper.SetExtraKeyValue(item.Name, currentCount > 0 ? currentCount + 1 : 1);
             }
+
         }
 
         /// <summary>
@@ -212,7 +125,7 @@ namespace Stacklands_Randomizer_Mod
                             SpawnBoosterPack(booster.ItemId);
 
                             // Mark item as received
-                            MarkItemAsReceived(booster);
+                            MarkAsReceived(booster);
                         }
                         else
                         {
@@ -228,7 +141,7 @@ namespace Stacklands_Randomizer_Mod
                         SpawnCardToBoard(card.BoardId, card.ItemId);
 
                         // Mark item as received
-                        MarkItemAsReceived(card);
+                        MarkAsReceived(card);
                     }
                     break;
 
@@ -249,7 +162,7 @@ namespace Stacklands_Randomizer_Mod
                         misc.ReceivedAction.Invoke();
 
                         // Mark item as received
-                        MarkItemAsReceived(misc);
+                        MarkAsReceived(misc);
                     }
                     break;
 
@@ -259,7 +172,7 @@ namespace Stacklands_Randomizer_Mod
                         SpawnStackToBoard(stack.BoardId, stack.ItemId, stack.Amount);
 
                         // Mark item as received
-                        MarkItemAsReceived(stack);
+                        MarkAsReceived(stack);
                     }
                     break;
 
@@ -485,25 +398,25 @@ namespace Stacklands_Randomizer_Mod
         /// Sync a list of items to the current game save.
         /// </summary>
         /// <param name="itemNames">A list of all item names to be synced.</param>
-        public static void SyncItems(IEnumerable<string> itemNames, bool forceCreate = false)
+        public static void SyncItems(IEnumerable<string> itemNames)
         {
-            SyncItems(itemNames.Select(name => ItemMapping.Map.SingleOrDefault(m => m.Name == name)).ToArray(), forceCreate);
+            SyncItems(itemNames.Select(name => ItemMapping.Map.SingleOrDefault(m => m.Name == name)).ToArray());
         }
 
         /// <summary>
         /// Sync a list of items to the current game save.
         /// </summary>
         /// <param name="items">A list of all <see cref="ItemInfo"/> to be synced.</param>
-        public static void SyncItems(IEnumerable<ItemInfo> items, bool forceCreate = false)
+        public static void SyncItems(IEnumerable<ItemInfo> items)
         {
-            SyncItems(items.Select(item => ItemMapping.Map.SingleOrDefault(m => m.Name == item.ItemName)).ToArray(), forceCreate);
+            SyncItems(items.Select(item => ItemMapping.Map.SingleOrDefault(m => m.Name == item.ItemName)).ToArray());
         }
 
         /// <summary>
         /// Sync a list of items to the current game save.
         /// </summary>
         /// <param name="items">A list of all <see cref="Item"/> to be synced.</param>
-        public static void SyncItems(IEnumerable<Item> items, bool forceCreate = false)
+        public static void SyncItems(IEnumerable<Item> items)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"Syncing bulk set of {items.Count()} items...");
 
@@ -524,31 +437,31 @@ namespace Stacklands_Randomizer_Mod
                     // Items in singles
                     case ItemType.BoosterPack:
                         {
-                            SyncBoosters(typeGroup.Select(booster => booster as BoosterItem), forceCreate);
+                            SyncBoosters(typeGroup.Select(booster => booster as BoosterItem));
                         }
                         break;
 
                     case ItemType.Card:
                         {
-                            SyncCards(typeGroup.Select(card => card as CardItem), forceCreate);
+                            SyncCards(typeGroup.Select(card => card as CardItem));
                         }
                         break;
 
                     case ItemType.Idea:
                         {
-                            SyncIdeas(typeGroup.Select(idea => idea as IdeaItem), forceCreate);
+                            SyncIdeas(typeGroup.Select(idea => idea as IdeaItem));
                         }
                         break;
 
                     case ItemType.Misc:
                         {
-                            SyncMiscs(typeGroup.Select(misc => misc as MiscItem), forceCreate);
+                            SyncMiscs(typeGroup.Select(misc => misc as MiscItem));
                         }
                         break;
 
                     case ItemType.Stack:
                         {
-                            SyncStacks(typeGroup.Select(stack => stack as StackItem), forceCreate);
+                            SyncStacks(typeGroup.Select(stack => stack as StackItem));
                         }
                         break;
 
@@ -565,8 +478,7 @@ namespace Stacklands_Randomizer_Mod
         /// Sync booster items with current progress.
         /// </summary>
         /// <param name="boosterItems">The booster items to be synced.</param>
-        /// <param name="forceCreate">Bypass logic and force the booster items to be unlocked / created.</param>
-        private static void SyncBoosters(IEnumerable<BoosterItem> boosterItems, bool forceCreate = false)
+        private static void SyncBoosters(IEnumerable<BoosterItem> boosterItems)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"Syncing {boosterItems.Count()} booster pack items...");
 
@@ -581,10 +493,10 @@ namespace Stacklands_Randomizer_Mod
                     {
                         // Get group and session counts
                         int groupCount = spawnGroup.Count();
-                        int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
+                        int sessionCount = KeyValueHelper.GetExtraKeyValue(spawnGroup.Key);
 
-                        // If not forcing to create, check if item count matches session
-                        if (!forceCreate && groupCount <= sessionCount)
+                        // Check if group count matches session count
+                        if (groupCount <= sessionCount)
                         {
                             StacklandsRandomizer.instance.ModLogger.LogWarning($"Skipping booster item '{spawnGroup.Key}' because it has already been received {sessionCount} time(s).");
                             break;
@@ -604,7 +516,7 @@ namespace Stacklands_Randomizer_Mod
                             if (i == 0)
                             {
                                 // Mark as received and correct stored count
-                                MarkItemAsReceived(booster, groupCount);
+                                MarkAsReceived(booster, groupCount);
                             }
                         }
                     }
@@ -614,8 +526,8 @@ namespace Stacklands_Randomizer_Mod
                     // Handle each booster
                     foreach (BoosterItem booster in itemGroup)
                     {
-                        // If forcing to create or not yet discovered, unlock booster pack
-                        if (forceCreate || !IsBoosterPackDiscovered(booster.ItemId))
+                        // If not yet discovered, unlock booster pack
+                        if (!IsBoosterPackDiscovered(booster.ItemId))
                         {
                             UnlockBoosterPack(booster.ItemId);
                         }
@@ -628,8 +540,7 @@ namespace Stacklands_Randomizer_Mod
         /// Sync card items with current progress.
         /// </summary>
         /// <param name="cardItems">The card items to be synced.</param>
-        /// <param name="forceCreate">(Optional) Bypass logic and force the card items to be created.</param>
-        private static void SyncCards(IEnumerable<CardItem> cardItems, bool forceCreate = false)
+        private static void SyncCards(IEnumerable<CardItem> cardItems)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"Syncing {cardItems.Count()} card items...");
 
@@ -637,10 +548,13 @@ namespace Stacklands_Randomizer_Mod
             {
                 // Get group and session counts
                 int groupCount = itemGroup.Count();
-                int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
+                int sessionCount = KeyValueHelper.GetExtraKeyValue(itemGroup.Key);
+
+                StacklandsRandomizer.instance.ModLogger.Log($"'{itemGroup.Key}' card item has been received {groupCount} times");
+                StacklandsRandomizer.instance.ModLogger.Log($"'{itemGroup.Key}' card item has already been received {sessionCount} times");
 
                 // If not forcing to create and item count does not breach session count
-                if (!forceCreate && groupCount <= sessionCount)
+                if (groupCount <= sessionCount)
                 {
                     StacklandsRandomizer.instance.ModLogger.LogWarning($"Skipping card item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
                     break;
@@ -664,7 +578,7 @@ namespace Stacklands_Randomizer_Mod
                     if (i == 0)
                     {
                         // Mark as received and correct stored count
-                        MarkItemAsReceived(card, groupCount);
+                        MarkAsReceived(card, groupCount);
                     }
                 }
             }
@@ -674,8 +588,7 @@ namespace Stacklands_Randomizer_Mod
         /// Sync idea items with current progress.
         /// </summary>
         /// <param name="ideaItems">The idea items to be synced.</param>
-        /// <param name="forceCreate">(Optional) Bypass logic and force the idea items to be created.</param>
-        private static void SyncIdeas(IEnumerable<IdeaItem> ideaItems, bool forceCreate = false)
+        private static void SyncIdeas(IEnumerable<IdeaItem> ideaItems)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"Syncing {ideaItems.Count()} idea items...");
             
@@ -686,7 +599,7 @@ namespace Stacklands_Randomizer_Mod
             foreach (IdeaItem idea in ideaItems)
             {
                 // Spawn if forced to create or idea not yet discovered
-                if (forceCreate || !IsIdeaDiscovered(idea.ItemId))
+                if (!IsIdeaDiscovered(idea.ItemId))
                 {
                     SpawnCard(idea.ItemId, spawnPosition, true);
                 }
@@ -698,8 +611,7 @@ namespace Stacklands_Randomizer_Mod
         /// Sync misc items with current progress.
         /// </summary>
         /// <param name="miscItems">The misc items to be synced.</param>
-        /// <param name="forceCreate">(Optional) Bypass logic and force the misc items to be triggered.</param>
-        private static void SyncMiscs(IEnumerable<MiscItem> miscItems, bool forceCreate = false)
+        private static void SyncMiscs(IEnumerable<MiscItem> miscItems)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"Syncing {miscItems.Count()} misc items...");
 
@@ -707,10 +619,10 @@ namespace Stacklands_Randomizer_Mod
             {
                 // Get group and session counts
                 int groupCount = itemGroup.Count();
-                int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
+                int sessionCount = KeyValueHelper.GetExtraKeyValue(itemGroup.First().Name);
 
                 // If not forcing to create, check if item count matches session
-                if (!forceCreate && groupCount <= sessionCount)
+                if (groupCount <= sessionCount)
                 {
                     StacklandsRandomizer.instance.ModLogger.LogWarning($"Skipping misc item '{itemGroup.Key}' because it has already been received {sessionCount} time(s).");
                     break;
@@ -723,13 +635,13 @@ namespace Stacklands_Randomizer_Mod
                 {
                     // Get misc item and invoke sync action
                     MiscItem misc = itemGroup.ElementAt(i);
-                    misc.SyncAction?.Invoke(forceCreate);
+                    misc.SyncAction?.Invoke();
 
                     // If first in list
                     if (i == 0)
                     {
                         // Mark as received and correct stored count
-                        MarkItemAsReceived(misc, groupCount);
+                        MarkAsReceived(misc, groupCount);
                     }
                 }
             }
@@ -748,7 +660,7 @@ namespace Stacklands_Randomizer_Mod
             { 
                 // Get group and session counts
                 int groupCount = itemGroup.Count();
-                int sessionCount = !forceCreate ? GetMarkedItemCount(itemGroup.First()) : 0;
+                int sessionCount = KeyValueHelper.GetExtraKeyValue(itemGroup.First().Name);
 
                 // If not forcing to create, check if item count matches session
                 if (!forceCreate && groupCount <= sessionCount)
@@ -768,7 +680,7 @@ namespace Stacklands_Randomizer_Mod
                     SpawnStackToBoard(stack.BoardId, stack.ItemId, stack.Amount);
 
                     // Mark item as received and override receive count to ensure correct value
-                    MarkItemAsReceived(stack, i);
+                    MarkAsReceived(stack, i);
                 }
             }
         }

@@ -8,16 +8,6 @@ namespace Stacklands_Randomizer_Mod
     [HarmonyPatch(typeof(BuyBoosterBox))]
     public class BuyBoosterBox_Patches
     {
-        [HarmonyPatch("Update")]
-        [HarmonyPrefix]
-        public static void OnAwake_Test(BuyBoosterBox __instance)
-        {
-            if (__instance.BoosterId == ModBoosterPacks.spendsanity)
-            {
-                //StacklandsRandomizer.instance.ModLogger.Log($"{ModBoosterPacks.spendsanity} cost: {__instance.GetCurrentCost()}");
-            }
-        }
-
         /// <summary>
         /// Intercept mod boxes from receiving cards.
         /// </summary>
@@ -26,8 +16,7 @@ namespace Stacklands_Randomizer_Mod
         public static bool OnCanHaveCard_PreventCards(BuyBoosterBox __instance, ref bool __result)
         {
             // If spendsanity is on and this booster box is the spendsanity box
-            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off
-                && __instance.BoosterId == ModBoosterPacks.spendsanity)
+            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off && __instance.BoosterId == ModBoosterPacks.spendsanity)
             {
                 // Reject all cards if maximum purchase count reached
                 __result =
@@ -39,25 +28,6 @@ namespace Stacklands_Randomizer_Mod
 
             // Continue as normal
             return true;
-        }
-
-        /// <summary>
-        /// Intercept mod boxes from receiving cards.
-        /// </summary>
-        [HarmonyPatch(nameof(BuyBoosterBox.CardDropped))]
-        [HarmonyPostfix]
-        public static void OnCardDropped_StoreCosts(BuyBoosterBox __instance)
-        {
-            // If spendsanity is on and this booster box is the spendsanity box
-            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off && __instance.BoosterId == ModBoosterPacks.spendsanity)
-            {
-                StacklandsRandomizer.instance.ModLogger.Log($"{nameof(BuyBoosterBox)}.{nameof(BuyBoosterBox.CardDropped)} Postfix!");
-                //StacklandsRandomizer.instance.ModLogger.Log($"Last known cost of '{ModBoosterPacks.spendsanity}': {__instance.GetCurrentCost()}");
-
-                // Store the current known remaining cost in extra keys
-                //CommonPatchMethods.SetLastBoosterPackCost(ModBoosterPacks.spendsanity, __instance.Cost);
-                //CommonPatchMethods.SetLastBoosterPackStoredAmount(ModBoosterPacks.spendsanity, __instance.StoredCostAmount);
-            }
         }
 
         /// <summary>
@@ -96,10 +66,6 @@ namespace Stacklands_Randomizer_Mod
                 // Prevent source method from being invoked
                 return false;
             }
-
-            // Store new cost
-            //CommonPatchMethods.SetLastBoosterPackCost(ModBoosterPacks.spendsanity, __instance.Cost);
-            //CommonPatchMethods.SetLastBoosterPackStoredAmount(ModBoosterPacks.spendsanity, __instance.StoredCostAmount);
 
             // Continue as normal
             return true;

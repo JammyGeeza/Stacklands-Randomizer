@@ -2,7 +2,7 @@
   "$schema": "../Schemas/boosterpack.schema.json",
   "id": "ap_spendsanity",
   "nameTerm": "ap_spendsanity_name",
-  "cost": 3,
+  "cost": 5,
   "icon": "archipelago.png",
   "location": "Mainland",
   "minQuestCount": 0,
