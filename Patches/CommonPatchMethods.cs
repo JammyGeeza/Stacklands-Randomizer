@@ -45,14 +45,25 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Get the amount of times a booster pack has been bought in this save.
+        /// Get the last stored amount of a booster pack in this save.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack.</param>
+        public static int GetLastBoosterPackStoredamount(string boosterId)
+        {
+            // Get bought key for booster id
+            int value = KeyValueHelper.GetExtraKeyValue($"{boosterId}_amount");
+
+            // Return 0 if not found
+            return value < 0 ? 0 : value;
+        }
+
+        /// <summary>
+        /// Get the amount of times a booster pack has been bought in this run.
         /// </summary>
         /// <param name="boosterId">The ID of the booster pack.</param>
         public static int GetTimesBoosterPackBought(string boosterId)
         {
-            return WorldManager.instance.SaveExtraKeyValues.GetWithKey(boosterId) is SerializedKeyValuePair kvp
-                ? Convert.ToInt32(kvp.Value)
-                : 0;
+            return WorldManager.instance.CurrentSave.LastPlayedRound.BoughtBoosterIds.Count(b => b == boosterId);
         }
 
         /// <summary>
@@ -112,13 +123,33 @@ namespace Stacklands_Randomizer_Mod
         /// Set the amount of times a booster pack has been bought.
         /// </summary>
         /// <param name="boosterId">The ID of the booster pack.</param>
+        /// <param name="cost">The current cost of the booster pack.</param>
+        /// <returns>New count.</returns>
+        public static int SetLastBoosterPackCost(string boosterId, int cost)
+        {
+            return KeyValueHelper.SetExtraKeyValue($"{boosterId}_cost", cost);
+        }
+
+        /// <summary>
+        /// Set the amount of times a booster pack has been bought.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack.</param>
+        /// <param name="cost">The current cost of the booster pack.</param>
+        /// <returns>New count.</returns>
+        public static int SetLastBoosterPackStoredAmount(string boosterId, int cost)
+        {
+            return KeyValueHelper.SetExtraKeyValue($"{boosterId}_amount", cost);
+        }
+
+        /// <summary>
+        /// Set the amount of times a booster pack has been bought.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack.</param>
         /// <param name="count">The amount of times the booster has been bought.</param>
         /// <returns>New count.</returns>
         public static int SetTimesBoosterPackBought(string boosterId, int count)
         {
-            WorldManager.instance.SaveExtraKeyValues.SetOrAdd(boosterId, count.ToString());
-
-            return count;
+            return KeyValueHelper.SetExtraKeyValue($"{boosterId}_bought", count);
         }
 
         /// <summary>

@@ -8,8 +8,60 @@ namespace Stacklands_Randomizer_Mod
     [HarmonyPatch(typeof(BuyBoosterBox))]
     public class BuyBoosterBox_Patches
     {
+        [HarmonyPatch("Update")]
+        [HarmonyPrefix]
+        public static void OnAwake_Test(BuyBoosterBox __instance)
+        {
+            if (__instance.BoosterId == ModBoosterPacks.spendsanity)
+            {
+                //StacklandsRandomizer.instance.ModLogger.Log($"{ModBoosterPacks.spendsanity} cost: {__instance.GetCurrentCost()}");
+            }
+        }
+
         /// <summary>
-        /// Intercept AP Check Booster Box from dispensing packs.
+        /// Intercept mod boxes from receiving cards.
+        /// </summary>
+        [HarmonyPatch(nameof(BuyBoosterBox.CanHaveCard))]
+        [HarmonyPrefix]
+        public static bool OnCanHaveCard_PreventCards(BuyBoosterBox __instance, ref bool __result)
+        {
+            // If spendsanity is on and this booster box is the spendsanity box
+            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off
+                && __instance.BoosterId == ModBoosterPacks.spendsanity)
+            {
+                // Reject all cards if maximum purchase count reached
+                __result =
+                    CommonPatchMethods.GetTimesBoosterPackBought(ModBoosterPacks.spendsanity) < StacklandsRandomizer.instance.Options.SpendsanityCount;
+
+                // Prevent source method from being called
+                return false;
+            }
+
+            // Continue as normal
+            return true;
+        }
+
+        /// <summary>
+        /// Intercept mod boxes from receiving cards.
+        /// </summary>
+        [HarmonyPatch(nameof(BuyBoosterBox.CardDropped))]
+        [HarmonyPostfix]
+        public static void OnCardDropped_StoreCosts(BuyBoosterBox __instance)
+        {
+            // If spendsanity is on and this booster box is the spendsanity box
+            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off && __instance.BoosterId == ModBoosterPacks.spendsanity)
+            {
+                StacklandsRandomizer.instance.ModLogger.Log($"{nameof(BuyBoosterBox)}.{nameof(BuyBoosterBox.CardDropped)} Postfix!");
+                //StacklandsRandomizer.instance.ModLogger.Log($"Last known cost of '{ModBoosterPacks.spendsanity}': {__instance.GetCurrentCost()}");
+
+                // Store the current known remaining cost in extra keys
+                //CommonPatchMethods.SetLastBoosterPackCost(ModBoosterPacks.spendsanity, __instance.Cost);
+                //CommonPatchMethods.SetLastBoosterPackStoredAmount(ModBoosterPacks.spendsanity, __instance.StoredCostAmount);
+            }
+        }
+
+        /// <summary>
+        /// Intercept mod booster boxes from dispensing packs.
         /// </summary>
         [HarmonyPatch("CreateBoosterPack")]
         [HarmonyPrefix]
@@ -18,30 +70,38 @@ namespace Stacklands_Randomizer_Mod
             // If booster box is for the AP Check booster pack
             if (__instance.BoosterId == ModBoosterPacks.spendsanity)
             {
-                // Increment bought count
-                int boughtCount = CommonPatchMethods.IncrementTimesBoosterPackBought(__instance.BoosterId);
+                // Add as a bought booster
+                WorldManager.instance.CurrentSave.LastPlayedRound.BoughtBoosterIds.Add(ModBoosterPacks.spendsanity);
+
+                // Get total bought count for this pack
+                int boughtCount = WorldManager.instance.CurrentSave.LastPlayedRound.BoughtBoosterIds.Count(b => b == ModBoosterPacks.spendsanity);
 
                 // Fire special action to trigger check
                 QuestManager.instance.SpecialActionComplete($"buy_{ModBoosterPacks.spendsanity}_pack");
 
-                // Check if maximum reached
+                // Check if maximum purchase count not yet reached
                 if (boughtCount < StacklandsRandomizer.instance.Options.SpendsanityCount)
                 {
-                    // Increase cost if incremental spendsanity mode
-                    if (StacklandsRandomizer.instance.Options.Spendsanity is Spendsanity.Incremental)
+                    switch (StacklandsRandomizer.instance.Options.Spendsanity)
                     {
-                        __instance.Cost += StacklandsRandomizer.instance.Options.SpendsanityCost;
+                        case Spendsanity.Incremental:
+                            {
+                                // Incrementally increase cost if configured to do so
+                                __instance.Cost += StacklandsRandomizer.instance.Options.SpendsanityCost;
+                            }
+                            break;
                     }
                 }
-                else
-                {
-                    __instance.enabled = false;
-                }
 
-                // Prevent original method actions
+                // Prevent source method from being invoked
                 return false;
             }
 
+            // Store new cost
+            //CommonPatchMethods.SetLastBoosterPackCost(ModBoosterPacks.spendsanity, __instance.Cost);
+            //CommonPatchMethods.SetLastBoosterPackStoredAmount(ModBoosterPacks.spendsanity, __instance.StoredCostAmount);
+
+            // Continue as normal
             return true;
         }
     }
