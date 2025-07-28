@@ -53,6 +53,15 @@ namespace Stacklands_Randomizer_Mod
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
 
+            // If pausing is disabled, remove pausing quest
+            if (!StacklandsRandomizer.instance.Options.PauseTimeEnabled)
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Removing pausing quest...");
+
+                // Remove pausing quest
+                __result.Remove(AllQuests.PauseGame);
+            }
+
             // If mobsanity enabled, add mobsanity quests
             if (StacklandsRandomizer.instance.Options.MobsanityEnabled)
             {

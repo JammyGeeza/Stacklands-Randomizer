@@ -50,19 +50,7 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="boosterId">The ID of the booster pack.</param>
         public static int GetTimesBoosterPackBought(string boosterId)
         {
-            int boughtCount = WorldManager.instance.BoughtBoosterIds.Count(b => b == boosterId);
-
-            StacklandsRandomizer.instance.ModLogger.Log($"Times booster '{boosterId}' bought: {boughtCount}");
-
-            return boughtCount;
-            //try
-            //{
-            //    // LastPlayedRound might not exist here if this is a brand new session
-            //}
-            //catch
-            //{
-            //    return 0;
-            //}
+            return WorldManager.instance.BoughtBoosterIds.Count(b => b == boosterId);
         }
 
         /// <summary>

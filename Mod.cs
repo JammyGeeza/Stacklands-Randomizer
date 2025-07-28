@@ -50,6 +50,7 @@ namespace Stacklands_Randomizer_Mod
         private ConfigEntry<string> host;
         private ConfigEntry<string> slotName;
         private ConfigEntry<string> password;
+        private ConfigEntry<bool> autoConnect;
         private ConfigEntry<bool> attemptConnection;
         private ConfigEntry<bool> sendGoal;
         private ConfigEntry<bool> deathlink;
@@ -162,6 +163,14 @@ namespace Stacklands_Randomizer_Mod
             attemptConnection = Config.GetEntry<bool>("Attempt Connect", false);
             attemptConnection.UI.Hidden = true;
 
+            // Auto-connect when game boots
+            autoConnect = Config.GetEntry<bool>("Auto-Connect", false);
+            autoConnect.UI.Tooltip = "Attempt to auto-connect on game boot";
+            autoConnect.UI.OnUI = (ConfigEntryBase entry) =>
+            {
+                
+            };
+
             // Hide 'Send Goal' toggle to replace with a button and set up event to create all buttons
             sendGoal = Config.GetEntry<bool>("Send Goal", false);
             sendGoal.UI.Hidden = true;
@@ -187,6 +196,7 @@ namespace Stacklands_Randomizer_Mod
 
             sendGoal.UI.OnUI = (ConfigEntryBase entry) =>
             {
+                // Add custom button to connect
                 CustomButton connectButton = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
                 connectButton.transform.localScale = Vector3.one;
                 connectButton.transform.localPosition = Vector3.zero;
@@ -196,6 +206,7 @@ namespace Stacklands_Randomizer_Mod
                 connectButton.TooltipText = "Attempt to connect to the archipelago server.";
                 connectButton.Clicked += ConnectButton_Clicked;
 
+                // Add custom button to disconnect
                 CustomButton disconnectButton = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
                 disconnectButton.transform.localScale = Vector3.one;
                 disconnectButton.transform.localPosition = Vector3.zero;
@@ -205,6 +216,16 @@ namespace Stacklands_Randomizer_Mod
                 disconnectButton.TooltipText = "Disconnect from the Archipelago server";
                 disconnectButton.Clicked += DisconnectButton_Clicked;
 
+                // Add a spacer
+                CustomButton spacerOne = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
+                spacerOne.transform.localScale = Vector3.one;
+                spacerOne.transform.localPosition = Vector3.zero;
+                spacerOne.transform.localRotation = Quaternion.identity;
+
+                spacerOne.TextMeshPro.text = "";
+                spacerOne.ButtonEnabled = false;
+
+                // Add custom button for sending goal
                 CustomButton sendGoalButton = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
                 sendGoalButton.transform.localScale = Vector3.one;
                 sendGoalButton.transform.localPosition = Vector3.zero;
@@ -213,12 +234,21 @@ namespace Stacklands_Randomizer_Mod
                 sendGoalButton.TextMeshPro.text = "Send Goal";
                 sendGoalButton.TooltipText = "Send victory condition, if completed. (TEMPORARY SOLUTION)";
                 sendGoalButton.Clicked += SendGoalButton_Clicked;
+
+                // Add a second spacer
+                CustomButton spacerTwo = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
+                spacerTwo.transform.localScale = Vector3.one;
+                spacerTwo.transform.localPosition = Vector3.zero;
+                spacerTwo.transform.localRotation = Quaternion.identity;
+
+                spacerTwo.TextMeshPro.text = "";
+                spacerTwo.ButtonEnabled = false;
             };
 
             
 
-            // If 'Attempt Connect' value is true, attempt to connect to the AP server
-            if (attemptConnection.Value)
+            // If 'Auto-Connect' or 'Attempt Connect' value is true, attempt to connect to the AP server
+            if (autoConnect.Value || attemptConnection.Value)
             {
                 // Change 'Attempt Connect' value back to false to prevent a re-attempt on next game load
                 attemptConnection.Value = false;
@@ -565,8 +595,6 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
-        
-
         /// <summary>
         /// Sync all received items from the server and spawn them if necessary.
         /// </summary>
@@ -636,8 +664,11 @@ namespace Stacklands_Randomizer_Mod
             ModLogger.Log($"Password: {password.Value}");
 
             // Set 'Attempt Connection' value to true to trigger a connection attempt
-            attemptConnection.Value = true;
-            Config.Save();
+            if (!IsConnected)
+            {
+                attemptConnection.Value = true;
+                Config.Save();
+            }
         }
 
         /// <summary>
