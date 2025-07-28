@@ -34,8 +34,6 @@ namespace Stacklands_Randomizer_Mod
 
             foreach (IGrouping<string, Quest> group in questGroups)
             {
-                StacklandsRandomizer.instance.ModLogger.Log($"Handling quest group: {group.Key}");
-
                 if (addLabels)
                 {
                     // Create expandable section

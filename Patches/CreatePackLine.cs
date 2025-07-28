@@ -16,6 +16,8 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPrefix]
         public static void OnCreateBoosterBoxes_AddCustomBoosters(CreatePackLine __instance, ref List<string> boosters, ref BoardCurrency currency)
         {
+            StacklandsRandomizer.instance.ModLogger.Log("CreateBoosterBoxes Prefix!");
+
             // Insert booster pack if speedsanity enabled.
             if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off)
             {

@@ -36,8 +36,11 @@ namespace Stacklands_Randomizer_Mod
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.ClearSaveAndRestart)} Postfix!");
 
-            // Re-sync all items with server
-            StacklandsRandomizer.instance.SyncAllReceivedItems();
+            // If spendsanity is enabled, add to found boosters if not already (which it shouldn't be, as the save has been cleared!)
+            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off && !WorldManager.instance.CurrentSave.FoundBoosterIds.Contains(ModBoosterPacks.spendsanity))
+            {
+                WorldManager.instance.CurrentSave.FoundBoosterIds.Add(ModBoosterPacks.spendsanity);
+            }
         }
 
         /// <summary>
@@ -220,7 +223,7 @@ namespace Stacklands_Randomizer_Mod
             await StacklandsRandomizer.instance.SendAllCompletedLocations();
 
             // Re-sync all received items
-            StacklandsRandomizer.instance.SyncAllReceivedItems();
+            StacklandsRandomizer.instance.SyncAllReceivedItems(_isNewRun);
 
             // Reset value
             _isNewRun = false;
@@ -241,13 +244,34 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// When a new game is started, retrieve .
+        /// When a new round is started, gather information about the current run before the run is cleared.
+        /// </summary>
+        [HarmonyPatch(nameof(WorldManager.StartNewRound))]
+        [HarmonyPrefix]
+        public static void OnStartNewRound_Prefix(ref WorldManager __instance, out int __state)
+        {
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.StartNewRound)} Prefix!");
+
+            // Pass how many times spendsanity pack has been purchased in the last run (if Spendsanity enabled)
+            __state = StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off
+                ? WorldManager.instance.CurrentSave.LastPlayedRound.BoughtBoosterIds.Count(b => b == ModBoosterPacks.spendsanity)
+                : 0;
+        }
+
+        /// <summary>
+        /// When a new round is started, re-enter stored information about the previous run.
         /// </summary>
         [HarmonyPatch(nameof(WorldManager.StartNewRound))]
         [HarmonyPostfix]
-        public static void OnStartNewRound_SendAllCompletedLocations(ref WorldManager __instance)
+        public static void OnStartNewRound_Postfix(ref WorldManager __instance, int __state)
         {
-            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.StartNewRound)} Prefix!");
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.StartNewRound)} Postfix!");
+
+            // Re-insert bought spendsanity boosters, if any
+            for (int i = 0; i < __state; i++)
+            {
+                WorldManager.instance.BoughtBoosterIds.Add(ModBoosterPacks.spendsanity);
+            }
 
             // Set 'is new game' to true
             _isNewRun = true;

@@ -41,10 +41,10 @@ namespace Stacklands_Randomizer_Mod
             if (__instance.BoosterId == ModBoosterPacks.spendsanity)
             {
                 // Add as a bought booster
-                WorldManager.instance.CurrentSave.LastPlayedRound.BoughtBoosterIds.Add(ModBoosterPacks.spendsanity);
+                WorldManager.instance.BoughtBoosterIds.Add(ModBoosterPacks.spendsanity);
 
                 // Get total bought count for this pack
-                int boughtCount = WorldManager.instance.CurrentSave.LastPlayedRound.BoughtBoosterIds.Count(b => b == ModBoosterPacks.spendsanity);
+                int boughtCount = WorldManager.instance.BoughtBoosterIds.Count(b => b == ModBoosterPacks.spendsanity);
 
                 // Fire special action to trigger check
                 QuestManager.instance.SpecialActionComplete($"buy_{ModBoosterPacks.spendsanity}_pack");

@@ -398,25 +398,28 @@ namespace Stacklands_Randomizer_Mod
         /// Sync a list of items to the current game save.
         /// </summary>
         /// <param name="itemNames">A list of all item names to be synced.</param>
-        public static void SyncItems(IEnumerable<string> itemNames)
+        /// <param name="isNewRun">Whether this sync is for a new run - if so, certain items will be force-spawned.</param>
+        public static void SyncItems(IEnumerable<string> itemNames, bool isNewRun = false)
         {
-            SyncItems(itemNames.Select(name => ItemMapping.Map.SingleOrDefault(m => m.Name == name)).ToArray());
+            SyncItems(itemNames.Select(name => ItemMapping.Map.SingleOrDefault(m => m.Name == name)).ToArray(), isNewRun);
         }
 
         /// <summary>
         /// Sync a list of items to the current game save.
         /// </summary>
         /// <param name="items">A list of all <see cref="ItemInfo"/> to be synced.</param>
-        public static void SyncItems(IEnumerable<ItemInfo> items)
+        /// <param name="isNewRun">Whether this sync is for a new run - if so, certain items will be force-spawned.</param>
+        public static void SyncItems(IEnumerable<ItemInfo> items, bool isNewRun = false)
         {
-            SyncItems(items.Select(item => ItemMapping.Map.SingleOrDefault(m => m.Name == item.ItemName)).ToArray());
+            SyncItems(items.Select(item => ItemMapping.Map.SingleOrDefault(m => m.Name == item.ItemName)).ToArray(), isNewRun);
         }
 
         /// <summary>
         /// Sync a list of items to the current game save.
         /// </summary>
         /// <param name="items">A list of all <see cref="Item"/> to be synced.</param>
-        public static void SyncItems(IEnumerable<Item> items)
+        /// <param name="isNewRun">Whether this sync is for a new run - if so, certain items will be force-spawned.</param>
+        public static void SyncItems(IEnumerable<Item> items, bool isNewRun = false)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"Syncing bulk set of {items.Count()} items...");
 
@@ -449,7 +452,7 @@ namespace Stacklands_Randomizer_Mod
 
                     case ItemType.Idea:
                         {
-                            SyncIdeas(typeGroup.Select(idea => idea as IdeaItem));
+                            SyncIdeas(typeGroup.Select(idea => idea as IdeaItem), isNewRun);
                         }
                         break;
 
@@ -588,7 +591,8 @@ namespace Stacklands_Randomizer_Mod
         /// Sync idea items with current progress.
         /// </summary>
         /// <param name="ideaItems">The idea items to be synced.</param>
-        private static void SyncIdeas(IEnumerable<IdeaItem> ideaItems)
+        /// <param name="isNewRun">Whether this sync is for a new run - if so, will force-spawn the idea cards.</param>
+        private static void SyncIdeas(IEnumerable<IdeaItem> ideaItems, bool isNewRun = false)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"Syncing {ideaItems.Count()} idea items...");
             
@@ -599,7 +603,7 @@ namespace Stacklands_Randomizer_Mod
             foreach (IdeaItem idea in ideaItems)
             {
                 // Spawn if forced to create or idea not yet discovered
-                if (!IsIdeaDiscovered(idea.ItemId))
+                if (isNewRun || !IsIdeaDiscovered(idea.ItemId))
                 {
                     SpawnCard(idea.ItemId, spawnPosition, true);
                 }

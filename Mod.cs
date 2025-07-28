@@ -570,7 +570,8 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// Sync all received items from the server and spawn them if necessary.
         /// </summary>
-        public void SyncAllReceivedItems()
+        /// <param name="isNewRun">Whether this sync is for a new run - if so, certain items will be force-spawned.</param>
+        public void SyncAllReceivedItems(bool isNewRun = false)
         {
             ModLogger.Log($"Performing re-sync of all unlocked items from server...");
 
@@ -579,7 +580,7 @@ namespace Stacklands_Randomizer_Mod
             // Add starting inventory to queue (if any)
             if (Options.StartInventory.Count > 0)
             {
-                ItemHelper.SyncItems(Options.StartInventory.Keys);
+                ItemHelper.SyncItems(Options.StartInventory.Keys, isNewRun);
             }
 
             ModLogger.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
@@ -587,7 +588,7 @@ namespace Stacklands_Randomizer_Mod
             // Add all received items from server (if any)
             if (_session.Items.AllItemsReceived.Count > 0)
             {
-                ItemHelper.SyncItems(_session.Items.AllItemsReceived);
+                ItemHelper.SyncItems(_session.Items.AllItemsReceived, isNewRun);
             }
         }
 
