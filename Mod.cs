@@ -244,7 +244,6 @@ namespace Stacklands_Randomizer_Mod
                 spacerTwo.TextMeshPro.text = "";
                 spacerTwo.ButtonEnabled = false;
             };
-
             
 
             // If 'Auto-Connect' or 'Attempt Connect' value is true, attempt to connect to the AP server

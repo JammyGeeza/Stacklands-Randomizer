@@ -31,6 +31,15 @@ namespace Stacklands_Randomizer_Mod
             "structures"
         ];
 
+        public static readonly List<string> ISLAND_PACKS = [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+        ];
+
         private static readonly string PREFIX_SAVE = "ap_";
 
         private static string SaveId => $"{PREFIX_SAVE}{StacklandsRandomizer.instance.Seed}";
@@ -48,9 +57,37 @@ namespace Stacklands_Randomizer_Mod
         /// Get the amount of times a booster pack has been bought in this run.
         /// </summary>
         /// <param name="boosterId">The ID of the booster pack.</param>
+        /// <returns>Total amount of times a pack has been bought in this run.</returns>
         public static int GetTimesBoosterPackBought(string boosterId)
         {
             return WorldManager.instance.BoughtBoosterIds.Count(b => b == boosterId);
+        }
+
+        /// <summary>
+        /// Get the total amount of times cards have been sold in this run.
+        /// </summary>
+        /// <returns>Total amount of times cards have been sold in this run.</returns>
+        public static int GetTimesCardsSold()
+        {
+            return KeyValueHelper.GetExtraKeyValue("cardsSold");
+        }
+
+        /// <summary>
+        /// Get the amount of times any booster packs for mainland have been bought in this run.
+        /// </summary>
+        /// <returns>Total amount of times any booster packs for Mainland have been bought in this run..</returns>
+        public static int GetTimesIslandBoosterPacksBought()
+        {
+            return ISLAND_PACKS.Sum(GetTimesBoosterPackBought);
+        }
+
+        /// <summary>
+        /// Get the amount of times any booster packs for mainland have been bought in this run.
+        /// </summary>
+        /// <returns>Total amount of times any booster packs for Mainland have been bought in this run..</returns>
+        public static int GetTimesMainlandBoosterPacksBought()
+        {
+            return MAINLAND_PACKS.Sum(GetTimesBoosterPackBought);
         }
 
         /// <summary>
