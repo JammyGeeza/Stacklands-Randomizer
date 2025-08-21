@@ -1,7 +1,7 @@
 {
   "$schema": "../Schemas/boosterpack.schema.json",
-  "id": "ap_resource",
-  "nameTerm": "ap_resource_name",
+  "id": "ap_island_resource_resource",
+  "nameTerm": "ap_island_resource_name",
   "cost": 0,
   "icon": "archipelago.png",
   "location": "Archipelago",

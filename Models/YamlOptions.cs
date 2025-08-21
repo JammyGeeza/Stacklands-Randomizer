@@ -139,6 +139,11 @@ namespace Stacklands_Randomizer_Mod
                 GoalQuests.Add(AllQuests.FightWickedWitch);
             }
 
+            if (Goal.HasFlag(GoalFlags.Kill_the_Demon_Lord))
+            {
+                GoalQuests.Add(AllQuests.KillDemonLord);
+            }
+
             StacklandsRandomizer.instance.ModLogger.Log($"Goal Quests for this run: {string.Join(", ", GoalQuests.Select(gq => gq.Id))}");
 
             PauseTimeEnabled = slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)

@@ -9,12 +9,15 @@ In an archipelago randomized run of Stacklands, all quests are Location Checks a
 ### Goals
 - Complete the **Kill the Demon** quest on Mainland
 - Complete the **Fight the Wicked Witch** quest on The Dark Forest
-- Complete both of the aboce
+- Complete the **Kill the Demon Lord** quest on The Island
+- Complete a combination of some / all of the above (Mainland always included)
 
 ### Location Checks
 - All **Mainland** Quests
-- All **The Dark Forest** Quests
-- **Mobsanity** Quests _(killing one of each enemy type)_
+- All **The Dark Forest**
+- All **The Island** Quests
+- Additional basic custom-made quests for each region _(to help add more slots for filler / traps)_
+- **Mobsanity** Quests _(killing one of each enemy type from each included region)_
 - _More coming soon..._
 
 ### Progression Items
@@ -40,7 +43,7 @@ In an archipelago randomized run of Stacklands, all quests are Location Checks a
 ## Current In-Game Support
 - Mainland _(full support)_
 - The Dark Forest _(full support)_
-- ~~The Island~~ _(coming soon...)_
+- The Island _(full support)_
 - ~~Stacklands 2000 DLC~~ _(not yet planned)_
 - ~~Cursed Worlds DLC~~ _(not yet planned)_
 

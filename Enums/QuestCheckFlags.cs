@@ -11,5 +11,6 @@ namespace Stacklands_Randomizer_Mod
         None                    = 0,
         Kill_the_Demon          = 1 << 0,
         Kill_the_Wicked_Witch   = 1 << 1,
+        Kill_the_Demon_Lord     = 1 << 2,
     }
 }

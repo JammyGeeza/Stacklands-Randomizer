@@ -10,6 +10,8 @@ namespace Stacklands_Randomizer_Mod
 
         public static readonly string spendsanity = $"{PREFIX}spendsanity";
 
-        public static readonly string resource = $"{PREFIX}resource";
+        public static readonly string island_resource = $"{PREFIX}_island_resource";
+
+        public static readonly string mainland_resource = $"{PREFIX}_mainland_resource";
     }
 }
