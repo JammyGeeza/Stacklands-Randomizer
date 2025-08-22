@@ -8,18 +8,18 @@ namespace Stacklands_Randomizer_Mod.Constants
     {
         public static readonly string[] List = 
         [
-            AllQuests.BuildARowboat.Id,                  // Build a Rowboat
-            AllQuests.BuildACathedral.Id,                // Build a Cathedral
-            AllQuests.BringIslandRelicToCathedral.Id,    // Bring the Island Relic to the Cathedral
+            //AllQuests.BuildARowboat.Id,                  // Build a Rowboat
+            //AllQuests.BuildACathedral.Id,                // Build a Cathedral
+            //AllQuests.BringIslandRelicToCathedral.Id,    // Bring the Island Relic to the Cathedral
             AllQuests.FindDeathWorld.Id,                 // Figure out how to summon the Spirit of Death
             AllQuests.FindGreedWorld.Id,                 // Figure out how to summon the Spirit of Greed
             AllQuests.FindHappinessWorld.Id,             // Figure out how to summon the Spirit of Happiness
-            AllQuests.KillDemonLord.Id,                  // Kill the Demon Lord
+            //AllQuests.KillDemonLord.Id,                  // Kill the Demon Lord
             AllQuests.CreateAltar.Id,                    // Talk to the Shaman to gain secret knowledge
             AllQuests.CitiesGetBar.Id,                   // Smelt some Ore
-            AllQuests.BreakBottle.Id,                    // Break a Bottle
-            AllQuests.WearCrabScaleArmor.Id,             // Make a Villager Wear Crab Scale Armor
-            AllQuests.CraftAmuletForest.Id               // Craft the Amulet of the Forest
+            //AllQuests.BreakBottle.Id,                    // Break a Bottle
+            //AllQuests.WearCrabScaleArmor.Id,             // Make a Villager Wear Crab Scale Armor
+            //AllQuests.CraftAmuletForest.Id               // Craft the Amulet of the Forest
         ];
     }
 }

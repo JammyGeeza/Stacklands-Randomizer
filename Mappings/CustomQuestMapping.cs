@@ -8,8 +8,8 @@ namespace Stacklands_Randomizer_Mod
     {
         public static readonly List<Quest> Map = new()
         {
-            /* ----- Additional Mainland Quests ----- */
-            
+            #region Additional Mainland Quests
+
             // Booster Packs
             new("buy_idea_booster")                   { OnSpecialAction = (string action) => action == $"buy_idea_pack"         , PossibleInPeacefulMode = true      , QuestGroup = QuestGroup.Starter},
             new("buy_farming_booster")                { OnSpecialAction = (string action) => action == $"buy_farming_pack"      , PossibleInPeacefulMode = true      , QuestGroup = QuestGroup.Starter},
@@ -32,40 +32,6 @@ namespace Stacklands_Randomizer_Mod
             new("get_5_villagers")                    { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount<BaseVillager>() == 5                   , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.MainQuest     , RequiredCount = 5},
             new("get_7_villagers")                    { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount<BaseVillager>() == 7                   , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.MainQuest     , RequiredCount = 7},
             
-            // Structures
-            new("build_coin_chest")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_coinchest && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_garden")                       { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_garden && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_hotpot")                       { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_hotpot && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_iron_mine")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_mine && action == "finish_blueprint"            , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_market")                       { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_market && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_resource_chest")               { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_resourcechest && action == "finish_blueprint"   , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_sawmill")                      { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_sawmill && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_smelter")                      { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_smelting && action == "finish_blueprint"        , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_stove")                        { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_stove && action == "finish_blueprint"           , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            new("build_warehouse")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_warehouse && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Building},
-            
-            // Equipment
-            new("make_bone_spear")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_bone_spear && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_boomerang")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_boomerang && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_club")                          { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_club && action == "finish_blueprint"            , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_chainmail_armor")               { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_chainmail_armor && action == "finish_blueprint" , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_iron_shield")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_iron_shield && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_magic_blade")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_blade && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_magic_ring")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_ring && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_magic_staff")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_staff && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_magic_tome")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_tome && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_magic_wand")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_wand && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_slingshot")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_slingshot && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_spear")                         { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_woodenweapons && action == "finish_blueprint"   , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_spiked_plank")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_spiked_plank && action == "finish_blueprint"    , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_sword")                         { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_ironweapons && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_throwing_stars")                { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_throwing_star && action == "finish_blueprint"   , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            new("make_wooden_shield")                 { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_wooden_shield && action == "finish_blueprint"   , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Equipment},
-            
-            // Cooking
-            new("make_stew")                          { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_stew && action == "finish_blueprint"            , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Cooking},
-            new("make_fruit_salad")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_fruitsalad && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Cooking},
-            new("make_milkshake")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_milkshake && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Cooking},
 
             // Resources
             new("have_10_bricks")                     { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount(Cards.brick) == 10     , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Resources     , RequiredCount = 10},
@@ -75,15 +41,11 @@ namespace Stacklands_Randomizer_Mod
             new("have_10_planks")                     { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount(Cards.plank) == 10     , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Resources     , RequiredCount = 10},
             new("have_10_sticks")                     { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount(Cards.stick) == 10     , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Resources     , RequiredCount = 10},
 
-            // Exploration
-            new("explore_catacombs")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.catacombs && action == "complete_harvest"     , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Exploration},
-            new("explore_graveyard")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.graveyard && action == "complete_harvest"     , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Exploration},
-            new("explore_old_village")                { OnActionComplete = (CardData card, string action) => card.Id == Cards.old_village && action == "complete_harvest"   , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Exploration},
-            new("explore_plains")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.plains && action == "complete_harvest"        , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Exploration},
+            #endregion
 
-            /* ----- Additional Island Quests ----- */
+            // TODO: Work out what the booster pack IDs are for Island (and also add them to ISLAND_PACKS and the Item mapping)
 
-            // TODO: Work out what the booster pack IDs are for Island (and also add them to ISLAND_PACKS
+            #region Additional Island Quests
 
             // Booster Packs
             new("buy_x_booster")                      { OnSpecialAction = (string action) => action == $"buy_x_pack"        , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Beginnings},
@@ -101,11 +63,6 @@ namespace Stacklands_Randomizer_Mod
             new("have_30_shells")                     { OnCardCreate = (CardData card) => WorldManager.instance.GetShellCount(includeInChest: true) >= 30   , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Beginnings     , RequiredCount = 30},
             new("have_50_shells")                     { OnCardCreate = (CardData card) => WorldManager.instance.GetShellCount(includeInChest: true) >= 50   , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Beginnings     , RequiredCount = 50},
 
-            // Cooking
-            new("make_bottle_of_water")               { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_fill_bottle && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Cooking},
-            new("make_grilled_fish")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_cooked_fish && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Cooking},
-            new("make_tamago_sushi")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_tamago_sushi && action == "finish_blueprint"    , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Cooking},
-
             // Resources
             new("have_10_fabric")                     { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount(Cards.fabric) == 10    , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Island_Misc     , RequiredCount = 10 },
             new("have_10_glass")                      { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount(Cards.glass) == 10     , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Island_Misc     , RequiredCount = 10 },
@@ -115,35 +72,73 @@ namespace Stacklands_Randomizer_Mod
             new("have_10_sails")                      { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount(Cards.sail) == 10      , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Island_Misc     , RequiredCount = 10 },
             new("have_10_sandstone")                  { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount(Cards.sandstone) == 10 , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Island_Misc     , RequiredCount = 10 },
 
-            // Equipment
-            new("make_blunderbuss")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_blunderbuss && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Combat},
-            new("make_bone_staff")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_bone_staff && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Combat},
-            new("make_crossbow")                      { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_crossbow && action == "finish_blueprint"            , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Combat},
-            new("make_golden_chestplate")             { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_gold_chestplate && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Combat},
-            new("make_mountain_amulet")               { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_amulet_of_mountain && action == "finish_blueprint"  , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Combat},
-            new("make_wizard_robe")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_wizard_robe && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Combat},
+            #endregion
 
-            // Structures
-            new("build_distillery")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_distillery && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Misc},
-            new("build_frigate")                      { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_frigate && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Misc},
-            new("build_gold_mine")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_gold_mine && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Misc},
-            new("build_lighthouse")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_lighthouse && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Misc},
-            new("build_sand_quarry")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_sand_quarry && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Misc},
-            new("build_shell_chest")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_shell_chest && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Misc},
+            #region Equipmentsanity Quests
 
-            // Exploration
-            new("explore_cave")                       { OnActionComplete = (CardData card, string action) => card.Id == Cards.cave && action == "complete_harvest"      , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Island_Misc },
-            new("explore_jungle")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.jungle && action == "complete_harvest"    , PossibleInPeacefulMode = true , QuestGroup = QuestGroup.Island_Misc },
+            // Mainland
+            new("make_bone_spear")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_bone_spear && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_boomerang")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_boomerang && action == "finish_blueprint"           , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_club")                          { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_club && action == "finish_blueprint"                , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_chainmail_armor")               { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_chainmail_armor && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_iron_shield")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_iron_shield && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_magic_blade")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_blade && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_magic_ring")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_ring && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_magic_staff")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_staff && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_magic_tome")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_tome && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_magic_wand")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_magic_wand && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_slingshot")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_slingshot && action == "finish_blueprint"           , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_spear")                         { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_woodenweapons && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_spiked_plank")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_spiked_plank && action == "finish_blueprint"        , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_sword")                         { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_ironweapons && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_throwing_stars")                { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_throwing_star && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_wooden_shield")                 { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_wooden_shield && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
 
+            // The Island
+            new("make_blunderbuss")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_blunderbuss && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_bone_staff")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_bone_staff && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_crossbow")                      { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_crossbow && action == "finish_blueprint"            , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_golden_chestplate")             { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_gold_chestplate && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_mountain_amulet")               { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_amulet_of_mountain && action == "finish_blueprint"  , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
+            new("make_wizard_robe")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_wizard_robe && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.EquipmentsanityQuestGroupEnum},
 
-            /* ----- Mobsanity Quests ----- */
+            #endregion
 
+            #region Foodsanity Quests
+
+            // Mainland
+            new("make_stew")                          { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_stew && action == "finish_blueprint"                , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.FoodsanityQuestGroupEnum},
+            new("make_fruit_salad")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_fruitsalad && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.FoodsanityQuestGroupEnum},
+            new("make_milkshake")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_milkshake && action == "finish_blueprint"           , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.FoodsanityQuestGroupEnum},
+
+            // The Island
+            new("make_bottle_of_water")               { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_fill_bottle && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.FoodsanityQuestGroupEnum},
+            new("make_grilled_fish")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_cooked_fish && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.FoodsanityQuestGroupEnum},
+            new("make_tamago_sushi")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_tamago_sushi && action == "finish_blueprint"        , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.FoodsanityQuestGroupEnum},
+
+            #endregion
+
+            #region Location Quests
+
+            // Mainland
+            new("explore_catacombs")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.catacombs && action == "complete_harvest"                 , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.LocationsanityQuestGroupEnum},
+            new("explore_graveyard")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.graveyard && action == "complete_harvest"                 , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.LocationsanityQuestGroupEnum},
+            new("explore_old_village")                { OnActionComplete = (CardData card, string action) => card.Id == Cards.old_village && action == "complete_harvest"               , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.LocationsanityQuestGroupEnum},
+            new("explore_plains")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.plains && action == "complete_harvest"                    , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.LocationsanityQuestGroupEnum},
+
+            // The Island
+            new("explore_cave")                       { OnActionComplete = (CardData card, string action) => card.Id == Cards.cave && action == "complete_harvest"                      , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.LocationsanityQuestGroupEnum},
+            new("explore_jungle")                     { OnActionComplete = (CardData card, string action) => card.Id == Cards.jungle && action == "complete_harvest"                    , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.LocationsanityQuestGroupEnum},
+
+            #endregion
+
+            #region Mobsanity Quests
+
+            // Mainland
             new($"kill_{Cards.bear}")                 { OnSpecialAction = (string action) => action == $"{Cards.bear}_killed",               PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
-            new($"kill_{Cards.dark_elf}")             { OnSpecialAction = (string action) => action == $"{Cards.dark_elf}_killed",           PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.elf}")                  { OnSpecialAction = (string action) => action == $"{Cards.elf}_killed",                PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.elf_archer}")           { OnSpecialAction = (string action) => action == $"{Cards.elf_archer}_killed",         PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.enchanted_shroom}")     { OnSpecialAction = (string action) => action == $"{Cards.enchanted_shroom}_killed",   PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
-            new($"kill_{Cards.ent}")                  { OnSpecialAction = (string action) => action == $"{Cards.ent}_killed",                PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.feral_cat}")            { OnSpecialAction = (string action) => action == $"{Cards.feral_cat}_killed",          PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.frog_man}")             { OnSpecialAction = (string action) => action == $"{Cards.frog_man}_killed",           PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.ghost}")                { OnSpecialAction = (string action) => action == $"{Cards.ghost}_killed",              PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
@@ -155,16 +150,29 @@ namespace Stacklands_Randomizer_Mod
             new($"kill_{Cards.merman}")               { OnSpecialAction = (string action) => action == $"{Cards.merman}_killed",             PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.mimic}")                { OnSpecialAction = (string action) => action == $"{Cards.mimic}_killed",              PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.mosquito}")             { OnSpecialAction = (string action) => action == $"{Cards.mosquito}_killed",           PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
-            new($"kill_{Cards.ogre}")                 { OnSpecialAction = (string action) => action == $"{Cards.ogre}_killed",               PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
-            new($"kill_{Cards.orc_wizard}")           { OnSpecialAction = (string action) => action == $"{Cards.orc_wizard}_killed",         PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.slime}")                { OnSpecialAction = (string action) => action == $"{Cards.slime}_killed",              PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.small_slime}")          { OnSpecialAction = (string action) => action == $"{Cards.small_slime}_killed",        PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
-            new($"kill_{Cards.snake}")                { OnSpecialAction = (string action) => action == $"{Cards.snake}_killed",              PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
-            new($"kill_{Cards.tiger}")                { OnSpecialAction = (string action) => action == $"{Cards.tiger}_killed",              PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
             new($"kill_{Cards.wolf}")                 { OnSpecialAction = (string action) => action == $"{Cards.wolf}_killed",               PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
-            
 
-            /* ----- Spendsanity Quests ----- */
+            // The Dark Forest
+            new($"kill_{Cards.dark_elf}")             { OnSpecialAction = (string action) => action == $"{Cards.dark_elf}_killed",           PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.ent}")                  { OnSpecialAction = (string action) => action == $"{Cards.ent}_killed",                PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.ogre}")                 { OnSpecialAction = (string action) => action == $"{Cards.ogre}_killed",               PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            
+            // The Island
+            new($"kill_{Cards.eel}")                  { OnSpecialAction = (string action) => action == $"{Cards.eel}_killed",                PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.momma_crab}")           { OnSpecialAction = (string action) => action == $"{Cards.momma_crab}_killed",         PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.orc_wizard}")           { OnSpecialAction = (string action) => action == $"{Cards.orc_wizard}_killed",         PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.pirate}")               { OnSpecialAction = (string action) => action == $"{Cards.pirate}_killed",             PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.seagull}")              { OnSpecialAction = (string action) => action == $"{Cards.seagull}_killed",            PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.shark}")                { OnSpecialAction = (string action) => action == $"{Cards.shark}_killed",              PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.snake}")                { OnSpecialAction = (string action) => action == $"{Cards.snake}_killed",              PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.tentacle}")             { OnSpecialAction = (string action) => action == $"{Cards.tentacle}_killed",           PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+            new($"kill_{Cards.tiger}")                { OnSpecialAction = (string action) => action == $"{Cards.tiger}_killed",              PossibleInPeacefulMode = false,      QuestGroup = EnumExtensionHandler.MobsanityQuestGroupEnum },
+
+            #endregion
+
+            #region Spendsanity Quests
 
             new("buy_1_ap_spendsanity_pack")    { OnSpecialAction = (string action) => action == $"buy_{ModBoosterPacks.spendsanity}_pack" && CommonPatchMethods.GetTimesBoosterPackBought(ModBoosterPacks.spendsanity) >= 1    , DescriptionTermOverride = ModTerms.SpendsanityQuestDescription     , PossibleInPeacefulMode = true      , QuestGroup = EnumExtensionHandler.SpendsanityQuestGroupEnum      , RequiredCount = 1 },
             new("buy_2_ap_spendsanity_pack")    { OnSpecialAction = (string action) => action == $"buy_{ModBoosterPacks.spendsanity}_pack" && CommonPatchMethods.GetTimesBoosterPackBought(ModBoosterPacks.spendsanity) >= 2    , DescriptionTermOverride = ModTerms.SpendsanityQuestDescription     , PossibleInPeacefulMode = true      , QuestGroup = EnumExtensionHandler.SpendsanityQuestGroupEnum      , RequiredCount = 2 },
@@ -191,6 +199,32 @@ namespace Stacklands_Randomizer_Mod
             new("buy_23_ap_spendsanity_pack")   { OnSpecialAction = (string action) => action == $"buy_{ModBoosterPacks.spendsanity}_pack" && CommonPatchMethods.GetTimesBoosterPackBought(ModBoosterPacks.spendsanity) >= 23   , DescriptionTermOverride = ModTerms.SpendsanityQuestDescription     , PossibleInPeacefulMode = true      , QuestGroup = EnumExtensionHandler.SpendsanityQuestGroupEnum      , RequiredCount = 23},
             new("buy_24_ap_spendsanity_pack")   { OnSpecialAction = (string action) => action == $"buy_{ModBoosterPacks.spendsanity}_pack" && CommonPatchMethods.GetTimesBoosterPackBought(ModBoosterPacks.spendsanity) >= 24   , DescriptionTermOverride = ModTerms.SpendsanityQuestDescription     , PossibleInPeacefulMode = true      , QuestGroup = EnumExtensionHandler.SpendsanityQuestGroupEnum      , RequiredCount = 24},
             new("buy_25_ap_spendsanity_pack")   { OnSpecialAction = (string action) => action == $"buy_{ModBoosterPacks.spendsanity}_pack" && CommonPatchMethods.GetTimesBoosterPackBought(ModBoosterPacks.spendsanity) >= 25   , DescriptionTermOverride = ModTerms.SpendsanityQuestDescription     , PossibleInPeacefulMode = true      , QuestGroup = EnumExtensionHandler.SpendsanityQuestGroupEnum      , RequiredCount = 25},
+
+            #endregion
+
+            #region Structuresanity Quests
+
+            // Mainland
+            new("build_coin_chest")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_coinchest && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_garden")                       { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_garden && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_hotpot")                       { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_hotpot && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_iron_mine")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_mine && action == "finish_blueprint"            , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_market")                       { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_market && action == "finish_blueprint"          , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_resource_chest")               { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_resourcechest && action == "finish_blueprint"   , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_sawmill")                      { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_sawmill && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_smelter")                      { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_smelting && action == "finish_blueprint"        , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_stove")                        { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_stove && action == "finish_blueprint"           , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_warehouse")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_warehouse && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+
+            // The Island
+            new("build_distillery")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_distillery && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_frigate")                      { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_frigate && action == "finish_blueprint"         , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_gold_mine")                    { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_gold_mine && action == "finish_blueprint"       , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_lighthouse")                   { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_lighthouse && action == "finish_blueprint"      , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_sand_quarry")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_sand_quarry && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+            new("build_shell_chest")                  { OnActionComplete = (CardData card, string action) => card.Id == Cards.blueprint_shell_chest && action == "finish_blueprint"     , PossibleInPeacefulMode = true     , QuestGroup = EnumExtensionHandler.StructuresanityQuestGroupEnum},
+
+            #endregion
         };
     }
 }

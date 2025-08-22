@@ -97,6 +97,7 @@ namespace Stacklands_Randomizer_Mod
             #region The Island
 
             // TODO: Find out the island booster pack IDs
+            // TODO: Use target board to determine where to spawn booster packs (if they are spawnable)
 
             // Booster Packs
             new BoosterItem("On the Shore Booster Pack"             , "x"           , BoosterItem.BoosterType.Unlock,   Location.Island),

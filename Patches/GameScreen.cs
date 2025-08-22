@@ -81,9 +81,13 @@ namespace Stacklands_Randomizer_Mod
                 "resources" => 7,
                 "building" => 8,
                 "survival" => 9,
+                "equipmentsanity" => 10,
+                "foodsanity" => 11,
+                "locationsanity" => 12,
                 "mobsanity" => 10,
-                "packsanity" => 11,
-                "spendsanity" => 12,
+                //"packsanity" => 11,
+                "spendsanity" => 11,
+                "structuresanity" => 12,
                 "other" => 13,
                 _ => 13
             };
@@ -161,15 +165,25 @@ namespace Stacklands_Randomizer_Mod
                 return false;
             }
 
+            // TODO:    The 'UnsupportedQuests' implementation will fall over now that The Island is included.
+            //          Some quests can be ignored entirely, put these into the 'Unsupported' list and then have a separate list
+            //          that contains all 'Island' quests that show up under 'Mainland' and hide these when Island is not selected.
+
             Dictionary<object, bool> dictionary = WasExpandedDict(__instance.QuestsParent.GetComponentsInChildren<ExpandableLabel>());
             IEnumerable<Quest> source = [
                 .. QuestManager.instance.AllQuests.Where(q =>
-                    !UnsupportedQuests.List.Contains(q.Id)                                                                                              // Quest is not in the specified unsupported list
-                    && (q.QuestLocation is Location.Mainland && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland)     // Quest location is Mainland and Mainland is enabled
-                        || q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest))     // Quest location is Forest and Forest is enabled
-                    && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)         // Mobsanity is enabled OR quest group is not Mobsanity
-                    && (StacklandsRandomizer.instance.Options.PacksanityEnabled || q.QuestGroup != EnumExtensionHandler.PacksanityQuestGroupEnum)       // Packsanity is enabled OR quest group is not Packsanity
-                    && (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off || q.QuestGroup != EnumExtensionHandler.SpendsanityQuestGroupEnum))    // Spendsanity is enabled OR quest group is not Spendsanity   
+                    !UnsupportedQuests.List.Contains(q.Id)                                                                                                              // Quest is not in the specified unsupported list
+                    && (q.QuestLocation is Location.Mainland && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland)                     // Quest location is Mainland and Mainland is enabled
+                        || q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest)                      // Quest location is Forest and Forest is enabled
+                        || q.QuestLocation is Location.Island && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island)                      // Quest location is Island and Island is enabled
+                    )                     
+                    && (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)             // Equipmentsanity is enabled OR quest group is not Equipmentsanity
+                    && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)                       // Foodsanity is enabled OR quest group is not Foodsanity
+                    && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)               // Locationsanity is enabled OR quest group is not Locationsanity
+                    && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)                         // Mobsanity is enabled OR quest group is not Mobsanity
+                    //&& (StacklandsRandomizer.instance.Options.PacksanityEnabled || q.QuestGroup != EnumExtensionHandler.PacksanityQuestGroupEnum)                     // Packsanity is enabled OR quest group is not Packsanity
+                    && (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off || q.QuestGroup != EnumExtensionHandler.SpendsanityQuestGroupEnum)     // Spendsanity is enabled OR quest group is not Spendsanity   
+                    && (StacklandsRandomizer.instance.Options.StructuresanityEnabled || q.QuestGroup != EnumExtensionHandler.StructuresanityQuestGroupEnum))            // Structuresanity is enabled OR quest group is not Structuresanity
             ];
 
             __instance.questElements = CreateQuestElements(__instance.QuestsParent, source.ToList());
