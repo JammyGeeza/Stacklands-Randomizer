@@ -57,93 +57,55 @@ namespace Stacklands_Randomizer_Mod
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
 
+            // If mainland enabled, add custom mainland quests
+            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland))
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Mainland quests...");
+                
+                __result.AddRange(
+                    CustomQuestMapping.Mainland.Where(q =>
+                        (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.StructuresanityEnabled || q.QuestGroup != EnumExtensionHandler.StructuresanityQuestGroupEnum)));
+            }
+
+            // If dark forest enabled, add custom dark forest quests
+            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest))
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Dark Forest quests...");
+
+                __result.AddRange(
+                    CustomQuestMapping.DarkForest.Where(q =>
+                        (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.StructuresanityEnabled || q.QuestGroup != EnumExtensionHandler.StructuresanityQuestGroupEnum)));
+            }
+
+            // If island enabled, add custom island quests
+            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island))
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Island quests...");
+
+                __result.AddRange(
+                    CustomQuestMapping.Island.Where(q =>
+                        (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.StructuresanityEnabled || q.QuestGroup != EnumExtensionHandler.StructuresanityQuestGroupEnum)));
+            }
+
             // If pausing is disabled, remove pausing quest
             if (!StacklandsRandomizer.instance.Options.PauseTimeEnabled)
             {
-                StacklandsRandomizer.instance.ModLogger.Log("Removing pausing quest...");
+                StacklandsRandomizer.instance.ModLogger.Log("Removing Pausing quest...");
 
                 // Remove pausing quest
                 __result.Remove(AllQuests.PauseGame);
-            }
-
-            // If Equipmentsanity enabled, add Equipmentsanity quests
-            if (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled)
-            {
-                StacklandsRandomizer.instance.ModLogger.Log("Inserting Equipmentsanity quests...");
-
-                // Add Equipmentsanity quests (and only include Dark Forest / Island quests if enabled)
-                __result.AddRange(
-                    CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.EquipmentsanityQuestGroupEnum
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest) || q.QuestLocation != Location.Forest)
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island) || q.QuestLocation != Location.Island)));
-            }
-
-            // If Foodsanity enabled, add Foodsanity quests
-            if (StacklandsRandomizer.instance.Options.FoodsanityEnabled)
-            {
-                StacklandsRandomizer.instance.ModLogger.Log("Inserting Foodsanity quests...");
-
-                // Add Foodsanity quests (and only include Dark Forest / Island quests if enabled)
-                __result.AddRange(
-                    CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.FoodsanityQuestGroupEnum
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest) || q.QuestLocation != Location.Forest)
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island) || q.QuestLocation != Location.Island)));
-            }
-
-            // If Locationsanity enabled, add Locationsanity quests
-            if (StacklandsRandomizer.instance.Options.LocationsanityEnabled)
-            {
-                StacklandsRandomizer.instance.ModLogger.Log("Inserting Locationsanity quests...");
-
-                // Add Locationsanity quests (and only include Dark Forest / Island quests if enabled)
-                __result.AddRange(
-                    CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.LocationsanityQuestGroupEnum
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest) || q.QuestLocation != Location.Forest)
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island) || q.QuestLocation != Location.Island)));
-            }
-
-            // If mobsanity enabled, add mobsanity quests
-            if (StacklandsRandomizer.instance.Options.MobsanityEnabled)
-            {
-                StacklandsRandomizer.instance.ModLogger.Log("Inserting Mobsanity quests...");
-
-                // Add mobsanity quests (and only include Dark Forest / Island quests if enabled)
-                __result.AddRange(CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.MobsanityQuestGroupEnum 
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest) || q.QuestLocation != Location.Forest)
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island) || q.QuestLocation != Location.Island)));
-            }
-
-            // If packsanity enabled, add packsanity quests
-            //if (StacklandsRandomizer.instance.Options.PacksanityEnabled)
-            //{
-            //    StacklandsRandomizer.instance.ModLogger.Log("Inserting Packsanity quests...");
-
-            //    // Add packsanity quests
-            //    __result.AddRange(CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.PacksanityQuestGroupEnum
-            //        && q.QuestLocation == Location.Mainland));
-            //}
-
-            // If spendsanity enabled, add spendsanity quests
-            if (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off)
-            {
-                StacklandsRandomizer.instance.ModLogger.Log("Inserting Spendsanity quests...");
-
-                // Add spendsanity quests (up to the amount 
-                __result.AddRange(CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.SpendsanityQuestGroupEnum
-                    && q.QuestLocation == Location.Mainland
-                    && q.RequiredCount <= StacklandsRandomizer.instance.Options.SpendsanityCount));
-            }
-
-            // If Structuresanity enabled, add Structuresanity quests
-            if (StacklandsRandomizer.instance.Options.StructuresanityEnabled)
-            {
-                StacklandsRandomizer.instance.ModLogger.Log("Inserting Structuresanity quests...");
-
-                // Add Structuresanity quests (and only include Dark Forest / Island quests if enabled)
-                __result.AddRange(
-                    CustomQuestMapping.Map.Where(q => q.QuestGroup == EnumExtensionHandler.StructuresanityQuestGroupEnum
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest) || q.QuestLocation != Location.Forest)
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island) || q.QuestLocation != Location.Island)));
             }
         }
 

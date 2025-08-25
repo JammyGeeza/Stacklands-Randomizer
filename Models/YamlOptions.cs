@@ -156,16 +156,19 @@ namespace Stacklands_Randomizer_Mod
             if (Goal.HasFlag(GoalFlags.Kill_the_Demon))
             {
                 GoalQuests.Add(AllQuests.KillDemon);
+                QuestChecks |= QuestCheckFlags.Mainland;
             }
 
             if (Goal.HasFlag(GoalFlags.Kill_the_Wicked_Witch))
             {
                 GoalQuests.Add(AllQuests.FightWickedWitch);
+                QuestChecks |= QuestCheckFlags.Forest;
             }
 
             if (Goal.HasFlag(GoalFlags.Kill_the_Demon_Lord))
             {
                 GoalQuests.Add(AllQuests.KillDemonLord);
+                QuestChecks |= QuestCheckFlags.Island;
             }
 
             StacklandsRandomizer.instance.ModLogger.Log($"Goal Quests for this run: {string.Join(", ", GoalQuests.Select(gq => gq.Id))}");
@@ -213,9 +216,9 @@ namespace Stacklands_Randomizer_Mod
 
             //StacklandsRandomizer.instance.ModLogger.Log($"Packsanity Enabled for this run: {PacksanityEnabled}");
 
-            QuestChecks = slotData.TryGetValue(TAG_BOARDS, out object boards)
-                ? (QuestCheckFlags)Convert.ToInt32(boards)
-                : QuestCheckFlags.Mainland; // Default to Mainland if not found
+            //QuestChecks = slotData.TryGetValue(TAG_BOARDS, out object boards)
+            //    ? (QuestCheckFlags)Convert.ToInt32(boards)
+            //    : QuestCheckFlags.Mainland; // Default to Mainland if not found
 
             StacklandsRandomizer.instance.ModLogger.Log($"Quest Checks value for this run: {QuestChecks}");
 

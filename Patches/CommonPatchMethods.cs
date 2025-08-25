@@ -32,12 +32,12 @@ namespace Stacklands_Randomizer_Mod
         ];
 
         public static readonly List<string> ISLAND_PACKS = [
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
+            "island2",
+            "island_ideas_1",
+            "island_cooking",
+            "island_ideas_2",
+            "island_advanced",
+            "island_locations"
         ];
 
         private static readonly string PREFIX_SAVE = "ap_";

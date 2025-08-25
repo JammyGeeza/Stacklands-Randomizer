@@ -46,7 +46,7 @@ namespace Stacklands_Randomizer_Mod
                     expandableLabel.SetExpanded(true);
 
                     // Add quests to expandable section (only include completed quests if 'Hide Quests' option is false
-                    foreach (Quest quest in group.Where(q => !StacklandsRandomizer.instance.HideCompletedQuests || !QuestManager.instance.QuestIsComplete(q)))
+                    foreach (Quest quest in group.Where(q => !StacklandsRandomizer.instance.HideCompletedQuests || !QuestManager.instance.QuestIsComplete(q)).OrderBy(q => q.Description))
                     {
                         AchievementElement achievementElement = UnityEngine.Object.Instantiate(PrefabManager.instance.AchievementElementPrefab);
                         achievementElement.SetQuest(quest);
@@ -81,15 +81,16 @@ namespace Stacklands_Randomizer_Mod
                 "resources" => 7,
                 "building" => 8,
                 "survival" => 9,
-                "equipmentsanity" => 10,
-                "foodsanity" => 11,
-                "locationsanity" => 12,
-                "mobsanity" => 10,
+                "other" => 10,
+                // default goes here
+                "equipmentsanity" => 12,
+                "foodsanity" => 13,
+                "locationsanity" => 14,
+                "mobsanity" => 15,
                 //"packsanity" => 11,
-                "spendsanity" => 11,
-                "structuresanity" => 12,
-                "other" => 13,
-                _ => 13
+                //"spendsanity" => 11,
+                "structuresanity" => 16,
+                _ => 10
             };
         }
 
@@ -165,18 +166,17 @@ namespace Stacklands_Randomizer_Mod
                 return false;
             }
 
-            // TODO:    The 'UnsupportedQuests' implementation will fall over now that The Island is included.
-            //          Some quests can be ignored entirely, put these into the 'Unsupported' list and then have a separate list
-            //          that contains all 'Island' quests that show up under 'Mainland' and hide these when Island is not selected.
-
             Dictionary<object, bool> dictionary = WasExpandedDict(__instance.QuestsParent.GetComponentsInChildren<ExpandableLabel>());
-            IEnumerable<Quest> source = [
+            IEnumerable<Quest> source = 
+            [
                 .. QuestManager.instance.AllQuests.Where(q =>
-                    !UnsupportedQuests.List.Contains(q.Id)                                                                                                              // Quest is not in the specified unsupported list
-                    && (q.QuestLocation is Location.Mainland && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland)                     // Quest location is Mainland and Mainland is enabled
-                        || q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest)                      // Quest location is Forest and Forest is enabled
-                        || q.QuestLocation is Location.Island && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island)                      // Quest location is Island and Island is enabled
-                    )                     
+                    !IgnoredQuests.AlwaysIgnore.Contains(q.Id)                                                                                                          // Quest is not in the 'AlwaysIgnore' list
+                    && (
+                        (q.QuestLocation is Location.Mainland && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland))                   // Quest location is Mainland and Mainland is enabled
+                        || (q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest))                    // OR Quest location is Forest and Forest is enabled
+                        || (q.QuestLocation is Location.Island && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island))                    // OR Quest location is Island and Island is enabled
+                    )
+                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island) || !IgnoredQuests.IgnoreIfIslandDisabled.Contains(q.Id))      // Island is enabled OR quest is not in the 'IgnorIfIslandDisabked' ignore list
                     && (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)             // Equipmentsanity is enabled OR quest group is not Equipmentsanity
                     && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)                       // Foodsanity is enabled OR quest group is not Foodsanity
                     && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)               // Locationsanity is enabled OR quest group is not Locationsanity
