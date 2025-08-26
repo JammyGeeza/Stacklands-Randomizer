@@ -11,7 +11,7 @@ namespace Stacklands_Randomizer_Mod
         /// <summary>
         /// List of basic cards on Mainland.
         /// </summary>
-        public static readonly List<string> BASIC_CARDS = 
+        public static readonly List<string> MAINLAND_BASIC_CARDS =
         [
             Cards.berrybush,
             Cards.berry,
@@ -41,28 +41,67 @@ namespace Stacklands_Randomizer_Mod
         ];
 
         /// <summary>
-        /// List of all mobs that can be found on Mainland.
+        /// Dictionary of all RNG-based Mobsanity mobs that can be found on Mainland and their expected moon phase appearance.
         /// </summary>
-        public static readonly List<string> MAINLAND_MOBS = 
-        [
-
-        ];
+        public static readonly Dictionary<string, int> MAINLAND_MOBSANITY = new()
+        {
+            { Cards.bear, 24 },
+            { Cards.elf, 24 },
+            { Cards.elf_archer, 24 },
+            { Cards.enchanted_shroom, 24 },
+            { Cards.feral_cat, 24 },
+            { Cards.frog_man, 16 },
+            { Cards.ghost, 24 },
+            { Cards.giant_rat, 16 },
+            { Cards.giant_snail, 24 },
+            { Cards.goblin, 12 },
+            { Cards.goblin_archer, 12 },
+            { Cards.goblin_shaman, 16 },
+            { Cards.merman, 16 },
+            { Cards.mimic, 16 },
+            { Cards.mosquito, 24 },
+            { Cards.skeleton, 16 },
+            { Cards.slime, 12 },
+            //{ Cards.small_slime, 12 }, // <-- No need for this one if 'Slime' is in there.
+            { Cards.wolf, 16 }
+        };
 
         /// <summary>
-        /// List of all mobs that can be found only in Dark Forest.
+        /// List of all RNG-based Mobsanity mobs that can be found in Dark Forest and their expected Wave appearance.
         /// </summary>
-        public static readonly List<string> FOREST_MOBS = 
-        [
-
-        ];
+        public static readonly Dictionary<string, int> FOREST_MOBSANITY = new()
+        {
+            { Cards.dark_elf, 4 },
+            { Cards.elf, 1 },
+            { Cards.elf_archer, 1 },
+            { Cards.enchanted_shroom, 1 },
+            { Cards.ent, 4 },
+            { Cards.feral_cat, 1 },
+            { Cards.ghost, 1 },
+            { Cards.giant_snail, 4 },
+            { Cards.merman, 1 },
+            { Cards.mimic, 4 },
+            { Cards.mosquito, 1 },
+            { Cards.ogre, 4 },
+            { Cards.orc_wizard, 4 },
+            { Cards.pirate, 4 }
+        };
 
         /// <summary>
-        /// List of all mobs that can be found on The Island.
+        /// Dictionary of all RNG-based Mobsanity mobs that can be found on The Island and their expected moon phase appearance.
         /// </summary>
-        public static readonly List<string> ISLAND_MOBS = 
-        [
-
-        ];
+        public static readonly Dictionary<string, int> ISLAND_MOBSANITY = new()
+        {
+            { Cards.frog_man, 7 },
+            { Cards.merman, 7 },
+            { Cards.mosquito, 2 },
+            { Cards.orc_wizard, 7 },
+            { Cards.pirate, 7 },
+            { Cards.seagull, 2 },
+            { Cards.skeleton, 2 },
+            { Cards.snake, 2 },
+            { Cards.tiger, 2 }
+        };
 
         public static readonly List<string> MAINLAND_PACKS = 
         [
@@ -76,7 +115,8 @@ namespace Stacklands_Randomizer_Mod
             "structures"
         ];
 
-        public static readonly List<string> ISLAND_PACKS = [
+        public static readonly List<string> ISLAND_PACKS = 
+        [
             "island2",
             "island_ideas_1",
             "island_cooking",
@@ -96,43 +136,6 @@ namespace Stacklands_Randomizer_Mod
         public static bool ContainsAll<T>(this List<T> a, List<T> b)
         {
             return !b.Except(a).Any();
-        }
-
-        /// <summary>
-        /// Get the amount of times a booster pack has been bought in this run.
-        /// </summary>
-        /// <param name="boosterId">The ID of the booster pack.</param>
-        /// <returns>Total amount of times a pack has been bought in this run.</returns>
-        public static int GetTimesBoosterPackBought(string boosterId)
-        {
-            return WorldManager.instance.BoughtBoosterIds.Count(b => b == boosterId);
-        }
-
-        /// <summary>
-        /// Get the total amount of times cards have been sold in this run.
-        /// </summary>
-        /// <returns>Total amount of times cards have been sold in this run.</returns>
-        public static int GetTimesCardsSold()
-        {
-            return KeyValueHelper.GetExtraKeyValue(Terms.CardsSold);
-        }
-
-        /// <summary>
-        /// Get the amount of times any booster packs for mainland have been bought in this run.
-        /// </summary>
-        /// <returns>Total amount of times any booster packs for Mainland have been bought in this run..</returns>
-        public static int GetTimesIslandBoosterPacksBought()
-        {
-            return ISLAND_PACKS.Sum(GetTimesBoosterPackBought);
-        }
-
-        /// <summary>
-        /// Get the amount of times any booster packs for mainland have been bought in this run.
-        /// </summary>
-        /// <returns>Total amount of times any booster packs for Mainland have been bought in this run..</returns>
-        public static int GetTimesMainlandBoosterPacksBought()
-        {
-            return MAINLAND_PACKS.Sum(GetTimesBoosterPackBought);
         }
 
         /// <summary>
@@ -167,12 +170,81 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Generate the ID of a random, basic card.
+        /// Get the amount of times a booster pack has been bought in this run.
+        /// </summary>
+        /// <param name="boosterId">The ID of the booster pack.</param>
+        /// <returns>Total amount of times a pack has been bought in this run.</returns>
+        public static int GetTimesBoosterPackBought(string boosterId)
+        {
+            return WorldManager.instance.BoughtBoosterIds.Count(b => b == boosterId);
+        }
+
+        /// <summary>
+        /// Get the total amount of times cards have been sold in this run.
+        /// </summary>
+        /// <returns>Total amount of times cards have been sold in this run.</returns>
+        public static int GetTimesCardsSold()
+        {
+            return KeyValueHelper.GetExtraKeyValue(Terms.CardsSold);
+        }
+
+        /// <summary>
+        /// Get the amount of times any booster packs for mainland have been bought in this run.
+        /// </summary>
+        /// <returns>Total amount of times any booster packs for Mainland have been bought in this run.</returns>
+        public static int GetTimesIslandBoosterPacksBought()
+        {
+            return ISLAND_PACKS.Sum(GetTimesBoosterPackBought);
+        }
+
+        /// <summary>
+        /// Get the amount of times any booster packs for mainland have been bought in this run.
+        /// </summary>
+        /// <returns>Total amount of times any booster packs for Mainland have been bought in this run.</returns>
+        public static int GetTimesMainlandBoosterPacksBought()
+        {
+            return MAINLAND_PACKS.Sum(GetTimesBoosterPackBought);
+        }
+
+        /// <summary>
+        /// Get the total amount of times a Mob has been killed in this run.
+        /// </summary>
+        /// <returns>Total amount of times cards the mob has been killed in this run.</returns>
+        public static int GetTimesMobKilled(string mobId)
+        {
+            return KeyValueHelper.GetExtraKeyValue($"mob_{mobId}");
+        }
+
+        /// <summary>
+        /// Generate the ID of a random, basic card based on the current board.
         /// </summary>
         /// <returns>A randomly generated card ID of a basic card.</returns>
         public static string GetRandomBasicCard()
         {
-            return BASIC_CARDS.ElementAt(UnityEngine.Random.Range(0, BASIC_CARDS.Count));
+            return WorldManager.instance.CurrentBoard.Location switch
+            {
+                Location.Mainland => MAINLAND_BASIC_CARDS.ElementAt(UnityEngine.Random.Range(0, MAINLAND_BASIC_CARDS.Count)),
+                Location.Island => ISLAND_BASIC_CARDS.ElementAt(UnityEngine.Random.Range(0, ISLAND_BASIC_CARDS.Count)),
+                _ => string.Empty
+            };
+        }
+
+        /// <summary>
+        /// Check whether a set card bag type is an enemy card bag.
+        /// </summary>
+        public static bool IsEnemyCardBagType(SetCardBagType type)
+        {
+            return type switch
+            {
+                SetCardBagType.AdvancedEnemy
+                or SetCardBagType.BasicEnemy
+                or SetCardBagType.Forest_AdvancedEnemy
+                or SetCardBagType.Forest_BasicEnemy
+                or SetCardBagType.Island_AdvancedEnemy
+                or SetCardBagType.Island_BasicEnemy => true,
+
+                _ => false
+            };
         }
 
         /// <summary>

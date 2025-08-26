@@ -359,7 +359,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                // ItemHandler.SpawnBoosterPack(ModBoosterPacks.resource_booster);
+
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -367,7 +367,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                ItemHelper.SpawnStack(Cards.gold, 25);
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {

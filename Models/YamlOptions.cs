@@ -16,6 +16,7 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string TAG_GOAL = "goal";
         private static readonly string TAG_LOCATIONSANITY = "locationsanity";
         private static readonly string TAG_MOBSANITY = "mobsanity";
+        private static readonly string TAG_MOBSANITY_BALANCING = "mobsanity_balancing";
         private static readonly string TAG_MOON_LENGTH = "moon_length";
         //private static readonly string TAG_PACKSANITY = "packsanity";
         private static readonly string TAG_PAUSE_ENABLED = "pausing";
@@ -81,6 +82,11 @@ namespace Stacklands_Randomizer_Mod
         /// Gets or sets whether Mobsanity is enabled for this run.
         /// </summary>
         public bool MobsanityEnabled { get; private set; }
+
+        /// <summary>
+        /// Gets or sets whether Mobsanity balancing is enabled for this run.
+        /// </summary>
+        public bool MobsanityBalancingEnabled { get; private set; }
 
         /// <summary>
         /// Gets or sets the moon length for this run.
@@ -202,6 +208,12 @@ namespace Stacklands_Randomizer_Mod
                 : false; // Default to false if not found
 
             StacklandsRandomizer.instance.ModLogger.Log($"Mobsanity Enabled for this run: {MobsanityEnabled}");
+
+            MobsanityBalancingEnabled = slotData.TryGetValue(TAG_MOBSANITY_BALANCING, out object mobsanityBalancing)
+                ? Convert.ToBoolean(mobsanityBalancing)
+                : false; // Default to false if not found
+
+            StacklandsRandomizer.instance.ModLogger.Log($"Mobsanity Balancing Enabled for this run: {MobsanityBalancingEnabled}");
 
             // Set moon length for this run
             MoonLength = slotData.TryGetValue(TAG_MOON_LENGTH, out object moonLength)
