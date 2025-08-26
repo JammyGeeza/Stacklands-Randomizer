@@ -547,7 +547,7 @@ namespace Stacklands_Randomizer_Mod
                             BoosterItem booster = spawnGroup.ElementAt(i);
 
                             // Spawn booster pack
-                            SpawnBoosterPack(booster.ItemId);
+                            SpawnBoosterPackToBoard(booster.BoardId, booster.ItemId);
 
                             // If first in list
                             if (i == 0)
