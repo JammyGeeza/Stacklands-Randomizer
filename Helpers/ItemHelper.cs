@@ -329,7 +329,7 @@ namespace Stacklands_Randomizer_Mod
         public static void SpawnRandomCard(string[] cardIds, Vector3? position = null, bool checkAddToStack = false)
         {
             // Randomly select card index
-            int index = UnityEngine.Random.Range(0, cardIds.Length - 1);
+            int index = UnityEngine.Random.Range(0, cardIds.Length);
 
             // Spawn card to current board
             SpawnCard(cardIds[index], position, checkAddToStack);
@@ -338,7 +338,7 @@ namespace Stacklands_Randomizer_Mod
         public static void SpawnRandomCardAsTrap(string[] cardIds, Vector3? position = null)
         {
             // Randomly select card index
-            int index = UnityEngine.Random.Range(0, cardIds.Length - 1);
+            int index = UnityEngine.Random.Range(0, cardIds.Length);
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace Stacklands_Randomizer_Mod
         public static void SpawnRandomCardToBoard(string boardId, string[] cardIds, Vector3? position = null, bool checkAddToStack = false)
         {
             // Randomly select card index
-            int index = UnityEngine.Random.Range(0, cardIds.Length - 1);
+            int index = UnityEngine.Random.Range(0, cardIds.Length);
 
             // Spawn card to board
             SpawnCardToBoard(boardId, cardIds[index], position, checkAddToStack);
@@ -730,7 +730,7 @@ namespace Stacklands_Randomizer_Mod
         public static void TriggerFeedVillagers()
         {
             // Check if not currently in dark forest
-            if (WorldManager.instance.CurrentBoard.Id != Board.Forest)
+            if (WorldManager.instance.CurrentBoard.Location is not Location.Forest)
             {
                 // Queue the cutscene
                 WorldManager.instance.QueueCutscene(CustomCutscenes.FeedVillagers());
@@ -743,7 +743,7 @@ namespace Stacklands_Randomizer_Mod
         public static void TriggerSellCards()
         {
             // Check if not currently in dark forest
-            if (WorldManager.instance.CurrentBoard.Id != Board.Forest)
+            if (WorldManager.instance.CurrentBoard.Location is not Location.Forest)
             {
                 // Queue the cutscene
                 WorldManager.instance.QueueCutscene(
