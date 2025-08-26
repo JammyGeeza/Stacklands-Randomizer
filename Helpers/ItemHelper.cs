@@ -121,8 +121,8 @@ namespace Stacklands_Randomizer_Mod
                     {
                         if (booster.Type is BoosterItem.BoosterType.Spawn)
                         {
-                            // Spawn booster pack to current board
-                            SpawnBoosterPack(booster.ItemId);
+                            // Spawn booster pack to specified board
+                            SpawnBoosterPackToBoard(booster.BoardId, booster.ItemId);
 
                             // Mark item as received
                             MarkAsReceived(booster);
@@ -213,6 +213,40 @@ namespace Stacklands_Randomizer_Mod
             catch (Exception ex)
             {
                 StacklandsRandomizer.instance.ModLogger.LogError($"Failed to spawn booster '{boosterId}'. Reason: '{ex.Message}'.");
+            }
+        }
+
+        public static void SpawnBoosterPackToBoard(string boardId, string boosterId, Vector3? position = null)
+        {
+            try
+            {
+                // If the target board is the current board, spawn as normal
+                if (WorldManager.instance.CurrentBoard.Id == boardId)
+                {
+                    SpawnBoosterPack(boosterId, position);
+                }
+
+                // Otherwise, spawn to target board
+                else if (WorldManager.instance.GetBoardWithId(boardId) is { } board)
+                {
+                    // Use spawn position or generate one if not provided
+                    Vector3 spawnPosition = position ?? GetRandomBoardPosition(board);
+
+                    // Create the booster pack out of view
+                    Boosterpack booster = WorldManager.instance.CreateBoosterpack(
+                        spawnPosition,
+                        boosterId);
+
+                    // Get normalized board position from world position
+                    Vector2 normalizedSpawnPosition = board.WorldPosToNormalizedPos(spawnPosition);
+
+                    // Immediately send to target board
+                    booster.MyBoard = board;
+                }
+            }
+            catch (Exception ex)
+            {
+                StacklandsRandomizer.instance.ModLogger.LogError($"Failed to spawn booster pack '{boosterId}' to the board '{boardId}'. Reason: '{ex.Message}'");
             }
         }
 

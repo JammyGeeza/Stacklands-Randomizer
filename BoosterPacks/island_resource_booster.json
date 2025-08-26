@@ -1,6 +1,6 @@
 {
   "$schema": "../Schemas/boosterpack.schema.json",
-  "id": "ap_island_resource_resource",
+  "id": "ap_island_resource",
   "nameTerm": "ap_island_resource_name",
   "cost": 0,
   "icon": "archipelago.png",
@@ -12,46 +12,39 @@
       "CardsInPack": 1,
       "Chances": [
         {
-          "Id": "apple_tree",
-          "Chance": 8,
-          "HasMaxCount": false,
-          "HasPrerequisiteCard": false,
-          "IsEnemy": false
-        },
-        {
-          "Id": "berrybush",
+          "Id": "banana_tree",
           "Chance": 10,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },
         {
-          "Id": "iron_deposit",
+          "Id": "cotton_plant",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "driftwood",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "fishing_spot",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "gold_deposit",
           "Chance": 4,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
-        },
-        {
-          "Id": "rock",
-          "Chance": 10,
-          "HasMaxCount": false,
-          "HasPrerequisiteCard": false,
-          "IsEnemy": false
-        },
-        {
-          "Id": "soil",
-          "Chance": 6,
-          "HasMaxCount": false,
-          "IsEnemy": false,
-          "HasPrerequisiteCard": false
-        },
-        {
-          "Id": "tree",
-          "Chance": 10,
-          "HasMaxCount": false,
-          "IsEnemy": false,
-          "HasPrerequisiteCard": false
         }
       ],
       "Name": "Structures"
@@ -61,64 +54,64 @@
       "CardsInPack": 1,
       "Chances": [
         {
-          "Id": "apple",
+          "Id": "banana",
           "Chance": 10,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },
         {
-          "Id": "berry",
-          "Chance": 10,
-          "HasMaxCount": false,
-          "HasPrerequisiteCard": false,
-          "IsEnemy": false
-        },
-        {
-          "Id": "carrot",
-          "Chance": 10,
-          "HasMaxCount": false,
-          "HasPrerequisiteCard": false,
-          "IsEnemy": false
-        },
-        {
-          "Id": "fruit_salad",
+          "Id": "ceviche",
           "Chance": 4,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },
         {
-          "Id": "milk",
-          "Chance": 10,
-          "HasMaxCount": false,
-          "HasPrerequisiteCard": false,
-          "IsEnemy": false
-        },
-        {
-          "Id": "milkshake",
+          "Id": "chili_pepper",
           "Chance": 8,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },
         {
-          "Id": "mushroom",
-          "Chance": 10,
+          "Id": "cooked_fish",
+          "Chance": 6,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },
         {
-          "Id": "onion",
-          "Chance": 10,
+          "Id": "lime",
+          "Chance": 8,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },
         {
-          "Id": "stew",
+          "Id": "seafood_stew",
           "Chance": 2,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "seaweed",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "sushi",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "tamago_sushi",
+          "Chance": 4,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
@@ -131,15 +124,15 @@
       "CardsInPack": 2,
       "Chances": [
         {
-          "Id": "bone",
-          "Chance": 6,
+          "Id": "cotton",
+          "Chance": 10,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },
         {
-          "Id": "gold",
-          "Chance": 10,
+          "Id": "flint",
+          "Chance": 8,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
@@ -147,14 +140,13 @@
         {
           "Id": "goop",
           "Chance": 2,
-          "HasMaxCount": true,
-          "MaxCountToGive": 1,
+          "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },
         {
-          "Id": "iron_ore",
-          "Chance": 6,
+          "Id": "gold_ore",
+          "Chance": 4,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
@@ -174,9 +166,25 @@
           "IsEnemy": false
         },
         {
-          "Id": "stone",
+          "Id": "sand",
           "Chance": 10,
+          "HasMaxCount": true,
+          "MaxCountToGive": 1,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "sandstone",
+          "Chance": 8,
           "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "shell",
+          "Chance": 8,
+          "HasMaxCount": true,
+          "MaxCountToGive": 1,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
         },

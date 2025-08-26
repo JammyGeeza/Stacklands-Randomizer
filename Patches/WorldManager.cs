@@ -100,6 +100,9 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
+        /// <summary>
+        /// When checking for card cap increase, override if board expansion mode is 'Items'.
+        /// </summary>
         [HarmonyPatch(nameof(WorldManager.CardCapIncrease))]
         [HarmonyPostfix]
         public static void OnCardCapIncrease_CheckForBoardExpansion(WorldManager __instance, ref GameBoard board, ref int __result)
@@ -125,19 +128,24 @@ namespace Stacklands_Randomizer_Mod
                             // Remove bonus for warehouse
                             __result -= 14;
                         }
+                        else if (card.CardData.Id == Cards.lighthouse)
+                        {
+                            // Remove bonus for lighthouse
+                            __result -= 14;
+                        }
                     }
                 }
             }
         }
 
         /// <summary>
-        /// When checking if a card has been found, intercept specific card checks
+        /// When checking if a card has been found, intercept specific card checks.
         /// </summary>
         [HarmonyPatch(nameof(WorldManager.HasFoundCard))]
         [HarmonyPostfix]
         public static void OnHasFoundCard_Intercept(WorldManager __instance, ref string cardId, ref bool __result)
         {
-            // If dark forest enabled in checks, pretend that Idea: Stable Portal has been found to prevent it automatically spawning when returning from The Dark Forest
+            // If dark forest enabled in checks, pretend that 'Idea: Stable Portal' has been found to prevent it automatically spawning when returning from The Dark Forest
             if (cardId == Cards.blueprint_stable_portal && StacklandsRandomizer.instance.Options.DarkForestEnabled)
             {
                 __result = true;

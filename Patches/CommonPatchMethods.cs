@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Stacklands_Randomizer_Mod.Constants;
+using UnityEngine;
 
 namespace Stacklands_Randomizer_Mod
 {
@@ -7,8 +8,11 @@ namespace Stacklands_Randomizer_Mod
     /// </summary>
     public static class CommonPatchMethods
     {
-        // Private Member(s)
-        public static readonly List<string> BASIC_CARDS = [
+        /// <summary>
+        /// List of basic cards on Mainland.
+        /// </summary>
+        public static readonly List<string> BASIC_CARDS = 
+        [
             Cards.berrybush,
             Cards.berry,
             Cards.flint,
@@ -20,7 +24,48 @@ namespace Stacklands_Randomizer_Mod
             Cards.wood
         ];
 
-        public static readonly List<string> MAINLAND_PACKS = [
+        /// <summary>
+        /// List of basic cards on The Island.
+        /// </summary>
+        public static readonly List<string> ISLAND_BASIC_CARDS =
+        [
+            Cards.banana_tree,
+            Cards.banana,
+            Cards.cotton_plant,
+            Cards.cotton,
+            Cards.flint,
+            Cards.poop,
+            Cards.sand,
+            Cards.shell,
+            Cards.wood
+        ];
+
+        /// <summary>
+        /// List of all mobs that can be found on Mainland.
+        /// </summary>
+        public static readonly List<string> MAINLAND_MOBS = 
+        [
+
+        ];
+
+        /// <summary>
+        /// List of all mobs that can be found only in Dark Forest.
+        /// </summary>
+        public static readonly List<string> FOREST_MOBS = 
+        [
+
+        ];
+
+        /// <summary>
+        /// List of all mobs that can be found on The Island.
+        /// </summary>
+        public static readonly List<string> ISLAND_MOBS = 
+        [
+
+        ];
+
+        public static readonly List<string> MAINLAND_PACKS = 
+        [
             "basic",
             "idea",
             "farming",
@@ -69,7 +114,7 @@ namespace Stacklands_Randomizer_Mod
         /// <returns>Total amount of times cards have been sold in this run.</returns>
         public static int GetTimesCardsSold()
         {
-            return KeyValueHelper.GetExtraKeyValue("cardsSold");
+            return KeyValueHelper.GetExtraKeyValue(Terms.CardsSold);
         }
 
         /// <summary>

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Stacklands_Randomizer_Mod
 {
     /// <summary>
-    /// Patches for the <see cref="CardBag"/> class.
+    /// Patches for the <see cref="CreatePackLine"/> class.
     /// </summary>
     [HarmonyPatch(typeof(CreatePackLine))]
     public class CreatePackLine_Patches

@@ -146,7 +146,13 @@ namespace Stacklands_Randomizer_Mod
                 // If 'Unlock All Booster Packs' action and not all boosters have been found, block it
                 if ((action is "unlock_all_packs" or "unlocked_all_packs") && !WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.MAINLAND_PACKS))
                 {
-                    StacklandsRandomizer.instance.ModLogger.Log($"Intercepting '{action}' - not all mainland packs have been discovered yet.");
+                    StacklandsRandomizer.instance.ModLogger.Log($"Intercepting '{action}' - not yet received all mainland packs.");
+                    return false;
+                }
+
+                if ((action is "unlock_all_island_packs" or "unlocked_all_island_packs") && !WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.ISLAND_PACKS))
+                {
+                    StacklandsRandomizer.instance.ModLogger.Log($"Intercepting '{action}' - not yet received all island packs.");
                     return false;
                 }
             }

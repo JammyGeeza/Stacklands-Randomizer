@@ -1,6 +1,6 @@
 {
   "$schema": "../Schemas/boosterpack.schema.json",
-  "id": "ap_mainland_resource_resource",
+  "id": "ap_mainland_resource",
   "nameTerm": "ap_mainland_resource_name",
   "cost": 0,
   "icon": "archipelago.png",
@@ -138,8 +138,15 @@
           "IsEnemy": false
         },
         {
+          "Id": "flint",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
           "Id": "gold",
-          "Chance": 10,
+          "Chance": 8,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false
@@ -154,7 +161,7 @@
         },
         {
           "Id": "iron_ore",
-          "Chance": 6,
+          "Chance": 4,
           "HasMaxCount": false,
           "HasPrerequisiteCard": false,
           "IsEnemy": false

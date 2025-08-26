@@ -83,18 +83,18 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// Gets or sets the destination board for the booster.
+        /// Gets or sets the target board ID for the booster.
         /// </summary>
-        public Location Board { get; set; }
+        public string BoardId { get; set; }
 
         /// <summary>
         /// Gets or sets the type of booster.
         /// </summary>
         public BoosterType Type { get; set; }
 
-        public BoosterItem(string name, string boosterId, BoosterType boosterType, Location board) : base(name, boosterId, ItemType.BoosterPack)
+        public BoosterItem(string name, string boosterId, BoosterType boosterType, string boardId) : base(name, boosterId, ItemType.BoosterPack)
         {
-            Board = board;
+            BoardId = boardId;
             Type = boosterType;
         }
     }

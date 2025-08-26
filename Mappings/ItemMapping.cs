@@ -14,17 +14,17 @@ namespace Stacklands_Randomizer_Mod
             #region Mainland
 
             // Booster Packs
-            new BoosterItem("Humble Beginnings Booster Pack"        , "basic"                               , BoosterItem.BoosterType.Unlock    , Location.Mainland),
-            new BoosterItem("Seeking Wisdom Booster Pack"           , "idea"                                , BoosterItem.BoosterType.Unlock    , Location.Mainland),
-            new BoosterItem("Reap & Sow Booster Pack"               , "farming"                             , BoosterItem.BoosterType.Unlock    , Location.Mainland),
-            new BoosterItem("Curious Cuisine Booster Pack"          , "cooking"                             , BoosterItem.BoosterType.Unlock    , Location.Mainland),
-            new BoosterItem("Logic and Reason Booster Pack"         , "idea2"                               , BoosterItem.BoosterType.Unlock    , Location.Mainland),
-            new BoosterItem("The Armory Booster Pack"               , "equipment"                           , BoosterItem.BoosterType.Unlock    , Location.Mainland),
-            new BoosterItem("Explorers Booster Pack"                , "locations"                           , BoosterItem.BoosterType.Unlock    , Location.Mainland),
-            new BoosterItem("Order and Structure Booster Pack"      , "structures"                          , BoosterItem.BoosterType.Unlock    , Location.Mainland),
+            new BoosterItem("Humble Beginnings Booster Pack"        , "basic"                               , BoosterItem.BoosterType.Unlock    , Board.Mainland),
+            new BoosterItem("Seeking Wisdom Booster Pack"           , "idea"                                , BoosterItem.BoosterType.Unlock    , Board.Mainland),
+            new BoosterItem("Reap & Sow Booster Pack"               , "farming"                             , BoosterItem.BoosterType.Unlock    , Board.Mainland),
+            new BoosterItem("Curious Cuisine Booster Pack"          , "cooking"                             , BoosterItem.BoosterType.Unlock    , Board.Mainland),
+            new BoosterItem("Logic and Reason Booster Pack"         , "idea2"                               , BoosterItem.BoosterType.Unlock    , Board.Mainland),
+            new BoosterItem("The Armory Booster Pack"               , "equipment"                           , BoosterItem.BoosterType.Unlock    , Board.Mainland),
+            new BoosterItem("Explorers Booster Pack"                , "locations"                           , BoosterItem.BoosterType.Unlock    , Board.Mainland),
+            new BoosterItem("Order and Structure Booster Pack"      , "structures"                          , BoosterItem.BoosterType.Unlock    , Board.Mainland),
 
             // Resource Booster Packs
-            new BoosterItem("Mainland Resource Booster Pack"        , ModBoosterPacks.mainland_resource     , BoosterItem.BoosterType.Spawn     , Location.Mainland),
+            new BoosterItem("Mainland Resource Booster Pack"        , ModBoosterPacks.mainland_resource     , BoosterItem.BoosterType.Spawn     , Board.Mainland),
 
             // Ideas
             new IdeaItem("Idea: Animal Pen"         , Cards.blueprint_animalpen       ),
@@ -100,15 +100,15 @@ namespace Stacklands_Randomizer_Mod
             // TODO:    Use target board to determine where to spawn booster packs (if they are spawnable)
 
             // Booster Packs
-            new BoosterItem("On the Shore Booster Pack"             , "island2"                         , BoosterItem.BoosterType.Unlock    , Location.Island),
-            new BoosterItem("Island of Ideas Booster Pack"          , "island_ideas_1"                  , BoosterItem.BoosterType.Unlock    , Location.Island),
-            new BoosterItem("Grilling and Brewing Booster Pack"     , "island_cooking"                  , BoosterItem.BoosterType.Unlock    , Location.Island),
-            new BoosterItem("Island Insights Booster Pack"          , "island_ideas_2"                  , BoosterItem.BoosterType.Unlock    , Location.Island),
-            new BoosterItem("Advanced Archipelago Booster Pack"     , "island_advanced"                 , BoosterItem.BoosterType.Unlock    , Location.Island),
-            new BoosterItem("Enclave Explorers Booster Pack"        , "island_locations"                , BoosterItem.BoosterType.Unlock    , Location.Island),
+            new BoosterItem("On the Shore Booster Pack"             , "island2"                         , BoosterItem.BoosterType.Unlock    , Board.Island),
+            new BoosterItem("Island of Ideas Booster Pack"          , "island_ideas_1"                  , BoosterItem.BoosterType.Unlock    , Board.Island),
+            new BoosterItem("Grilling and Brewing Booster Pack"     , "island_cooking"                  , BoosterItem.BoosterType.Unlock    , Board.Island),
+            new BoosterItem("Island Insights Booster Pack"          , "island_ideas_2"                  , BoosterItem.BoosterType.Unlock    , Board.Island),
+            new BoosterItem("Advanced Archipelago Booster Pack"     , "island_advanced"                 , BoosterItem.BoosterType.Unlock    , Board.Island),
+            new BoosterItem("Enclave Explorers Booster Pack"        , "island_locations"                , BoosterItem.BoosterType.Unlock    , Board.Island),
 
             // Resource Booster Packs
-            new BoosterItem("Island Resource Booster Pack"          , ModBoosterPacks.island_resource   , BoosterItem.BoosterType.Spawn     , Location.Island),
+            new BoosterItem("Island Resource Booster Pack"          , ModBoosterPacks.island_resource   , BoosterItem.BoosterType.Spawn     , Board.Island),
 
             // Ideas
             new IdeaItem("Idea: Aquarium"               , Cards.blueprint_aquarium          ),
@@ -127,7 +127,7 @@ namespace Stacklands_Randomizer_Mod
             new IdeaItem("Idea: Distillery"             , Cards.blueprint_distillery        ),
             new IdeaItem("Idea: Empty Bottle"           , Cards.blueprint_bottle            ),
             new IdeaItem("Idea: Fabric"                 , Cards.blueprint_fabric            ),
-            new IdeaItem("Idea: Fishing Rod"            , Cards.fishing_rod                 ),
+            new IdeaItem("Idea: Fishing Rod"            , Cards.blueprint_fishing_rod       ),
             new IdeaItem("Idea: Fish Trap"              , Cards.blueprint_fish_trap         ),
             new IdeaItem("Idea: Forest Amulet"          , Cards.blueprint_amulet_of_forest  ),
             new IdeaItem("Idea: Frigate"                , Cards.blueprint_frigate           ),
