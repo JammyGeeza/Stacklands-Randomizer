@@ -8,10 +8,10 @@
   "type": "Mobs",
   "script": "Enemy",
   "_CanHaveInventory": false,
-  "_HealthPoints": 6,
+  "_HealthPoints": 9,
   "_HideFromCardopedia": true,
   "_InheritCombatStatsFromOtherCard": true,
   "_InheritCombatStatsFrom": "snake",
   "_IsAggressive": true,
-  "_MoveTime": 3
+  "_MoveTime": 5
 }

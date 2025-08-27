@@ -1,17 +1,17 @@
 {
   "$schema": "../schemas/card.schema.json",
-  "id": "ap_trap_mosquito",
-  "nameTerm": "ap_trap_mosquito_name",
-  "descriptionTerm": "ap_trap_mosquito_description",
-  "icon": "mosquito",
+  "id": "ap_trap_slime",
+  "nameTerm": "ap_trap_slime_name",
+  "descriptionTerm": "ap_trap_slime_description",
+  "icon": "slime",
   "value": -1,
   "type": "Mobs",
   "script": "Enemy",
   "_CanHaveInventory": false,
-  "_HealthPoints": 6,
+  "_HealthPoints": 15,
   "_HideFromCardopedia": true,
   "_InheritCombatStatsFromOtherCard": true,
-  "_InheritCombatStatsFrom": "mosquito",
+  "_InheritCombatStatsFrom": "slime",
   "_IsAggressive": true,
   "_MoveTime": 5
 }

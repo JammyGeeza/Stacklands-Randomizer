@@ -236,6 +236,18 @@ namespace Stacklands_Randomizer_Mod
         };
 
         /// <summary>
+        /// List of quests to override - usually just due to the logic being slightly incorrect.
+        /// </summary>
+        public static readonly List<Quest> Override = new()
+        {
+            new("cook_meat")                        { OnActionComplete = (CardData card, string action) => action == "finish_blueprint" && card.Id == Cards.blueprint_cookedmeat    , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Cooking },
+            new("cook_omelette")                    { OnActionComplete = (CardData card, string action) => action == "finish_blueprint" && card.Id == Cards.blueprint_omelette      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Cooking },
+            new("cook_frittata")                    { OnActionComplete = (CardData card, string action) => action == "finish_blueprint" && card.Id == Cards.blueprint_frittata      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Cooking },
+            new("get_iron_bar")                     { OnActionComplete = (CardData card, string action) => action == "finish_blueprint" && card.Id == Cards.blueprint_iron_bar      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Resources },
+            //new("make_gold_bar")                    { OnActionComplete = (CardData card, string action) => action == "finish_blueprint" && card.Id == Cards.blueprint_gold_bar      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Island_Misc },
+        };
+
+        /// <summary>
         /// List of archived quests.
         /// </summary>
         public static readonly List<Quest> Archived = new()

@@ -14,6 +14,7 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string TAG_EQUIPMENTSANITY = "equipmentsanity";
         private static readonly string TAG_FOODSANITY = "foodsanity";
         private static readonly string TAG_GOAL = "goal";
+        private static readonly string TAG_GOAL_BOARDS = "goal_boards";
         private static readonly string TAG_LOCATIONSANITY = "locationsanity";
         private static readonly string TAG_MOBSANITY = "mobsanity";
         private static readonly string TAG_MOBSANITY_BALANCING = "mobsanity_balancing";
@@ -32,6 +33,11 @@ namespace Stacklands_Randomizer_Mod
         ///// Gets or sets the active boards for this run.
         ///// </summary>
         //public string[] ActiveBoards { get; private set; } = [];
+
+        /// <summary>
+        /// Gets the active boards for this run.
+        /// </summary>
+        public BoardFlags Boards { get; private set; }
 
         /// <summary>
         /// Gets the amount of cards a board expansion will increase the card limit by for this run.
@@ -64,6 +70,11 @@ namespace Stacklands_Randomizer_Mod
         public GoalFlags Goal {  get; private set; }
 
         /// <summary>
+        /// Gets or sets the boards the goal applies to for this run.
+        /// </summary>
+        public BoardFlags GoalBoards { get; private set; }
+
+        /// <summary>
         /// Gets or sets the list of goal quests for this run.
         /// </summary>
         public List<Quest> GoalQuests { get; private set; } = new() { };
@@ -94,14 +105,9 @@ namespace Stacklands_Randomizer_Mod
         public MoonLength MoonLength { get; private set; }
 
         ///// <summary>
-        ///// Gets or sets whether Packsanity is enabled for this run.
+        ///// Gets or sets the quests that are included in this run.
         ///// </summary>
-        //public bool PacksanityEnabled { get; private set; }
-
-        /// <summary>
-        /// Gets or sets the quests that are included in this run.
-        /// </summary>
-        public QuestCheckFlags QuestChecks { get; private set; }
+        //public QuestCheckFlags QuestChecks { get; private set; }
 
         /// <summary>
         /// Gets or sets the amount of cards to be sold in a 'Sell Cards Trap' for this run.
@@ -140,6 +146,14 @@ namespace Stacklands_Randomizer_Mod
 
         public YamlOptions(Dictionary<string, object> slotData)
         {
+            Boards = slotData.TryGetValue(TAG_BOARDS, out object boards)
+                ? (BoardFlags)Convert.ToInt32(boards)
+                : BoardFlags.Mainland;
+
+            StacklandsRandomizer.instance.ModLogger.Log($"Boards for this run: {string.Join(", ", Enum.GetValues(typeof(BoardFlags))
+                .Cast<BoardFlags>()
+                .Where(flag => flag != BoardFlags.None && Boards.HasFlag(flag)))}");
+
             BoardExpansionAmount = slotData.TryGetValue(TAG_BOARD_EXPANSION_AMOUNT, out object expansionAmount)
                 ? Convert.ToInt32(expansionAmount)
                 : 8; // Default to 8 if not found
@@ -156,28 +170,38 @@ namespace Stacklands_Randomizer_Mod
                 ? (GoalFlags)Convert.ToInt32(goal)
                 : GoalFlags.None; // Default to None if not found.
 
-            StacklandsRandomizer.instance.ModLogger.Log($"Goal value for this run: {Goal}");
+            StacklandsRandomizer.instance.ModLogger.Log($"Goal(s) for this run: {string.Join(", ", Enum.GetValues(typeof(GoalFlags))
+                .Cast<GoalFlags>()
+                .Where(flag => flag != GoalFlags.None && Goal.HasFlag(flag)))}");
 
-            // Add goal quests to list
-            if (Goal.HasFlag(GoalFlags.Kill_the_Demon))
+            GoalBoards = slotData.TryGetValue(TAG_GOAL_BOARDS, out object goalBoards)
+                ? (BoardFlags)Convert.ToInt32(goalBoards)
+                : BoardFlags.None;
+
+            StacklandsRandomizer.instance.ModLogger.Log($"Goal Board(s) for this run: {string.Join(", ", Enum.GetValues(typeof(BoardFlags))
+                .Cast<BoardFlags>()
+                .Where(flag => flag != BoardFlags.None && GoalBoards.HasFlag(flag)))}");
+
+            // Set goal quests depending on selected goal
+            if (Goal.HasFlag(GoalFlags.AllBosses) || Goal.HasFlag(GoalFlags.RandomBoss))
             {
-                GoalQuests.Add(AllQuests.KillDemon);
-                QuestChecks |= QuestCheckFlags.Mainland;
+                if (GoalBoards.HasFlag(BoardFlags.Mainland))
+                {
+                    GoalQuests.Add(AllQuests.KillDemon);
+                }
+
+                if (GoalBoards.HasFlag(BoardFlags.Forest))
+                {
+                    GoalQuests.Add(AllQuests.FightWickedWitch);
+                }
+
+                if (GoalBoards.HasFlag(BoardFlags.Island))
+                {
+                    GoalQuests.Add(AllQuests.KillDemonLord);
+                }
             }
 
-            if (Goal.HasFlag(GoalFlags.Kill_the_Wicked_Witch))
-            {
-                GoalQuests.Add(AllQuests.FightWickedWitch);
-                QuestChecks |= QuestCheckFlags.Forest;
-            }
-
-            if (Goal.HasFlag(GoalFlags.Kill_the_Demon_Lord))
-            {
-                GoalQuests.Add(AllQuests.KillDemonLord);
-                QuestChecks |= QuestCheckFlags.Island;
-            }
-
-            StacklandsRandomizer.instance.ModLogger.Log($"Goal Quests for this run: {string.Join(", ", GoalQuests.Select(gq => gq.Id))}");
+            StacklandsRandomizer.instance.ModLogger.Log($"Goal Quest(s) for this run: {string.Join(", ", GoalQuests.Select(gq => gq.Id))}");
 
             PauseTimeEnabled = slotData.TryGetValue(TAG_PAUSE_ENABLED, out object pause)
                 ? Convert.ToBoolean(pause)
@@ -222,17 +246,11 @@ namespace Stacklands_Randomizer_Mod
 
             StacklandsRandomizer.instance.ModLogger.Log($"Moon Length for this run: {MoonLength}");
 
-            //PacksanityEnabled = slotData.TryGetValue(TAG_PACKSANITY, out object packsanity)
-            //    ? Convert.ToBoolean(packsanity)
-            //    : false; // Default to false if not found
-
-            //StacklandsRandomizer.instance.ModLogger.Log($"Packsanity Enabled for this run: {PacksanityEnabled}");
-
             //QuestChecks = slotData.TryGetValue(TAG_BOARDS, out object boards)
             //    ? (QuestCheckFlags)Convert.ToInt32(boards)
             //    : QuestCheckFlags.Mainland; // Default to Mainland if not found
 
-            StacklandsRandomizer.instance.ModLogger.Log($"Quest Checks value for this run: {QuestChecks}");
+            //StacklandsRandomizer.instance.ModLogger.Log($"Quest Checks value for this run: {QuestChecks}");
 
             SellCardTrapAmount = slotData.TryGetValue(TAG_SELL_CARD_AMOUNT, out object sellCardAmount)
                 ? Convert.ToInt32(sellCardAmount)
@@ -274,7 +292,7 @@ namespace Stacklands_Randomizer_Mod
                 ? Convert.ToString(version)
                 : string.Empty;
 
-            StacklandsRandomizer.instance.ModLogger.Log($".apworld version: {Version}");
+            StacklandsRandomizer.instance.ModLogger.Log($"Version: {Version}");
         }
     }
 }

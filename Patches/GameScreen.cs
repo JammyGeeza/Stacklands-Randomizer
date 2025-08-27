@@ -172,16 +172,15 @@ namespace Stacklands_Randomizer_Mod
                 .. QuestManager.instance.AllQuests.Where(q =>
                     !IgnoredQuests.AlwaysIgnore.Contains(q.Id)                                                                                                          // Quest is not in the 'AlwaysIgnore' list
                     && (
-                        (q.QuestLocation is Location.Mainland && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland))                   // Quest location is Mainland and Mainland is enabled
-                        || (q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest))                    // OR Quest location is Forest and Forest is enabled
-                        || (q.QuestLocation is Location.Island && StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island))                    // OR Quest location is Island and Island is enabled
+                        (q.QuestLocation is Location.Mainland && StacklandsRandomizer.instance.Options.Boards.HasFlag(BoardFlags.Mainland))                             // Quest location is Mainland and Mainland is enabled
+                        || (q.QuestLocation is Location.Forest && StacklandsRandomizer.instance.Options.Boards.HasFlag(BoardFlags.Forest))                              // OR Quest location is Forest and Forest is enabled
+                        || (q.QuestLocation is Location.Island && StacklandsRandomizer.instance.Options.Boards.HasFlag(BoardFlags.Island))                              // OR Quest location is Island and Island is enabled
                     )
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island) || !IgnoredQuests.IgnoreIfIslandDisabled.Contains(q.Id))      // Island is enabled OR quest is not in the 'IgnorIfIslandDisabked' ignore list
+                    && (StacklandsRandomizer.instance.Options.Boards.HasFlag(BoardFlags.Island) || !IgnoredQuests.IgnoreIfIslandDisabled.Contains(q.Id))                // Island is enabled OR quest is not in the 'IgnorIfIslandDisabked' ignore list
                     && (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)             // Equipmentsanity is enabled OR quest group is not Equipmentsanity
                     && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)                       // Foodsanity is enabled OR quest group is not Foodsanity
                     && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)               // Locationsanity is enabled OR quest group is not Locationsanity
                     && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)                         // Mobsanity is enabled OR quest group is not Mobsanity
-                    //&& (StacklandsRandomizer.instance.Options.PacksanityEnabled || q.QuestGroup != EnumExtensionHandler.PacksanityQuestGroupEnum)                     // Packsanity is enabled OR quest group is not Packsanity
                     && (StacklandsRandomizer.instance.Options.Spendsanity is not Spendsanity.Off || q.QuestGroup != EnumExtensionHandler.SpendsanityQuestGroupEnum)     // Spendsanity is enabled OR quest group is not Spendsanity   
                     && (StacklandsRandomizer.instance.Options.StructuresanityEnabled || q.QuestGroup != EnumExtensionHandler.StructuresanityQuestGroupEnum))            // Structuresanity is enabled OR quest group is not Structuresanity
             ];

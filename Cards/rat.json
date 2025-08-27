@@ -13,5 +13,5 @@
   "_InheritCombatStatsFromOtherCard": true,
   "_InheritCombatStatsFrom": "rat",
   "_IsAggressive": true,
-  "_MoveTime": 3
+  "_MoveTime": 5
 }

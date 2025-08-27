@@ -58,7 +58,7 @@ namespace Stacklands_Randomizer_Mod
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
 
             // If mainland enabled, add custom mainland quests
-            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland))
+            if (StacklandsRandomizer.instance.Options.Boards.HasFlag(BoardFlags.Mainland))
             {
                 StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Mainland quests...");
                 
@@ -72,7 +72,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // If dark forest enabled, add custom dark forest quests
-            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest))
+            if (StacklandsRandomizer.instance.Options.Boards.HasFlag(BoardFlags.Forest))
             {
                 StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Dark Forest quests...");
 
@@ -86,7 +86,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // If island enabled, add custom island quests
-            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island))
+            if (StacklandsRandomizer.instance.Options.Boards.HasFlag(BoardFlags.Island))
             {
                 StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Island quests...");
 
@@ -106,6 +106,19 @@ namespace Stacklands_Randomizer_Mod
 
                 // Remove pausing quest
                 __result.Remove(AllQuests.PauseGame);
+            }
+
+            // Replace quests that need to be overridden (some quests have strange criteria)
+            foreach (Quest replacementQuest in CustomQuestMapping.Override)
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Overriding specific quests...");
+
+                // If a quest exists with the same ID as the replacement...
+                if (__result.SingleOrDefault(q => q.Id == replacementQuest.Id) is { } toBeReplaced)
+                {
+                    // Replace the quest
+                    __result[__result.IndexOf(toBeReplaced)] = replacementQuest;
+                }
             }
         }
 

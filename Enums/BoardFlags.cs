@@ -5,10 +5,11 @@ using System.Text;
 
 namespace Stacklands_Randomizer_Mod
 {
-    public enum GoalFlags
+    public enum BoardFlags : int
     {
         None        = 0,
-        AllBosses   = 1 << 0,
-        RandomBoss  = 1 << 1
+        Mainland    = 1 << 0,
+        Forest      = 1 << 1,
+        Island      = 1 << 2,
     }
 }

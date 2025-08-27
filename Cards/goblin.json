@@ -1,17 +1,17 @@
 {
   "$schema": "../schemas/card.schema.json",
-  "id": "ap_trap_slime",
-  "nameTerm": "ap_trap_slime_name",
-  "descriptionTerm": "ap_trap_slime_description",
-  "icon": "slime",
+  "id": "ap_trap_goblin",
+  "nameTerm": "ap_trap_goblin_name",
+  "descriptionTerm": "ap_trap_goblin_description",
+  "icon": "goblin",
   "value": -1,
   "type": "Mobs",
   "script": "Enemy",
   "_CanHaveInventory": false,
-  "_HealthPoints": 4,
+  "_HealthPoints": 10,
   "_HideFromCardopedia": true,
   "_InheritCombatStatsFromOtherCard": true,
-  "_InheritCombatStatsFrom": "slime",
+  "_InheritCombatStatsFrom": "goblin",
   "_IsAggressive": true,
-  "_MoveTime": 5
+  "_MoveTime": 4
 }

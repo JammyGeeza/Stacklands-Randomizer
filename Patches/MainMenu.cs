@@ -14,7 +14,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch("Awake")]
         [HarmonyPrefix]
-        public static void OnAwake_Setup(ref MainMenu __instance)
+        public static void OnAwake_Setup(MainMenu __instance)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(MainMenu)}.Awake prefix!");
 
@@ -30,7 +30,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch("Awake")]
         [HarmonyPostfix]
-        public static void OnAwake_DisplayConnectionStatus(ref MainMenu __instance)
+        public static void OnAwake_DisplayConnectionStatus(MainMenu __instance)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(MainMenu)}.Awake postfix!");
 

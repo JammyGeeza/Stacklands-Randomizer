@@ -1,0 +1,17 @@
+{
+  "$schema": "../schemas/card.schema.json",
+  "id": "ap_trap_goblin_archer",
+  "nameTerm": "ap_trap_goblin_archer_name",
+  "descriptionTerm": "ap_trap_goblin_archer_description",
+  "icon": "goblin_archer",
+  "value": -1,
+  "type": "Mobs",
+  "script": "Enemy",
+  "_CanHaveInventory": false,
+  "_HealthPoints": 7,
+  "_HideFromCardopedia": true,
+  "_InheritCombatStatsFromOtherCard": true,
+  "_InheritCombatStatsFrom": "goblin_archer",
+  "_IsAggressive": true,
+  "_MoveTime": 3
+}

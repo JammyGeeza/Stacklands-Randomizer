@@ -1,6 +1,7 @@
 ﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using UnityEngine;
 
@@ -18,7 +19,7 @@ namespace Stacklands_Randomizer_Mod.Patches
         public static bool OnDamage_InterceptTrapCombatables(Combatable __instance, ref int damage)
         {
             // Intercept if combatable name starts with 'Trap'
-            if (__instance.Name.StartsWith("Trap"))
+            if (__instance.Name.StartsWith("Trap "))
             {
                 // Is it already dead?
                 bool alreadyDead = __instance.HealthPoints <= 0;

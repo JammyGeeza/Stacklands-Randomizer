@@ -15,13 +15,35 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch("Die")]
         [HarmonyPostfix]
-        public static void OnDie_LogMobDeath(ref Mob __instance)
+        public static void OnDie_LogMobDeath(Mob __instance)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(Mob)}.Die postfix!");
 
-            // Increment amount of times this mob has been killed
-            int mobKilledCount = CommonPatchMethods.GetTimesMobKilled(__instance.Id);
-            KeyValueHelper.SetExtraKeyValue($"mob_{__instance.Id}", mobKilledCount + 1);
+            // Increment amount of times this mob has been killed (and isn't a trap!)
+            if (!__instance.Name.StartsWith("Trap "))
+            {
+                int mobKilledCount = CommonPatchMethods.GetTimesMobKilled(__instance.Id);
+                KeyValueHelper.SetExtraKeyValue($"mob_{__instance.Id}", mobKilledCount + 1);
+            }
+        }
+
+        [HarmonyPatch(nameof(Mob.TryDropItems))]
+        [HarmonyPrefix]
+        public static bool OnTryDropItems_Prevent(Mob __instance)
+        {
+            StacklandsRandomizer.instance.ModLogger.Log($"{nameof(Mob)}.{nameof(Mob.TryDropItems)} Prefix!");
+
+            // If combatable's override name starts with 'Trap '...
+            if (__instance.Name.StartsWith("Trap "))
+            {
+                StacklandsRandomizer.instance.ModLogger.Log($"Preventing drops for {__instance.Name}...");
+
+                // Prevent original method from firing
+                return false;
+            }
+
+            // Continue as normal
+            return true;
         }
     }
 }

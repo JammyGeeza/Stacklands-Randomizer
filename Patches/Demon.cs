@@ -16,7 +16,7 @@ namespace Stacklands_Randomizer_Mod.Patches
         /// </summary>
         [HarmonyPatch(nameof(Demon.Die))]
         [HarmonyPostfix]
-        public static void OnDie_TriggerSpecialAction(ref Demon __instance)
+        public static void OnDie_TriggerSpecialAction(Demon __instance)
         {
             QuestManager.instance.SpecialActionComplete($"{__instance.Id}_killed", __instance);
         }
