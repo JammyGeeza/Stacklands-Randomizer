@@ -359,8 +359,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                ItemHelper.SpawnCard(Cards.iron_bar);
-                ItemHelper.SpawnCard(Cards.gold_bar);
+
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -376,10 +375,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
-                foreach (Mob mob in WorldManager.instance.GetCards<Mob>())
-                {
-                    mob.Damage(100);
-                }
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
