@@ -70,7 +70,6 @@ namespace Stacklands_Randomizer_Mod
 
                 // Prefix enemy with 'Trap'
                 obj.nameOverride = $"Trap {obj.Name}";
-                //obj.AddStatusEffect(new StatusEffect_Trap());
             }
 
             MyGameCard.DestroyCard(spawnSmoke: true);

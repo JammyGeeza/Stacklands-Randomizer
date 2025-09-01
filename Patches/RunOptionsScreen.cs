@@ -14,7 +14,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
-        public static void OnAwake_Setup(ref RunOptionsScreen __instance)
+        public static void OnAwake_Setup(RunOptionsScreen __instance)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(RunOptionsScreen)}.Awake prefix!");
 
