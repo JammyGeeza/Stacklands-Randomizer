@@ -7,10 +7,10 @@ This repo was forked from and is a continuation of the development of the origin
 In an archipelago randomized run of Stacklands, all quests are Location Checks and all Progression Items received will be **Ideas** _(AKA 'Blueprints')_ in order to make the craftable items required to complete the quests. The quests themselves have not changed so the requirements for each quest remain the same as vanilla, but the order in which they are completed will depend on the randomisation of the **Ideas** and the order in which you receive them.
 
 ### Goals
-- Complete the **Kill the Demon** quest on Mainland
-- Complete the **Fight the Wicked Witch** quest on The Dark Forest
-- Complete the **Kill the Demon Lord** quest on The Island
-- Complete a combination of some / all of the above (Mainland always included)
+You can enable a combination of **Mainland** _(currently always included)_, **The Dark Forest** and **The Island** boards to be included in your run and then select from the following goals:
+- **Kill All Bosses** - Kill the bosses of all boards enabled for your run.
+- **Kill Random Boss** - Kill one randomly selected boss from the boards enabled for your run.
+- _More goals coming soon..._
 
 ### Location Checks
 - All **Mainland** Quests
@@ -33,7 +33,7 @@ In an archipelago randomized run of Stacklands, all quests are Location Checks a
 - Ideas for items that help make the run easier but don't impact progression such as `Coin Chest`, `Hammer`, `Warehouse` etc.
 
 ### Filler / Junk Items
-- Ideas for items that have very little impact on progression such as `Butchery`, `Club`, `Dustbin` etc.
+- Ideas for items that have very little impact on progression such as `Dustbin`, `Magic Glue`, `Wishing Well` etc.
 - Resource Booster Pack _(pulls 1x Structure, 2x Food and 2x Resource cards)_
 - _More to be added soon..._
 
