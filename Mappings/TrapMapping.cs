@@ -14,9 +14,9 @@ namespace Stacklands_Randomizer_Mod.Mappings
             ModCards.trap_snake,
         };
 
-        public static readonly string[] StructureTrapCards =
-        {
-            ModCards.trap_strange_portal
-        };
+        //public static readonly string[] StructureTrapCards =
+        //{
+        //    ModCards.trap_strange_portal
+        //};
     }
 }

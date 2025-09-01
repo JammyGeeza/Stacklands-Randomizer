@@ -13,6 +13,10 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         public static IEnumerator FeedVillagers()
         {
+            // Ignore if current location is forest
+            if (WorldManager.instance.CurrentBoard.Location is Location.Forest)
+                yield return 0;
+
             // Set title
             EndOfMonthCutscenes.CutsceneTitle = "Feed Villagers Trap";
 
@@ -60,6 +64,10 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="amount">The amount of cards to force to be sold.</param>
         public static IEnumerator SellCards(int amount)
         {
+            // Ignore if current location is forest
+            if (WorldManager.instance.CurrentBoard.Location is Location.Forest)
+                yield return 0;
+
             // Get starting card count
             int startingCount = WorldManager.instance.GetCardCount();
 

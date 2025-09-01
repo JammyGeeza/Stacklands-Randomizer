@@ -11,5 +11,6 @@ namespace Stacklands_Randomizer_Mod
         None        = 0,
         Mainland    = 1 << 0,
         Forest      = 1 << 1,
+        Island      = 1 << 2,
     }
 }

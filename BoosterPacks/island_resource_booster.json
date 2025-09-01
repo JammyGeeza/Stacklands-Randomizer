@@ -1,0 +1,209 @@
+{
+  "$schema": "../Schemas/boosterpack.schema.json",
+  "id": "ap_island_resource",
+  "nameTerm": "ap_island_resource_name",
+  "cost": 0,
+  "icon": "archipelago.png",
+  "location": "Archipelago",
+  "minQuestCount": 0,
+  "cardBags": [
+    {
+      "CardBagType": "Chances",
+      "CardsInPack": 1,
+      "Chances": [
+        {
+          "Id": "banana_tree",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "cotton_plant",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "driftwood",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "fishing_spot",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "gold_deposit",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        }
+      ],
+      "Name": "Structures"
+    },
+    {
+      "CardBagType": "Chances",
+      "CardsInPack": 1,
+      "Chances": [
+        {
+          "Id": "banana",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "ceviche",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "chili_pepper",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "cooked_fish",
+          "Chance": 6,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "lime",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "seafood_stew",
+          "Chance": 2,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "seaweed",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "sushi",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "tamago_sushi",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        }
+      ],
+      "Name": "Foods"
+    },
+    {
+      "CardBagType": "Chances",
+      "CardsInPack": 2,
+      "Chances": [
+        {
+          "Id": "cotton",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "flint",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "goop",
+          "Chance": 2,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "gold_ore",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "magic_dust",
+          "Chance": 4,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "poop",
+          "Chance": 2,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "sand",
+          "Chance": 10,
+          "HasMaxCount": true,
+          "MaxCountToGive": 1,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "sandstone",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "shell",
+          "Chance": 8,
+          "HasMaxCount": true,
+          "MaxCountToGive": 1,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "stick",
+          "Chance": 8,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        },
+        {
+          "Id": "wood",
+          "Chance": 10,
+          "HasMaxCount": false,
+          "HasPrerequisiteCard": false,
+          "IsEnemy": false
+        }
+      ],
+      "Name": "Resources"
+    }
+  ]
+}

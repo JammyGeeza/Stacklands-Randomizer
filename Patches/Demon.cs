@@ -5,12 +5,14 @@ using System.Text;
 
 namespace Stacklands_Randomizer_Mod.Patches
 {
-    
+    /// <summary>
+    /// Patches for the <see cref="Demon"/> class.
+    /// </summary>
     [HarmonyPatch(typeof(Demon))]
     public class Demon_Patches
     {
         /// <summary>
-        /// Trigger the special action completed when a demon dies, as currently it does not. This prevents the location check from completing.
+        /// Trigger the special action completed when a Demon or Demon Lord dies, as currently it does not which prevents the location check from completing.
         /// </summary>
         [HarmonyPatch(nameof(Demon.Die))]
         [HarmonyPostfix]

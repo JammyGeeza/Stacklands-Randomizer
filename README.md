@@ -9,12 +9,19 @@ In an archipelago randomized run of Stacklands, all quests are Location Checks a
 ### Goals
 - Complete the **Kill the Demon** quest on Mainland
 - Complete the **Fight the Wicked Witch** quest on The Dark Forest
-- Complete both of the aboce
+- Complete the **Kill the Demon Lord** quest on The Island
+- Complete a combination of some / all of the above (Mainland always included)
 
 ### Location Checks
 - All **Mainland** Quests
-- All **The Dark Forest** Quests
-- **Mobsanity** Quests _(killing one of each enemy type)_
+- All **The Dark Forest**
+- All **The Island** Quests
+- **Equipmentsanity** _(Crafting one of each reachable Equipment card. E.g. Club, Sword, Blunderbuss etc.)_
+- **Foodsanity** _(Cooking one of each reachable Food card. E.g. Stew, Milkshake, Tamago Sushi etc.)_
+- **Locationsanity** _(Exploring one of each reachable Location card. E.g. Old Village, Plains, Jungle etc.)_
+- **Mobsanity** _(Killing one of each reachable Mob card. E.g. Elf, Giant Snail, Tiger etc.)_
+- **Structuresanity** _(Building one of each Structure card. E.g. Garden, Market, Distillery etc.)_
+- A handful of additional, basic custom quests have also been added to pad out the amount of vanilla checks.
 - _More coming soon..._
 
 ### Progression Items
@@ -40,7 +47,7 @@ In an archipelago randomized run of Stacklands, all quests are Location Checks a
 ## Current In-Game Support
 - Mainland _(full support)_
 - The Dark Forest _(full support)_
-- ~~The Island~~ _(coming soon...)_
+- The Island _(full support)_
 - ~~Stacklands 2000 DLC~~ _(not yet planned)_
 - ~~Cursed Worlds DLC~~ _(not yet planned)_
 

@@ -23,7 +23,7 @@ namespace Stacklands_Randomizer_Mod
         #region Private members
 
         // Static Member(s)
-        private static readonly string EXPECTED_APWORLD_VERSION = "0.1.6";
+        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.0";
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
@@ -40,7 +40,7 @@ namespace Stacklands_Randomizer_Mod
 
         // Session Data(s)
         private ArchipelagoSession _session;
-        private DeathLinkService _deathlink;
+        private DeathLinkService _deathlinkService;
         private Dictionary<string, object> _slotData;
 
         // Lock(s)
@@ -50,8 +50,11 @@ namespace Stacklands_Randomizer_Mod
         private ConfigEntry<string> host;
         private ConfigEntry<string> slotName;
         private ConfigEntry<string> password;
+        private ConfigEntry<bool> autoConnect;
         private ConfigEntry<bool> attemptConnection;
         private ConfigEntry<bool> sendGoal;
+        private ConfigEntry<bool> deathlink;
+        private ConfigEntry<bool> hideCheckedQuests;
 
         // Other(s)
         private CustomButton _connectionStatus;
@@ -88,6 +91,13 @@ namespace Stacklands_Randomizer_Mod
         private bool _handlingDeathLink = false;
 
         /// <summary>
+        /// Gets whether or not deathlink is enabled.
+        /// </summary>
+        public bool DeathlinkEnabled
+            => deathlink.Value &&
+               _deathlinkService is not null;
+
+        /// <summary>
         /// Check if currently connected to an archipelago server.
         /// </summary>
         public bool IsConnected =>
@@ -101,6 +111,12 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         public bool IsInGame =>
             WorldManager.instance.CurrentGameState is WorldManager.GameState.Playing or WorldManager.GameState.Paused;
+
+        /// <summary>
+        /// Gets whether or not to hide completed quests from the quest log.
+        /// </summary>
+        public bool HideCompletedQuests
+            => hideCheckedQuests.Value;
 
         /// <summary>
         /// Gets or sets the YAML Options for this run.
@@ -134,18 +150,53 @@ namespace Stacklands_Randomizer_Mod
         {
             instance = this;
 
+            // Extend Location enum (need to do this early so the mod can load the
+            // resource_booster.json correctly
+            EnumHelper.ExtendEnum<Location>("Archipelago");
+
             // Prepare mod config
             host = Config.GetEntry<string>("Server", "archipelago.gg:12345");
             slotName = Config.GetEntry<string>("Slot Name", "Slot");
             password = Config.GetEntry<string>("Password", "");
+            
+            // Hide 'Attempt Connect' toggle to replace with a button
             attemptConnection = Config.GetEntry<bool>("Attempt Connect", false);
-            sendGoal = Config.GetEntry<bool>("Send Goal", false);
-
             attemptConnection.UI.Hidden = true;
+
+            // Auto-connect when game boots
+            autoConnect = Config.GetEntry<bool>("Auto-Connect", false);
+            autoConnect.UI.Tooltip = "Attempt to auto-connect on game boot";
+            autoConnect.UI.OnUI = (ConfigEntryBase entry) =>
+            {
+                
+            };
+
+            // Hide 'Send Goal' toggle to replace with a button and set up event to create all buttons
+            sendGoal = Config.GetEntry<bool>("Send Goal", false);
             sendGoal.UI.Hidden = true;
+
+            // Set up Deathlink toggle
+            deathlink = Config.GetEntry<bool>("Deathlink", false);
+            deathlink.UI.Tooltip = "Send deathlink when a villager dies and kill a villager when deathlink received";
+            deathlink.OnChanged = (bool newValue) =>
+            {
+                ModLogger.Log($"Deathlink changed to: {newValue}");
+
+                if (_deathlinkService is not null)
+                {
+                    // Enable / disable deathlink based on new value
+                    if (newValue) { _deathlinkService.EnableDeathLink(); }
+                    else { _deathlinkService.DisableDeathLink(); }
+                }
+            };
+
+            // Set up hide checked quests toggle
+            hideCheckedQuests = Config.GetEntry<bool>("Hide Checked Quests", false);
+            hideCheckedQuests.UI.Tooltip = "Hide completed quests from the in-game quest log";
 
             sendGoal.UI.OnUI = (ConfigEntryBase entry) =>
             {
+                // Add custom button to connect
                 CustomButton connectButton = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
                 connectButton.transform.localScale = Vector3.one;
                 connectButton.transform.localPosition = Vector3.zero;
@@ -155,6 +206,7 @@ namespace Stacklands_Randomizer_Mod
                 connectButton.TooltipText = "Attempt to connect to the archipelago server.";
                 connectButton.Clicked += ConnectButton_Clicked;
 
+                // Add custom button to disconnect
                 CustomButton disconnectButton = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
                 disconnectButton.transform.localScale = Vector3.one;
                 disconnectButton.transform.localPosition = Vector3.zero;
@@ -164,6 +216,16 @@ namespace Stacklands_Randomizer_Mod
                 disconnectButton.TooltipText = "Disconnect from the Archipelago server";
                 disconnectButton.Clicked += DisconnectButton_Clicked;
 
+                // Add a spacer
+                CustomButton spacerOne = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
+                spacerOne.transform.localScale = Vector3.one;
+                spacerOne.transform.localPosition = Vector3.zero;
+                spacerOne.transform.localRotation = Quaternion.identity;
+
+                spacerOne.TextMeshPro.text = "";
+                spacerOne.ButtonEnabled = false;
+
+                // Add custom button for sending goal
                 CustomButton sendGoalButton = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
                 sendGoalButton.transform.localScale = Vector3.one;
                 sendGoalButton.transform.localPosition = Vector3.zero;
@@ -172,10 +234,20 @@ namespace Stacklands_Randomizer_Mod
                 sendGoalButton.TextMeshPro.text = "Send Goal";
                 sendGoalButton.TooltipText = "Send victory condition, if completed. (TEMPORARY SOLUTION)";
                 sendGoalButton.Clicked += SendGoalButton_Clicked;
-            };
 
-            // If 'Attempt Connect' value is true, attempt to connect to the AP server
-            if (attemptConnection.Value)
+                // Add a second spacer
+                CustomButton spacerTwo = Instantiate(PrefabManager.instance.ButtonPrefab, ModOptionsScreen.instance.ButtonsParent);
+                spacerTwo.transform.localScale = Vector3.one;
+                spacerTwo.transform.localPosition = Vector3.zero;
+                spacerTwo.transform.localRotation = Quaternion.identity;
+
+                spacerTwo.TextMeshPro.text = "";
+                spacerTwo.ButtonEnabled = false;
+            };
+            
+
+            // If 'Auto-Connect' or 'Attempt Connect' value is true, attempt to connect to the AP server
+            if (autoConnect.Value || attemptConnection.Value)
             {
                 // Change 'Attempt Connect' value back to false to prevent a re-attempt on next game load
                 attemptConnection.Value = false;
@@ -295,11 +367,11 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
-                
+                // SimulateUnlockBooster();
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
@@ -508,12 +580,12 @@ namespace Stacklands_Randomizer_Mod
         public void SendDeathlink(string combatable, string? cause = null)
         {
             // If deathlink is enabled, send trigger
-            if (IsConnected && Options.Deathlink)
+            if (IsConnected && DeathlinkEnabled)
             {
                 ModLogger.Log("Sending Deathlink trigger to server...");
 
                 // Send the deathlink trigger
-                _deathlink.SendDeathLink(new DeathLink(PlayerName, cause));
+                _deathlinkService.SendDeathLink(new DeathLink(PlayerName, cause));
 
                 // Display an in-game notification
                 DisplayNotification(
@@ -522,13 +594,11 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
-        
-
         /// <summary>
         /// Sync all received items from the server and spawn them if necessary.
         /// </summary>
-        /// <param name="forceCreate">Whether or not to force creation of all items.</param>
-        public void SyncAllReceivedItems(bool forceCreate)
+        /// <param name="isNewRun">Whether this sync is for a new run - if so, certain items will be force-spawned.</param>
+        public void SyncAllReceivedItems(bool isNewRun = false)
         {
             ModLogger.Log($"Performing re-sync of all unlocked items from server...");
 
@@ -537,7 +607,7 @@ namespace Stacklands_Randomizer_Mod
             // Add starting inventory to queue (if any)
             if (Options.StartInventory.Count > 0)
             {
-                ItemHandler.SyncItems(Options.StartInventory.Keys, forceCreate);
+                ItemHelper.SyncItems(Options.StartInventory.Keys, isNewRun);
             }
 
             ModLogger.Log($"Total received items: {_session.Items.AllItemsReceived.Count}");
@@ -545,7 +615,7 @@ namespace Stacklands_Randomizer_Mod
             // Add all received items from server (if any)
             if (_session.Items.AllItemsReceived.Count > 0)
             {
-                ItemHandler.SyncItems(_session.Items.AllItemsReceived, forceCreate);
+                ItemHelper.SyncItems(_session.Items.AllItemsReceived, isNewRun);
             }
         }
 
@@ -593,8 +663,11 @@ namespace Stacklands_Randomizer_Mod
             ModLogger.Log($"Password: {password.Value}");
 
             // Set 'Attempt Connection' value to true to trigger a connection attempt
-            attemptConnection.Value = true;
-            Config.Save();
+            if (!IsConnected)
+            {
+                attemptConnection.Value = true;
+                Config.Save();
+            }
         }
 
         /// <summary>
@@ -626,7 +699,7 @@ namespace Stacklands_Randomizer_Mod
         private void Items_ItemReceived(ReceivedItemsHelper itemsHelper)
         {
             ModLogger.Log($"Item received! Adding to queue...");
-            AddToItemQueue(() => ItemHandler.ReceiveItem(itemsHelper.DequeueItem()));
+            AddToItemQueue(() => ItemHelper.ReceiveItem(itemsHelper.DequeueItem()));
         }
 
         /// <summary>
@@ -842,7 +915,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // Set deathlink received to true if deathlink is enabled, otherwise false
-            bool deathlinkEnabled = Options.Deathlink;
+            bool deathlinkEnabled = DeathlinkEnabled;
             lock (_lock)
             {
                 _handlingDeathLink = deathlinkEnabled;
@@ -946,36 +1019,37 @@ namespace Stacklands_Randomizer_Mod
 
                     try
                     {
-                        // If deathlink is enabled for this slot, attempt to create deathlink service
-                        if (_slotData.TryGetValue(TAG_DEATHLINK, out object deathlink) ? Convert.ToBoolean(deathlink) : false)
+                        ModLogger.Log("Attempting to create deathlink service...");
+
+                        // Create and store deathlink service
+                        DeathLinkService deathlinkService = _session.CreateDeathLinkService();
+                        if (deathlinkService is not null)
                         {
-                            ModLogger.Log("Attempting to create deathlink service...");
+                            ModLogger.Log($"Deathlink service created!");
 
-                            // Create and store deathlink service
-                            DeathLinkService deathlinkService = _session.CreateDeathLinkService();
-                            if (deathlinkService is not null)
+                            lock (_lock)
                             {
-                                ModLogger.Log($"Deathlink service created: {deathlinkService != null}");
+                                // Create and store deathlink service and attach event handler
+                                _deathlinkService = deathlinkService;
+                                _deathlinkService.OnDeathLinkReceived += DeathLink_DeathLinkReceived;
 
-                                lock (_lock)
+                                // If deathlink enabled in config, enable it in the service
+                                if (DeathlinkEnabled)
                                 {
-                                    // Create and store deathlink service and attach event handler
-                                    _deathlink = deathlinkService;
-                                    _deathlink.OnDeathLinkReceived += DeathLink_DeathLinkReceived;
-
-                                    _deathlink.EnableDeathLink();
+                                    _deathlinkService.EnableDeathLink();
                                 }
+
                             }
-                            else
-                            {
-                                ModLogger.LogError("DeathLink service was unexpectedly null.");
-                            }
+                        }
+                        else
+                        {
+                            ModLogger.LogError("DeathLink service was unexpectedly null.");
                         }
                     }
                     catch (Exception ex)
                     {
                         // Continue as success, this won't stop the session from running
-                        reason = $"Deathlink unavailable - failed to start deathlink service.";
+                        reason = $"Failed to start deathlink service - deathlink will be unavailable.";
                         ModLogger.LogError($"Failed to start deathlink service. Reason: '{ex.Message}'.");
                     }
 
@@ -1119,7 +1193,7 @@ namespace Stacklands_Randomizer_Mod
 
             if (!string.IsNullOrWhiteSpace(unfoundBooster))
             {
-                ItemHandler.UnlockBoosterPack(unfoundBooster, true);
+                ItemHelper.UnlockBoosterPack(unfoundBooster, true);
             }
         }
 
@@ -1208,7 +1282,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Select blueprint at random and receive it
             Item item = items.ElementAt(UnityEngine.Random.Range(0, items.Count));
-            AddToItemQueue(() => ItemHandler.ReceiveItem(item.Name));
+            AddToItemQueue(() => ItemHelper.ReceiveItem(item.Name));
         }
 
         /// <summary>

@@ -7,7 +7,9 @@ using UnityEngine;
 
 namespace Stacklands_Randomizer_Mod.Patches
 {
-    
+    /// <summary>
+    /// Patches for the <see cref="SokLoc"/> class.
+    /// </summary>
     [HarmonyPatch(typeof(SokLoc))]
     public class SokLoc_Patches
     {

@@ -7,6 +7,8 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="BoosterPacks\island_resource_booster.json" />
+    <None Remove="BoosterPacks\spendsanity_booster.json" />
     <None Remove="Cards\board_expansion.json" />
     <None Remove="Cards\chicken.json" />
     <None Remove="Cards\mosquito.json" />
@@ -97,8 +99,6 @@
 	  </Content>
   </ItemGroup>
   <ItemGroup>
-	<Folder Include="BoosterPacks\" />
-	<Folder Include="Cards\" />
     <Folder Include="Icons\" />
   </ItemGroup>
   <ItemGroup>

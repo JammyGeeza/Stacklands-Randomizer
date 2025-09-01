@@ -29,7 +29,7 @@ namespace Stacklands_Randomizer_Mod
         [HarmonyPostfix]
         public static void OnBoosterIsUnlocked_UnlockIfReceived(BoosterpackData p, bool allowDebug, ref bool __result)
         {
-            __result = ItemHandler.IsBoosterPackDiscovered(p.BoosterId);
+            __result = ItemHelper.IsBoosterPackDiscovered(p.BoosterId);
 
             // If booster has been unlocked...
             if (__result)
@@ -40,7 +40,11 @@ namespace Stacklands_Randomizer_Mod
                     QuestManager.instance.SpecialActionComplete("unlocked_all_packs");
                 }
 
-                // All Island Packs quest will go here when Island is supported
+                // If not yet completed 'Unlock All Island Packs' quest and all Island packs have been discovered, trigger special action for quest.
+                if (!WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(AllQuests.UnlockAllIslandPacks.Id) && WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.ISLAND_PACKS))
+                {
+                    QuestManager.instance.SpecialActionComplete("unlocked_all_island_packs");
+                }
             }
         }
 
@@ -53,14 +57,55 @@ namespace Stacklands_Randomizer_Mod
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(QuestManager)}.{nameof(QuestManager.GetAllQuests)} Postfix!");
 
-            // If mobsanity enabled, add mobsanity quests
-            if (StacklandsRandomizer.instance.Options.MobsanityEnabled)
+            // If mainland enabled, add custom mainland quests
+            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Mainland))
             {
-                StacklandsRandomizer.instance.ModLogger.Log("Inserting Mobsanity quests...");
+                StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Mainland quests...");
+                
+                __result.AddRange(
+                    CustomQuestMapping.Mainland.Where(q =>
+                        (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.StructuresanityEnabled || q.QuestGroup != EnumExtensionHandler.StructuresanityQuestGroupEnum)));
+            }
 
-                // Add mobsanity quests (and only include Dark Forest ones if enabled)
-                __result.AddRange(CustomQuestMapping.Map.Where(q => q.CustomQuestGroup == CustomQuestGroup.Mobsanity 
-                    && (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest) || q.QuestLocation != Location.Forest)));
+            // If dark forest enabled, add custom dark forest quests
+            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Forest))
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Dark Forest quests...");
+
+                __result.AddRange(
+                    CustomQuestMapping.DarkForest.Where(q =>
+                        (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.StructuresanityEnabled || q.QuestGroup != EnumExtensionHandler.StructuresanityQuestGroupEnum)));
+            }
+
+            // If island enabled, add custom island quests
+            if (StacklandsRandomizer.instance.Options.QuestChecks.HasFlag(QuestCheckFlags.Island))
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Inserting relevant custom Island quests...");
+
+                __result.AddRange(
+                    CustomQuestMapping.Island.Where(q =>
+                        (StacklandsRandomizer.instance.Options.EquipmentsanityEnabled || q.QuestGroup != EnumExtensionHandler.EquipmentsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.FoodsanityEnabled || q.QuestGroup != EnumExtensionHandler.FoodsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.LocationsanityEnabled || q.QuestGroup != EnumExtensionHandler.LocationsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.MobsanityEnabled || q.QuestGroup != EnumExtensionHandler.MobsanityQuestGroupEnum)
+                        && (StacklandsRandomizer.instance.Options.StructuresanityEnabled || q.QuestGroup != EnumExtensionHandler.StructuresanityQuestGroupEnum)));
+            }
+
+            // If pausing is disabled, remove pausing quest
+            if (!StacklandsRandomizer.instance.Options.PauseTimeEnabled)
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Removing Pausing quest...");
+
+                // Remove pausing quest
+                __result.Remove(AllQuests.PauseGame);
             }
         }
 
@@ -101,7 +146,13 @@ namespace Stacklands_Randomizer_Mod
                 // If 'Unlock All Booster Packs' action and not all boosters have been found, block it
                 if ((action is "unlock_all_packs" or "unlocked_all_packs") && !WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.MAINLAND_PACKS))
                 {
-                    StacklandsRandomizer.instance.ModLogger.Log($"Intercepting '{action}' - not all mainland packs have been discovered yet.");
+                    StacklandsRandomizer.instance.ModLogger.Log($"Intercepting '{action}' - not yet received all mainland packs.");
+                    return false;
+                }
+
+                if ((action is "unlock_all_island_packs" or "unlocked_all_island_packs") && !WorldManager.instance.CurrentSave.FoundBoosterIds.ContainsAll(CommonPatchMethods.ISLAND_PACKS))
+                {
+                    StacklandsRandomizer.instance.ModLogger.Log($"Intercepting '{action}' - not yet received all island packs.");
                     return false;
                 }
             }
