@@ -37,7 +37,6 @@ namespace Stacklands_Randomizer_Mod
             new IdeaItem("Idea: Butchery"           , Cards.blueprint_slaughterhouse  ),
             new IdeaItem("Idea: Campfire"           , Cards.blueprint_campfire        ),
             new IdeaItem("Idea: Chainmail Armor"    , Cards.blueprint_chainmail_armor ),
-            new IdeaItem("Idea: Charcoal"           , Cards.blueprint_charcoal        ),
             new IdeaItem("Idea: Chicken"            , Cards.blueprint_chicken         ),
             new IdeaItem("Idea: Club"               , Cards.blueprint_club            ),
             new IdeaItem("Idea: Coin Chest"         , Cards.blueprint_coinchest       ),
