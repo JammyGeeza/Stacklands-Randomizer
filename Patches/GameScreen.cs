@@ -71,26 +71,26 @@ namespace Stacklands_Randomizer_Mod
         {
             return group.ToLower() switch
             {
-                "starter" => 0,
-                "mainquest" => 1,
-                "forest_mainquest" => 2,
-                "fighting" => 3,
-                "equipment" => 4,
-                "cooking" => 5,
-                "exploration" => 6,
-                "resources" => 7,
-                "building" => 8,
-                "survival" => 9,
-                "other" => 10,
+                "goal" => 0,
+                "starter" => 1,
+                "mainquest" => 2,
+                "forest_mainquest" => 3,
+                "fighting" => 4,
+                "equipment" => 5,
+                "cooking" => 6,
+                "exploration" => 7,
+                "resources" => 8,
+                "building" => 9,
+                "survival" => 10,
+                "other" => 11,
                 // default goes here
-                "equipmentsanity" => 12,
-                "foodsanity" => 13,
-                "locationsanity" => 14,
-                "mobsanity" => 15,
-                //"packsanity" => 11,
-                //"spendsanity" => 11,
-                "structuresanity" => 16,
-                _ => 10
+                "equipmentsanity" => 13,
+                "foodsanity" => 14,
+                "locationsanity" => 15,
+                "mobsanity" => 16,
+                //"spendsanity" => 17,
+                "structuresanity" => 18,
+                _ => 12
             };
         }
 

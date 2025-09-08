@@ -22,6 +22,11 @@ namespace Stacklands_Randomizer_Mod
         public static readonly QuestGroup FoodsanityQuestGroupEnum = EnumHelper.ExtendEnum<QuestGroup>("Foodsanity");
 
         /// <summary>
+        /// Extended enum value for Goal quest group
+        /// </summary>
+        public static readonly QuestGroup GoalQuestGroupEnum = EnumHelper.ExtendEnum<QuestGroup>("Goal");
+
+        /// <summary>
         /// Extended enum value for Mobsanity quest group
         /// </summary>
         public static readonly QuestGroup MobsanityQuestGroupEnum = EnumHelper.ExtendEnum<QuestGroup>("Mobsanity");

@@ -120,6 +120,19 @@ namespace Stacklands_Randomizer_Mod
                     __result[__result.IndexOf(toBeReplaced)] = replacementQuest;
                 }
             }
+
+            // Override quest groups for goal quests (appear at the top to make it clear what the goal is!)
+            foreach (Quest goalQuest in StacklandsRandomizer.instance.Options.GoalQuests)
+            {
+                StacklandsRandomizer.instance.ModLogger.Log("Overriding goal quest groups...");
+
+                // If a quest exists with the same ID as the goal quest...
+                if (__result.SingleOrDefault(q => q.Id == goalQuest.Id) is { } toBeOverridden)
+                {
+                    // Override quest group as 'Goal'
+                    __result[__result.IndexOf(toBeOverridden)].QuestGroup = EnumExtensionHandler.GoalQuestGroupEnum;
+                }
+            }
         }
 
         /// <summary>
