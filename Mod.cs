@@ -359,7 +359,6 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                CardData card = WorldManager.instance.CreateCard(WorldManager.instance.GetRandomSpawnPosition(), Cards.demon);
                 
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
@@ -368,10 +367,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                foreach (Demon demon in WorldManager.instance.GetCards<Demon>())
-                {
-                    demon.Damage(1000);
-                }
+
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
