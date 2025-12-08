@@ -70,7 +70,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch(nameof(WorldManager.CreateCard), [typeof(Vector3), typeof(CardData), typeof(bool), typeof(bool), typeof(bool), typeof(bool)])]
         [HarmonyPrefix]
-        public static void OnCreateCard_Intercept(WorldManager __instance, ref CardData cardDataPrefab)
+        public static void OnCreateCard_Intercept(WorldManager __instance, ref Vector3 position, ref CardData cardDataPrefab)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.CreateCard)} Prefix!");
             StacklandsRandomizer.instance.ModLogger.Log($"Creating Card with ID: {cardDataPrefab.Id}");
@@ -78,6 +78,63 @@ namespace Stacklands_Randomizer_Mod
             if (cardDataPrefab is Equipable equipable && equipable.blueprint != null)
             {
                 equipable.blueprint = null;
+            }
+
+            // Check for red structure
+            if (cardDataPrefab is StrangePortal or PirateBoat)
+            {
+                Bounds boardBounds = WorldManager.instance.CurrentBoard.WorldBounds;
+                float x = 0.0f;
+                float z = 0.0f;
+
+                switch (StacklandsRandomizer.instance.Options.RedStructureSpawn)
+                {
+                    case RedStructureSpawnLocation.TopLeft:
+                        {
+                            x = 0.1f;
+                            z = 0.95f;
+                        }
+                        break;
+
+                    case RedStructureSpawnLocation.TopRight:
+                        {
+                            x = 0.9f;
+                            z = 0.95f;
+                        }
+                        break;
+
+                    case RedStructureSpawnLocation.BottomLeft:
+                        {
+                            x = 0.1f;
+                            z = 0.05f;
+                        }
+                        break;
+
+                    case RedStructureSpawnLocation.BottomRight:
+                        {
+                            x = 0.95f;
+                            z = 0.05f;
+                        }
+                        break;
+
+                    case RedStructureSpawnLocation.Middle:
+                        {
+                            x = 0.5f;
+                            z = 0.5f;
+                        }
+                        break;
+
+                    default:
+                        return;
+                       
+                }
+
+                // Set new spawn position
+                position = new Vector3(
+                    Mathf.Lerp(boardBounds.min.x, boardBounds.max.x, x),
+                    0.0f,
+                    Mathf.Lerp(boardBounds.min.z, boardBounds.max.z, z)
+                );
             }
         }
 

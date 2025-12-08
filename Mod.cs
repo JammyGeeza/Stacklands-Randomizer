@@ -23,7 +23,7 @@ namespace Stacklands_Randomizer_Mod
         #region Private members
 
         // Static Member(s)
-        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.3";
+        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.4";
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
@@ -359,19 +359,15 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                CardData card = WorldManager.instance.CreateCard(WorldManager.instance.GetRandomSpawnPosition(), Cards.demon);
-                
+
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-                
+
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                foreach (Demon demon in WorldManager.instance.GetCards<Demon>())
-                {
-                    demon.Damage(1000);
-                }
+
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
@@ -379,7 +375,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F9))
             {
-                
+
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
