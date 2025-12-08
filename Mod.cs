@@ -23,7 +23,7 @@ namespace Stacklands_Randomizer_Mod
         #region Private members
 
         // Static Member(s)
-        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.2";
+        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.4";
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
@@ -359,7 +359,8 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-
+                CardData card = WorldManager.instance.CreateCard(WorldManager.instance.GetRandomSpawnPosition(), Cards.demon);
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -367,7 +368,10 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-
+                foreach (Demon demon in WorldManager.instance.GetCards<Demon>())
+                {
+                    demon.Damage(1000);
+                }
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
@@ -534,7 +538,7 @@ namespace Stacklands_Randomizer_Mod
             }
 
             // Should we display a notification?
-            if (notify) 
+            if (notify)
             {
                 string title = $"{SokLoc.Translate(QUEST_COMPLETE_LABEL)} ";
                 string message = string.Empty;
@@ -553,23 +557,27 @@ namespace Stacklands_Randomizer_Mod
                         message = $"You sent {location.ItemName} to {location.Player.Name}\n({location.LocationName})";
                     }
                 }
-                // If it wasn't...
                 else
                 {
-                    // Are all goals completed?
+                    message = $"{quest.Description}";
+                }
+
+                // Display the notification for the check/quest
+                DisplayNotification(title, message);
+
+                // Is this a goal quest?
+                if (Options.GoalQuests.Any(gq => gq.Id == quest.Id))
+                {
+                    // Are all goal quests completed?
                     if (CheckGoalCompleted())
                     {
                         title = $"Goal Completed!";
                         message = $"Congratulations, you have completed your goal! Please go to the Mods menu and click 'Send Goal' to complete your run.";
-                    }
-                    else
-                    {
-                        message = $"{quest.Description}";
+
+                        // Display notification for goal complete
+                        DisplayNotification(title, message);
                     }
                 }
-
-                // Display the notification
-                DisplayNotification(title, message);
             }
         }
 
