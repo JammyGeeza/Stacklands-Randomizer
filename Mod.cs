@@ -23,7 +23,7 @@ namespace Stacklands_Randomizer_Mod
         #region Private members
 
         // Static Member(s)
-        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.4";
+        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.3";
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
