@@ -33,7 +33,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Reaching Moons
             new("reach_month_18")                     { OnSpecialAction = (string action) => (action == "month_end" && WorldManager.instance.CurrentMonth >= 18)                            , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Survival      , RequiredCount = 18    , DescriptionTermOverride = "quest_reach_month_text" },
-            new("reach_month_30")                     { OnSpecialAction = (string action) => (action == "month_end" && WorldManager.instance.CurrentMonth >= 30)                            , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Survival      , RequiredCount = 36    , DescriptionTermOverride = "quest_reach_month_text" },
+            new("reach_month_30")                     { OnSpecialAction = (string action) => (action == "month_end" && WorldManager.instance.CurrentMonth >= 30)                            , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Survival      , RequiredCount = 30    , DescriptionTermOverride = "quest_reach_month_text" },
 
             // Villagers
             new("get_5_villagers")                    { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCount<BaseVillager>() == 5                                           , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.MainQuest     , RequiredCount = 5     , DescriptionTermOverride = "quest_get_villagers_text" },
