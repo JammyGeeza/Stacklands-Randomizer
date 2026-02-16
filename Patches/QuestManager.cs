@@ -108,11 +108,11 @@ namespace Stacklands_Randomizer_Mod
                 __result.Remove(AllQuests.PauseGame);
             }
 
+            StacklandsRandomizer.instance.ModLogger.Log("Applying quest overrides...");
+
             // Replace quests that need to be overridden (some quests have strange criteria)
             foreach (Quest replacementQuest in CustomQuestMapping.Override)
             {
-                StacklandsRandomizer.instance.ModLogger.Log("Overriding specific quests...");
-
                 // If a quest exists with the same ID as the replacement...
                 if (__result.SingleOrDefault(q => q.Id == replacementQuest.Id) is { } toBeReplaced)
                 {
@@ -121,11 +121,11 @@ namespace Stacklands_Randomizer_Mod
                 }
             }
 
+            StacklandsRandomizer.instance.ModLogger.Log("Applying goal quest group overrides...");
+
             // Override quest groups for goal quests (appear at the top to make it clear what the goal is!)
             foreach (Quest goalQuest in StacklandsRandomizer.instance.Options.GoalQuests)
             {
-                StacklandsRandomizer.instance.ModLogger.Log("Overriding goal quest groups...");
-
                 // If a quest exists with the same ID as the goal quest...
                 if (__result.SingleOrDefault(q => q.Id == goalQuest.Id) is { } toBeOverridden)
                 {

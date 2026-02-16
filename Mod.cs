@@ -360,7 +360,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
-
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
@@ -461,7 +461,7 @@ namespace Stacklands_Randomizer_Mod
             foreach (string questId in WorldManager.instance.CurrentSave.CompletedAchievementIds)
             {
                 // Get the completed quest
-                Quest quest = QuestManager.GetAllQuests()
+                Quest quest = QuestManager.instance.AllQuests
                     .Find(q => q.Id == questId);
 
                 // Add to queue (do not display notifications)
@@ -476,8 +476,6 @@ namespace Stacklands_Randomizer_Mod
         /// <param name="notify">Whether or not a notification should be displayed.</param>
         public async Task SendCompletedLocation(Quest quest, bool notify = false)
         {
-            ModLogger.Log($"Attempting to send completed location with Desc: '{quest.DescriptionTerm}' and DescOver: '{quest.DescriptionTerm}'");
-
             // Get english description (as these are used in the apworld)
             string description = quest.GetEnglishDescription();
 
@@ -492,13 +490,9 @@ namespace Stacklands_Randomizer_Mod
                 Dictionary<long, ScoutedItemInfo> locations = await _session.Locations.ScoutLocationsAsync(locationId);
 
                 // Check if location has been returned
-                if (locations.TryGetValue(locationId, out location))
+                if (!locations.TryGetValue(locationId, out location))
                 {
-                    ModLogger.Log($"Location Check found with ID: {locationId}");
-                }
-                else
-                {
-                    ModLogger.Log($"Location '{quest.Description}' does not appear to be a location check.");
+                    ModLogger.Log($"Location '{description}' does not appear to be a location check.");
                 }
             }
             catch (Exception ex)
@@ -599,11 +593,11 @@ namespace Stacklands_Randomizer_Mod
         /// <returns></returns>
         public async Task SyncLocations(long[] locationIds, bool isNewRun = false)
         {
-            ModLogger.Log($"{locationIds.Length} locations have been updated. Marking relevant quests as completed...");
+            ModLogger.Log($"{locationIds.Length} checked locations received...");
 
             // Get all completed quests both server-side and client-side.
             Dictionary<long, ScoutedItemInfo> checkedLocations = await _session.Locations.ScoutLocationsAsync(locationIds);
-            List<Quest> missingQuests = QuestManager.GetAllQuests().Where(q => !QuestManager.instance.QuestIsComplete(q)).ToList();
+            List<Quest> missingQuests = QuestManager.instance.AllQuests.Where(q => !QuestManager.instance.QuestIsComplete(q)).ToList();
             foreach (KeyValuePair<long, ScoutedItemInfo> location in checkedLocations)
             {
                 // Find first missing quest where name matches, if exists
@@ -620,14 +614,10 @@ namespace Stacklands_Randomizer_Mod
                         WorldManager.instance.QuestsCompleted++;
                     }
                 }
-                else
-                {
-                    ModLogger.LogWarning($"Quest '{locationName}' has either already been completed or does not exist.");
-                }
             }
 
             // Refresh quest list (but do it on main UI thread to prevent a crash)
-            AddToLocationQueue(QuestManager.instance.UpdateCurrentQuests);
+            AddToLocationQueue(() => QuestManager.instance.UpdateCurrentQuests());
         }
 
         /// <summary>
