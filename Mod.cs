@@ -7,14 +7,10 @@ using Archipelago.MultiClient.Net.Helpers;
 using Archipelago.MultiClient.Net.BounceFeatures.DeathLink;
 using HarmonyLib.Tools;
 using Archipelago.MultiClient.Net.Models;
-using Newtonsoft.Json;
 using System.Collections;
 using UnityEngine.SceneManagement;
-using System.Net.NetworkInformation;
-using TMPro;
-using UnityEngine.UI;
 using Stacklands_Randomizer_Mod.GUI;
-using static UnityEngine.InputSystem.InputRemoting;
+using Stacklands_Randomizer_Mod.Extensions;
 
 namespace Stacklands_Randomizer_Mod
 {
@@ -36,6 +32,7 @@ namespace Stacklands_Randomizer_Mod
         // Queue(s)
         private readonly Queue<Action> _actionQueue = new();
         private readonly Queue<Action> _itemQueue = new();
+        private readonly Queue<Action> _locationQueue = new();
         private readonly Queue<Action> _deathlinkQueue = new();
 
         // Session Data(s)
@@ -379,7 +376,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F10))
             {
-                
+
             }
             else if (InputController.instance.GetKeyDown(Key.F11))
             {
@@ -482,11 +479,7 @@ namespace Stacklands_Randomizer_Mod
             ModLogger.Log($"Attempting to send completed location with Desc: '{quest.DescriptionTerm}' and DescOver: '{quest.DescriptionTerm}'");
 
             // Get english description (as these are used in the apworld)
-            string description = !string.IsNullOrWhiteSpace(quest.DescriptionTermOverride)
-                ? quest.RequiredCount != -1
-                    ? EnglishLocSet.TranslateTerm(quest.DescriptionTermOverride, LocParam.Create("count", quest.RequiredCount.ToString()))
-                    : EnglishLocSet.TranslateTerm(quest.DescriptionTermOverride)
-                : EnglishLocSet.TranslateTerm(quest.DescriptionTerm);
+            string description = quest.GetEnglishDescription();
 
             ModLogger.Log($"Processing completed quest: '{description}' as a location check...");
 
@@ -599,6 +592,54 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="locationIds"></param>
+        /// <param name="isNewRun"></param>
+        /// <returns></returns>
+        public async Task SyncLocations(long[] locationIds, bool isNewRun = false)
+        {
+            ModLogger.Log($"{locationIds.Length} locations have been updated. Marking relevant quests as completed...");
+
+            // Get all completed quests both server-side and client-side.
+            Dictionary<long, ScoutedItemInfo> checkedLocations = await _session.Locations.ScoutLocationsAsync(locationIds);
+            List<Quest> missingQuests = QuestManager.GetAllQuests().Where(q => !QuestManager.instance.QuestIsComplete(q)).ToList();
+            foreach (KeyValuePair<long, ScoutedItemInfo> location in checkedLocations)
+            {
+                // Find first missing quest where name matches, if exists
+                string locationName = location.Value.LocationName;
+                if (missingQuests.FirstOrDefault(q => locationName.Equals(q.GetEnglishDescription(), StringComparison.OrdinalIgnoreCase)) is Quest quest)
+                {
+                    // One final check, just in case
+                    if (!WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(quest.Id))
+                    {
+                        ModLogger.LogWarning($"Marking quest {locationName} as completed...");
+
+                        // Mark quest as completed
+                        WorldManager.instance.CurrentSave.CompletedAchievementIds.Add(quest.Id);
+                        WorldManager.instance.QuestsCompleted++;
+                    }
+                }
+                else
+                {
+                    ModLogger.LogWarning($"Quest '{locationName}' has either already been completed or does not exist.");
+                }
+            }
+
+            // Refresh quest list (but do it on main UI thread to prevent a crash)
+            AddToLocationQueue(QuestManager.instance.UpdateCurrentQuests);
+        }
+
+        /// <summary>
+        /// Sync all checked locations from the server to the client.
+        /// </summary>
+        /// <param name="isNewRun">Whether this sync is for a new run - if so, certain items will be force-spawned.</param>
+        public async Task SyncAllCheckedLocations(bool isNewRun = false)
+        {
+            await SyncLocations(_session.Locations.AllLocationsChecked.ToArray(), isNewRun);
+        }
+
+        /// <summary>
         /// Sync all received items from the server and spawn them if necessary.
         /// </summary>
         /// <param name="isNewRun">Whether this sync is for a new run - if so, certain items will be force-spawned.</param>
@@ -707,6 +748,23 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Triggered when a location is updated remotely.
+        /// </summary>
+        /// <param name="newCheckedLocations">IDs of all locations that have been newly checked.</param>
+        private async void Locations_CheckedLocationsUpdated(System.Collections.ObjectModel.ReadOnlyCollection<long> newCheckedLocations)
+        {
+            ModLogger.Log("Locations_CheckedLocationsUpdated!");
+
+            if (!IsInGame)
+            {
+                ModLogger.Log("Location updates ignored as not currently in-game.");
+                return;
+            }
+
+            await AsyncQueue.Enqueue(() => SyncLocations(newCheckedLocations.ToArray()));
+        }
+
+        /// <summary>
         /// Triggered when the 'Send Goal' button is clicked from the Mods menu.
         /// </summary>
         private void SendGoalButton_Clicked()
@@ -800,6 +858,14 @@ namespace Stacklands_Randomizer_Mod
             lock (_lock)
             {
                 _itemQueue.Enqueue(action);
+            }
+        }
+
+        private void AddToLocationQueue(Action action)
+        {
+            lock (_lock)
+            {
+                _locationQueue.Enqueue(action);
             }
         }
 
@@ -1020,6 +1086,7 @@ namespace Stacklands_Randomizer_Mod
 
                     // Add event handlers
                     _session.Items.ItemReceived += Items_ItemReceived;
+                    _session.Locations.CheckedLocationsUpdated += Locations_CheckedLocationsUpdated;
 
                     try
                     {
@@ -1074,6 +1141,8 @@ namespace Stacklands_Randomizer_Mod
             return (success, reason);
         }
 
+        
+
         /// <summary>
         /// Provess all remaining items in all queues.
         /// </summary>
@@ -1083,6 +1152,11 @@ namespace Stacklands_Randomizer_Mod
             while (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
+            }
+
+            while (_locationQueue.TryDequeue(out Action location))
+            {
+                location.Invoke();
             }
 
             // Handle all remaining deaths in queue
@@ -1107,6 +1181,12 @@ namespace Stacklands_Randomizer_Mod
             if (_itemQueue.TryDequeue(out Action item))
             {
                 item.Invoke();
+            }
+
+            // Handle next location in queue
+            if (_locationQueue.TryDequeue(out Action location))
+            {
+                location.Invoke();
             }
 
             // Handle next death in queue

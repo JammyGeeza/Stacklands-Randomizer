@@ -286,6 +286,7 @@ namespace Stacklands_Randomizer_Mod
 
             // Send all currently completed locations
             await StacklandsRandomizer.instance.SendAllCompletedLocations();
+            await StacklandsRandomizer.instance.SyncAllCheckedLocations();
 
             // Re-sync all received items
             StacklandsRandomizer.instance.SyncAllReceivedItems(_isNewRun);
@@ -304,8 +305,12 @@ namespace Stacklands_Randomizer_Mod
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(WorldManager)}.{nameof(WorldManager.QuestCompleted)} Prefix!");
             StacklandsRandomizer.instance.ModLogger.Log($"Quest completed: {quest.Id}.");
 
-            // Queue sending completed quest as location check
-            await AsyncQueue.Enqueue(() => StacklandsRandomizer.instance.SendCompletedLocation(quest, true));
+            // Check if quest has not already been completed
+            if (!QuestManager.instance.QuestIsComplete(quest))
+            {
+                // Queue sending completed quest as location check
+                await AsyncQueue.Enqueue(() => StacklandsRandomizer.instance.SendCompletedLocation(quest, true));
+            }
         }
 
         /// <summary>
