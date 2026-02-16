@@ -586,11 +586,9 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
-        /// 
+        /// Sync a list of checked locations from the server with the client.
         /// </summary>
-        /// <param name="locationIds"></param>
-        /// <param name="isNewRun"></param>
-        /// <returns></returns>
+        /// <param name="locationIds">List of location IDs to sync.</param>
         public async Task SyncLocations(long[] locationIds, bool isNewRun = false)
         {
             ModLogger.Log($"{locationIds.Length} checked locations received...");
