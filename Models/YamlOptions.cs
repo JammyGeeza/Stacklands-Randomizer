@@ -21,6 +21,7 @@ namespace Stacklands_Randomizer_Mod
         private static readonly string TAG_MOON_LENGTH = "moon_length";
         //private static readonly string TAG_PACKSANITY = "packsanity";
         private static readonly string TAG_PAUSE_ENABLED = "pausing";
+        private static readonly string TAG_RED_STRUCTURE_SPAWN = "red_structure_spawn";
         private static readonly string TAG_SELL_CARD_AMOUNT = "sell_card_trap_amount";
         private static readonly string TAG_SPENDSANITY = "spendsanity";
         private static readonly string TAG_SPENDSANITY_COST = "spendsanity_cost";
@@ -109,6 +110,11 @@ namespace Stacklands_Randomizer_Mod
         ///// </summary>
         //public QuestCheckFlags QuestChecks { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the location that red structures will spawn.
+        /// </summary>
+        public RedStructureSpawnLocation RedStructureSpawn { get; private set; }
+        
         /// <summary>
         /// Gets or sets the amount of cards to be sold in a 'Sell Cards Trap' for this run.
         /// </summary>
@@ -251,6 +257,12 @@ namespace Stacklands_Randomizer_Mod
             //    : QuestCheckFlags.Mainland; // Default to Mainland if not found
 
             //StacklandsRandomizer.instance.ModLogger.Log($"Quest Checks value for this run: {QuestChecks}");
+
+            RedStructureSpawn = slotData.TryGetValue(TAG_RED_STRUCTURE_SPAWN, out object redStructureSpawn)
+                ? (RedStructureSpawnLocation)Convert.ToInt32(redStructureSpawn)
+                : RedStructureSpawnLocation.Vanilla;
+
+            StacklandsRandomizer.instance.ModLogger.Log($"Red Structure Spawn location for this run: {RedStructureSpawn}");
 
             SellCardTrapAmount = slotData.TryGetValue(TAG_SELL_CARD_AMOUNT, out object sellCardAmount)
                 ? Convert.ToInt32(sellCardAmount)
