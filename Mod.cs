@@ -356,7 +356,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
