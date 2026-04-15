@@ -47,6 +47,9 @@ namespace Stacklands_Randomizer_Mod
             new("have_10_planks")                     { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCountWithChest(Cards.plank) == 10                                    , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Resources     , RequiredCount = 10 },
             new("have_10_sticks")                     { OnCardCreate = (CardData card) => WorldManager.instance.GetCardCountWithChest(Cards.stick) == 10                                    , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.Resources     , RequiredCount = 10 },
 
+            // Misc
+            new("research_university")                { OnActionComplete = (CardData card, string action) => card.Id == Cards.university && action == "give_invention"                      , PossibleInPeacefulMode = true     , QuestGroup = QuestGroup.MainQuest     , DescriptionTermOverride = "quest_research_university_text" },
+
             #endregion
 
             #region Equipmentsanity

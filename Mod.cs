@@ -19,12 +19,9 @@ namespace Stacklands_Randomizer_Mod
         #region Private members
 
         // Static Member(s)
-        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.4";
+        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.5";
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
-
-        // Slot Data Tags
-        private static readonly string TAG_DEATHLINK = "death_link";
 
         public static StacklandsRandomizer instance;
         public ModLogger ModLogger => this.Logger;
@@ -135,6 +132,14 @@ namespace Stacklands_Randomizer_Mod
             IsConnected
                 ? instance._session.RoomState.Seed
                 : string.Empty;
+
+        /// <summary>
+        /// Get the current player's slot number.
+        /// </summary>
+        public int Slot =>
+            IsConnected
+                ? instance._session.Players.ActivePlayer.Slot
+                : -1;
 
         #endregion
 
@@ -356,7 +361,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                
+
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -364,7 +369,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
