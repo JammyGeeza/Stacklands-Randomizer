@@ -19,7 +19,7 @@ namespace Stacklands_Randomizer_Mod
         #region Private members
 
         // Static Member(s)
-        private static readonly string EXPECTED_APWORLD_VERSION = "0.2.5";
+        private static readonly string[] EXPECTED_APWORLD_VERSIONS = ["0.2.5"];
         private static readonly string GAME_NAME = "Stacklands";
         private static readonly string QUEST_COMPLETE_LABEL = "label_quest_completed";
 
@@ -361,7 +361,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-
+                
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -457,22 +457,7 @@ namespace Stacklands_Randomizer_Mod
             }
         }
 
-        /// <summary>
-        /// Send all completed locations to the server.
-        /// </summary>
-        public async Task SendAllCompletedLocations()
-        {
-            // Get all completed quests 
-            foreach (string questId in WorldManager.instance.CurrentSave.CompletedAchievementIds)
-            {
-                // Get the completed quest
-                Quest quest = QuestManager.instance.AllQuests
-                    .Find(q => q.Id == questId);
-
-                // Add to queue (do not display notifications)
-                await AsyncQueue.Enqueue(() => SendCompletedLocation(quest));
-            }
-        }
+        
 
         /// <summary>
         /// Send a completed quest to the archipelago server as a checked location.
@@ -591,36 +576,83 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Send all completed locations to the server.
+        /// </summary>
+        public async Task SyncAllCompletedQuests()
+        {
+            await SyncQuests(QuestManager.instance.AllQuests.Where(q => WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(q.Id)).ToList());
+        }
+
+        public async Task SyncQuests(List<Quest> quests, bool isNewRun = false)
+        {
+            ModLogger.Log($"Syncing {quests.Count} quests with locations...");
+
+            // Get quest names
+            List<string> questNames = quests
+                .Select(q => q.GetEnglishDescription())
+                .ToList();
+
+            // Get location IDs
+            List<long> uncheckedLocations = _session.Locations.AllLocations
+                .Where(l => questNames.Contains(_session.Locations.GetLocationNameFromId(l), StringComparer.OrdinalIgnoreCase))
+                .ToList();
+
+            ModLogger.Log($"Total quests with un-checked locations: {uncheckedLocations.Count}");
+
+            // Short pause
+            await Task.Delay(100);
+
+            // Send un-checked locations for completion
+            _session.Locations.CompleteLocationChecks(uncheckedLocations.ToArray());
+        }
+
+        /// <summary>
         /// Sync a list of checked locations from the server with the client.
         /// </summary>
         /// <param name="locationIds">List of location IDs to sync.</param>
         public async Task SyncLocations(long[] locationIds, bool isNewRun = false)
         {
-            ModLogger.Log($"{locationIds.Length} checked locations received...");
+            ModLogger.Log($"Syncing {locationIds.Length} locations with quests...");
 
-            // Get all completed quests both server-side and client-side.
-            Dictionary<long, ScoutedItemInfo> checkedLocations = await _session.Locations.ScoutLocationsAsync(locationIds);
-            List<Quest> missingQuests = QuestManager.instance.AllQuests.Where(q => !QuestManager.instance.QuestIsComplete(q)).ToList();
-            foreach (KeyValuePair<long, ScoutedItemInfo> location in checkedLocations)
+            // Get location names
+            List<string> locationNames = _session.Locations.AllLocations
+                .Where(l => locationIds.Contains(l))
+                .Select(l => _session.Locations.GetLocationNameFromId(l))
+                .ToList();
+
+            // Get quests where location is checked but quest is not completed
+            List<Quest> uncheckedQuests = QuestManager.instance.AllQuests
+                .Where(q => locationNames.Contains(q.GetEnglishDescription(), StringComparer.OrdinalIgnoreCase) && !QuestManager.instance.QuestIsComplete(q))
+                .ToList();
+
+            ModLogger.Log($"Total locations with incomplete quests: {uncheckedQuests.Count}");
+
+            foreach (Quest questToComplete in uncheckedQuests)
             {
-                // Find first missing quest where name matches, if exists
-                string locationName = location.Value.LocationName;
-                if (missingQuests.FirstOrDefault(q => locationName.Equals(q.GetEnglishDescription(), StringComparison.OrdinalIgnoreCase)) is Quest quest)
+                // One final check, just in case
+                if (!WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(questToComplete.Id))
                 {
-                    // One final check, just in case
-                    if (!WorldManager.instance.CurrentSave.CompletedAchievementIds.Contains(quest.Id))
-                    {
-                        ModLogger.LogWarning($"Marking quest {locationName} as completed...");
+                    ModLogger.LogWarning($"Auto-marking quest '{questToComplete.GetEnglishDescription()}' as completed");
 
-                        // Mark quest as completed
-                        WorldManager.instance.CurrentSave.CompletedAchievementIds.Add(quest.Id);
-                        WorldManager.instance.QuestsCompleted++;
-                    }
+                    // Mark quest as complete (without triggering quest completion, as not required)
+                    WorldManager.instance.CurrentSave.CompletedAchievementIds.Add(questToComplete.Id);
+                    WorldManager.instance.QuestsCompleted++;
                 }
             }
 
+            // Brief pause
+            await Task.Delay(100);
+
             // Refresh quest list (but do it on main UI thread to prevent a crash)
             AddToLocationQueue(() => QuestManager.instance.UpdateCurrentQuests());
+        }
+
+        public async Task SyncAll(bool isNewRun = false)
+        {
+            await SyncAllCompletedQuests();
+            await SyncAllCheckedLocations();
+
+            SyncAllReceivedItems(isNewRun);
         }
 
         /// <summary>
@@ -888,8 +920,8 @@ namespace Stacklands_Randomizer_Mod
                     Options = new YamlOptions(_slotData);
 
                     // Set return variables
-                    success = EXPECTED_APWORLD_VERSION.Equals(Options.Version);
-                    reason = success ? string.Empty : $".apworld version {Options.Version} does not match expected version '{EXPECTED_APWORLD_VERSION}'";
+                    success = EXPECTED_APWORLD_VERSIONS.Contains(Options.Version);
+                    reason = success ? string.Empty : $".apworld version {Options.Version} does not match expected version(s) '{string.Join(", ", EXPECTED_APWORLD_VERSIONS)}'";
                 }
                 else
                 {
