@@ -108,7 +108,7 @@
     <Folder Include="Icons\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Archipelago.MultiClient.Net" Version="6.6.1" />
+    <PackageReference Include="Archipelago.MultiClient.Net" Version="6.7.1" />
   </ItemGroup>
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
 	    <Exec Command="set target=&quot;$(USERPROFILE)\AppData\LocalLow\sokpop\Stacklands\Mods\$(TargetName)&quot;&#xD;&#xA;&#xD;&#xA;XCOPY &quot;$(TargetDir)&quot; &quot;%25target%25&quot; /S /I /Y" />
