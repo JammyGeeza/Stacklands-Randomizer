@@ -127,7 +127,7 @@ namespace Stacklands_Randomizer_Mod
 
         private static readonly string PREFIX_SAVE = "ap_";
 
-        private static string SaveId => $"{PREFIX_SAVE}{StacklandsRandomizer.instance.Seed}";
+        private static string SaveId => $"{PREFIX_SAVE}{StacklandsRandomizer.instance.Seed}_{StacklandsRandomizer.instance.Slot}";
 
         /// <summary>
         /// Check if a list contains all items in another list.

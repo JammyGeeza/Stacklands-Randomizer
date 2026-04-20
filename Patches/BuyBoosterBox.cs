@@ -31,6 +31,37 @@ namespace Stacklands_Randomizer_Mod
         }
 
         /// <summary>
+        /// Prevent locked booster packs from displaying 'Complete X quests to unlock' when hovered.
+        /// </summary>
+        [HarmonyPatch("GetTooltipText")]
+        [HarmonyPrefix]
+        public static bool OnGetTooltipText_Postfix(BuyBoosterBox __instance, ref string __result)
+        {
+            if (__instance.Booster.IsUnlocked)
+            {
+                string value = Icons.Gold;
+                if (__instance.BoardCurrency == BoardCurrency.Shell)
+                {
+                    value = Icons.Shell;
+                }
+                else if (__instance.BoardCurrency == BoardCurrency.Dollar)
+                {
+                    value = Icons.Dollar;
+                }
+
+                __result = SokLoc.Translate("label_drag_coins_to_buy_pack", LocParam.Create("goldicon", value), LocParam.Create("cost", __instance.GetCost().ToString())) + "\n\n" + __instance.Booster.GetSummary();
+            }
+            else
+            {
+                // Get booster pack item name
+                string itemName = ItemMapping.Map.FirstOrDefault(itm => itm.ItemId == __instance.BoosterId).Name;
+                __result = SokLoc.Translate("label_receive_item_for_pack", LocParam.Create("item", itemName));
+            }
+
+            return false;
+        }
+
+        /// <summary>
         /// Intercept mod booster boxes from dispensing packs.
         /// </summary>
         [HarmonyPatch("CreateBoosterPack")]

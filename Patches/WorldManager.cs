@@ -284,12 +284,8 @@ namespace Stacklands_Randomizer_Mod
                 __instance.CurrentSave.FoundBoosterIds.Add("combat_intro");
             }
 
-            // Send all currently completed locations
-            await StacklandsRandomizer.instance.SendAllCompletedLocations();
-            await StacklandsRandomizer.instance.SyncAllCheckedLocations();
-
-            // Re-sync all received items
-            StacklandsRandomizer.instance.SyncAllReceivedItems(_isNewRun);
+            // Sync all completed Quests, Locations and received Items
+            await StacklandsRandomizer.instance.SyncAll(_isNewRun);
 
             // Reset value
             _isNewRun = false;
