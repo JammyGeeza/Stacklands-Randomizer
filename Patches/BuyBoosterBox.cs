@@ -30,6 +30,9 @@ namespace Stacklands_Randomizer_Mod
             return true;
         }
 
+        /// <summary>
+        /// Prevent locked booster packs from displaying 'Complete X quests to unlock' when hovered.
+        /// </summary>
         [HarmonyPatch("GetTooltipText")]
         [HarmonyPrefix]
         public static bool OnGetTooltipText_Postfix(BuyBoosterBox __instance, ref string __result)
