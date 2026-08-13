@@ -16,7 +16,7 @@ namespace Stacklands_Randomizer_Mod
         /// </summary>
         [HarmonyPatch("DetermineCurrentSave")]
         [HarmonyPostfix]
-        public static void OnDetemineCurrentSave_ReplaceWithArchipelagoSave(SaveManager __instance, ref SaveGame __result)
+        public static void OnDetermineCurrentSave_ReplaceWithArchipelagoSave(SaveManager __instance, ref SaveGame __result)
         {
             StacklandsRandomizer.instance.ModLogger.Log($"{nameof(SaveManager)}.DetermineCurrentSave Postfix!");
             StacklandsRandomizer.instance.ModLogger.Log($"Determined save ID: {__result.SaveId}");
