@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using UnityEngine;
+using static UnityEngine.InputSystem.InputRemoting;
 
 namespace Stacklands_Randomizer_Mod
 {
@@ -181,9 +182,42 @@ namespace Stacklands_Randomizer_Mod
                     StacklandsRandomizer.instance.ModLogger.Log($"Intercepting '{action}' - not yet received all island packs.");
                     return false;
                 }
+
+                
             }
 
             return true;
+        }
+
+        [HarmonyPatch(nameof(QuestManager.SpecialActionComplete))]
+        [HarmonyPostfix]
+        public static void OnSpecialActionComplete_Postfix(string action, CardData card = null)
+        {
+            if (action != "pause_game")
+            {
+                StacklandsRandomizer.instance.ModLogger.Log($"{nameof(QuestManager)}.{nameof(QuestManager.SpecialActionComplete)} Postfix!");
+                StacklandsRandomizer.instance.ModLogger.Log($"CardData: {card?.Name}");
+                StacklandsRandomizer.instance.ModLogger.Log($"Special Action: {action}");
+
+                // If the action is for a goal quest, store it as "actually" completed
+                // (Because quests are marked as completed when collected, we want to make sure the goal condition isn't triggered early)
+                if (StacklandsRandomizer.instance.Options.GoalQuests.FirstOrDefault(gq => gq.OnSpecialAction(action)) is Quest goalQuest)
+                {
+                    StacklandsRandomizer.instance.ModLogger.Log($"Goal quest '{goalQuest.Id}' has been triggered");
+
+                    // Append quest to completed goal quests
+                    KeyValueHelper.AppendCompletedGoalQuest(goalQuest.Id);
+
+                    // Check goal condition
+                    if (StacklandsRandomizer.instance.CheckGoalCompleted())
+                    {
+                        // Display notification for goal complete
+                        StacklandsRandomizer.instance.DisplayNotification(
+                            $"Goal Completed!",
+                            $"Congratulations, you have completed your goal! Please go to the Mods menu and click 'Send Goal' to complete your run.");
+                    }
+                }
+            }
         }
     }
 }

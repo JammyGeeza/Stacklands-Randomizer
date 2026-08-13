@@ -361,7 +361,7 @@ namespace Stacklands_Randomizer_Mod
             // Test triggers for use during development
             if (InputController.instance.GetKeyDown(Key.F5))
             {
-                
+
             }
             else if (InputController.instance.GetKeyDown(Key.F6))
             {
@@ -369,7 +369,7 @@ namespace Stacklands_Randomizer_Mod
             }
             else if (InputController.instance.GetKeyDown(Key.F7))
             {
-                
+
             }
             else if (InputController.instance.GetKeyDown(Key.F8))
             {
@@ -538,19 +538,19 @@ namespace Stacklands_Randomizer_Mod
                 // Display the notification for the check/quest
                 DisplayNotification(title, message);
 
-                // Is this a goal quest?
-                if (Options.GoalQuests.Any(gq => gq.Id == quest.Id))
-                {
-                    // Are all goal quests completed?
-                    if (CheckGoalCompleted())
-                    {
-                        title = $"Goal Completed!";
-                        message = $"Congratulations, you have completed your goal! Please go to the Mods menu and click 'Send Goal' to complete your run.";
+                //// Is this a goal quest?
+                //if (Options.GoalQuests.Any(gq => gq.Id == quest.Id))
+                //{
+                //    // Are all goal quests completed?
+                //    if (CheckGoalCompleted())
+                //    {
+                //        title = $"Goal Completed!";
+                //        message = $"Congratulations, you have completed your goal! Please go to the Mods menu and click 'Send Goal' to complete your run.";
 
-                        // Display notification for goal complete
-                        DisplayNotification(title, message);
-                    }
-                }
+                //        // Display notification for goal complete
+                //        DisplayNotification(title, message);
+                //    }
+                //}
             }
         }
 
@@ -940,9 +940,10 @@ namespace Stacklands_Randomizer_Mod
         /// Check if the goal has been completed.
         /// </summary>
         /// <returns>True if completed, false if not.</returns>
-        private bool CheckGoalCompleted()
+        public bool CheckGoalCompleted()
         {
-            return Options.GoalQuests.All(gq => QuestManager.instance.QuestIsComplete(gq));
+            List<string> completedGoalQuests = KeyValueHelper.GetCompletedGoalQuests();
+            return Options.GoalQuests.All(gq => completedGoalQuests.Contains(gq.Id));
         }
         
 
