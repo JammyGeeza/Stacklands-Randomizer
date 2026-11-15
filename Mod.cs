@@ -1154,8 +1154,17 @@ namespace Stacklands_Randomizer_Mod
                 }
                 else
                 {
-                    reason = "Login attempt was unsuccessful.";
-                    ModLogger.LogError(result.ToString());
+                    if (result is LoginFailure failure)
+                    {
+                        string errors = string.Join(", ", failure.Errors);
+                        reason = errors;
+                        ModLogger.LogError($"{result}: {errors}");
+                    }
+                    else
+                    {
+                        reason = $"Received an unknown failure result: {result}";
+                        ModLogger.LogError($"{result}: Received an unknown failure result");
+                    }
                 }
             }
             catch (Exception ex)
